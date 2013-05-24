@@ -1,0 +1,15 @@
+- link mesh creation to body creation.
+- seperate physics logic into new file
+- add rk4 integration method
+- ability to serialize and save/load state 
+- GUI 
+- STAR TRAILS
+- shader effects
+- energy vizulization
+- numerical easing
+- move to THREE's partical system?
+- extend Vector3's syntax to be more natural?
+- profile/optimize the code?
+	- impliment parts in asm.js?
+- astronomical orbit visualizations?
+- impliment something from http://suki.ipb.ac.rs/3body/ ??? 
