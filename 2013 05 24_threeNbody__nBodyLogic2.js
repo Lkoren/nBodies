@@ -1,5 +1,5 @@
-var nb = new Nbody();
-//var numBodies = 8;
+var numBodies = 3;
+
 function Body() {
 	this.mass = 1.0;
 	this.pos = new THREE.Vector3(0,0,0);
@@ -119,49 +119,25 @@ Nbody.prototype.e_tot = function() {
 	return (this.ekin() + this.epot());
 }
 
-nb_init();	
-function nb_init() {
-	nb.bodies[0].pos.x = 0.9700436;
-	nb.bodies[0].pos.y = -0.24308753;
-	nb.bodies[0].pos.z = 0.0;
-	nb.bodies[0].vel.x = 0.466203685;
-	nb.bodies[0].vel.y = 0.43236573;
-	nb.bodies[0].vel.z = 0.0;
 
-	nb.bodies[1].pos.x = -0.9700436;
-	nb.bodies[1].pos.y = 0.24308753;
-	nb.bodies[1].pos.z = 0.0;
-	nb.bodies[1].vel.x = 0.466203685;
-	nb.bodies[1].vel.y = 0.43236573;
-	nb.bodies[1].vel.z = 0.0;
+var initNbody = function(numBodies) {
+	console.log("init", numBodies)
+	//var numBodies = 3;
+	var bodies = []
+	var initNbody = {
+		numBodies: numBodies,
+		bodiesArray: bodies,
+	}
+	for (var i=0; i < numBodies; i++) {		
+		bodies[i] = new Body();
+		bodies[i].pos = new THREE.Vector3(10-Math.random()*5, 10-Math.random()*5, 10-Math.random()*5),
+		bodies[i].vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5),
+		bodies[i].mass = 50.0;
+	}
+		console.log("hi!");
 
-	nb.bodies[2].pos.x = 0.0;
-	nb.bodies[2].pos.y = 0.0;
-	nb.bodies[2].pos.z = 0.0;
-	nb.bodies[2].vel.x = -0.93240737;
-	nb.bodies[2].vel.y = -0.86473146;
-	nb.bodies[2].vel.z = 0.0;				
-/*								
-	nb.bodies[0].pos.x = 0.5;
-	nb.bodies[0].pos.y = 0.0;
-	nb.bodies[0].pos.z = 0.0;
-	nb.bodies[0].vel.x = 0.0;
-	nb.bodies[0].vel.y = 0.22360679774997896964; //test3.in setting
-	//nb.bodies[0].vel.y = 0.5; //test5.in
-	nb.bodies[0].vel.z = 0.0;
-	
-	nb.bodies[1].pos.x = -0.5;
-	nb.bodies[1].pos.y = 0.0;
-	nb.bodies[1].pos.z = 0.0;
-	nb.bodies[1].vel.x = 0.0;
-	nb.bodies[1].vel.y = -0.22360679774997896964; //test3.in setting
-	//nb.bodies[1].vel.y = -0.5; //test5.in
-	nb.bodies[1].vel.z = 0.0;
-	//nb.e0 = nb.e_tot();
-	//nb.e_init();
-	//nb.simple_print();
-	//nb.nextStep({});
-	//nb.simple_print();
-	//return nb;
-	*/
+	return initNbody;
 }
+
+var nb = new Nbody();
+nb.bodies = initNbody(numBodies).bodiesArray;

@@ -10,7 +10,7 @@ function init() {
 	controls = new THREE.OrbitControls( camera );
 	controls.addEventListener( 'change', render );
 	scene = new THREE.Scene();
-	starGeom = new THREE.TetrahedronGeometry(0.1,0);			
+	starGeom = new THREE.TetrahedronGeometry(0.2,0);			
 	var starMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
 	starMesh = new THREE.Mesh(starGeom, starMaterial);
 	starMesh2 = new THREE.Mesh(starGeom, starMaterial);
@@ -54,4 +54,3 @@ function render() {
 	}
 	renderer.render( scene, camera );
 }
-				
