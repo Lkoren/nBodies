@@ -3,6 +3,7 @@ Basic dev:
 - link mesh creation to body creation.
 - ability to serialize and save/load state 
 - encapsulate render and physics logic in functions.
+- add random rotation to each body
 
 Phyics:
 - add rk4 integration method

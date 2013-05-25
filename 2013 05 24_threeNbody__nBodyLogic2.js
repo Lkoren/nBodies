@@ -118,11 +118,8 @@ Nbody.prototype.e_init = function() {
 Nbody.prototype.e_tot = function() {
 	return (this.ekin() + this.epot());
 }
-
-
 var initNbody = function(numBodies) {
 	console.log("init", numBodies)
-	//var numBodies = 3;
 	var bodies = []
 	var initNbody = {
 		numBodies: numBodies,
@@ -130,7 +127,7 @@ var initNbody = function(numBodies) {
 	}
 	for (var i=0; i < numBodies; i++) {		
 		bodies[i] = new Body();
-		bodies[i].pos = new THREE.Vector3(10-Math.random()*5, 10-Math.random()*5, 10-Math.random()*5),
+		bodies[i].pos = new THREE.Vector3(3-Math.random()*5, 3-Math.random()*5, 3-Math.random()*5),
 		bodies[i].vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5),
 		bodies[i].mass = 50.0;
 	}
