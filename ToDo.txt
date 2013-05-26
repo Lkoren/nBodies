@@ -1,6 +1,5 @@
 
 Basic dev:
-- link mesh creation to body creation.
 - ability to serialize and save/load state 
 - encapsulate render and physics logic in functions.
 - add random rotation to each body
@@ -31,7 +30,6 @@ Advanced dev:
 done!
 - migrate to GIT
 - seperate physics logic into new file
+- link mesh creation to body creation.
 
-change log:
-24 may:
-encapsulate all scripts in functions.
+

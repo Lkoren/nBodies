@@ -1,9 +1,11 @@
 var numBodies = 3;
+var trailLength = 500;
 
 function Body() {
-	this.mass = 1.0;
+	this.mass = 1.0;	
 	this.pos = new THREE.Vector3(0,0,0);
-	this.vel = new THREE.Vector3(0,0,0);
+	this.vel = new THREE.Vector3(0,0,0);	
+	this.trail = new Queue();
 }
 Body.prototype.accel = function(body_array) { // return the accel vector on a body, produced by all other bodies.
 	a = new THREE.Vector3(0,0,0);
@@ -44,11 +46,21 @@ Body.prototype.bodyCalc = function(body) {
 	console.log("hello from body calc!")
 	console.log("body: ", bodies);
 }		
+Body.prototype.updateTrail = function() {
+	if (this.trail.getLength() < trailLength) {
+		var tempPos = new THREE.Vector3();
+		tempPos.copy(this.pos);
+		console.log("current queue is: ", this.trail.getQueue());
+		console.log("queuing :", tempPos);
+		this.trail.enqueue(tempPos);
+		console.log("new queue is: ", this.trail.getQueue());
+	}
+}
 /////////////////
 function Nbody() {
-	var numBodies = 3;
+	//var numBodies = 3;
 	this.e0 = 0.0;
-	this.dt = 0.01;
+	this.dt = 0.005;
 	this.dt_end = 10.0;
 	this.nSteps = 0;
 	this.bodies = new Array(numBodies);
@@ -77,7 +89,8 @@ Nbody.prototype.leapfrog = function() { ////////////////////////////////////LEAP
 		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));	
 		tempVel.copy(body.vel);
 		body.pos.add(tempVel.multiplyScalar(dt));
-		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));
+		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));		
+		body.updateTrail();		
 	})
 }
 Nbody.prototype.integrate = function() {
@@ -129,7 +142,8 @@ var initNbody = function(numBodies) {
 		bodies[i] = new Body();
 		bodies[i].pos = new THREE.Vector3(3-Math.random()*5, 3-Math.random()*5, 3-Math.random()*5),
 		bodies[i].vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5),
-		bodies[i].mass = 50.0;
+		bodies[i].mass = 20.0;
+		bodies[i].updateTrail();
 	}
 		console.log("hi!");
 
@@ -138,3 +152,4 @@ var initNbody = function(numBodies) {
 
 var nb = new Nbody();
 nb.bodies = initNbody(numBodies).bodiesArray;
+nb.e_init();
