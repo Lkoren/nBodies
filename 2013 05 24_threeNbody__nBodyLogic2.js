@@ -42,23 +42,15 @@ Body.prototype.to_s = function() {
 	console.log("Pos = ", this.pos);
 	console.log("Vel = ", this.vel);
 }	
-Body.prototype.bodyCalc = function(body) {
-	console.log("hello from body calc!")
-	console.log("body: ", bodies);
-}		
 Body.prototype.updateTrail = function() {
 	if (this.trail.getLength() < trailLength) {
 		var tempPos = new THREE.Vector3();
 		tempPos.copy(this.pos);
-		console.log("current queue is: ", this.trail.getQueue());
-		console.log("queuing :", tempPos);
 		this.trail.enqueue(tempPos);
-		console.log("new queue is: ", this.trail.getQueue());
 	}
 }
 /////////////////
 function Nbody() {
-	//var numBodies = 3;
 	this.e0 = 0.0;
 	this.dt = 0.005;
 	this.dt_end = 10.0;
@@ -73,7 +65,6 @@ function Nbody() {
 	this.bodies[2].pos = new THREE.Vector3(0,0,0);
 }
 Nbody.prototype.nextStep = function(params) { //ToDo: have dt, dt_end, and integration method as params	
-	//console.log("dt = ", this.dt, " nSteps = ", this.nSteps, " time = ", this.time)			;
 	this.dt = params.dt || this.dt;
 	this.dt_end = params.dt_end || this.dt_end;				
 	var t_end = this.dt_end - 0.5*this.dt;
@@ -132,7 +123,7 @@ Nbody.prototype.e_tot = function() {
 	return (this.ekin() + this.epot());
 }
 var initNbody = function(numBodies) {
-	console.log("init", numBodies)
+	console.log("initializing with ", numBodies, " bodies.")
 	var bodies = []
 	var initNbody = {
 		numBodies: numBodies,
@@ -145,8 +136,8 @@ var initNbody = function(numBodies) {
 		bodies[i].mass = 20.0;
 		bodies[i].updateTrail();
 	}
-		console.log("hi!");
-
+		console.log("Initalization done.");
+		console.log("===================");
 	return initNbody;
 }
 

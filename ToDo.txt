@@ -10,7 +10,9 @@ Phyics:
 
 UI/UX:
 - GUI 
+	-get a better camera
 - STAR TRAILS
+	-fix real-time render issue	
 - shader effects
 - energy vizulization
 - web app on GAE, Heroku, other?

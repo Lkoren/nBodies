@@ -50,6 +50,7 @@ function animate() {
 function render() {		
 	try {
 		nb.leapfrog();
+		
 		for (var i = 0; i < numBodies; i++) {
 			starMeshes[i].position = nb.bodies[i].pos;			
 		}
