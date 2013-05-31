@@ -43,7 +43,7 @@ Body.prototype.to_s = function() {
 	console.log("Vel = ", this.vel);
 }	
 Body.prototype.updateTrail = function() {
-	if (this.trail.getLength() < trailLength) {
+	if (this.trail.getLength() < trailLength) {		
 		var tempPos = new THREE.Vector3();
 		tempPos.copy(this.pos);
 		this.trail.enqueue(tempPos);
