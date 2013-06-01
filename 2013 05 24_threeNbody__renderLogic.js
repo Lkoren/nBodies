@@ -60,20 +60,21 @@ function render() {
 		nb.leapfrog();
 		for (var i = 0; i < numBodies; i++) {
 			starMeshes[i].position = nb.bodies[i].pos;		
-		}		
-		for (var j = 0; j < numBodies; j++){						
-			//for (var k = 0; k < trailLength; k++) {	
-			var trailLen = nb.bodies[j].trail.getLength();				
-			for (var k =0; k < trailLen; k++) {
-				var tempPos = new THREE.Vector3();
-				tempPos.copy(nb.bodies[j].trail.get(k));
-				console.log("j = ", j , " k= ", k);
-				starTrailsArray[j][k].position = tempPos;								
+			var trailLen = nb.bodies[i].trail.getLength();	
+			if (trailLen < trailLength) {
+				for (var k =0; k < trailLen; k++) {
+					var tempPos = new THREE.Vector3();
+					tempPos.copy(nb.bodies[i].trail.get(k));
+					starTrailsArray[i][k].position = tempPos;						
+				}
+			console.log("body ", i, " trail array: ", nb.bodies[i].trail.getQueue());
+			}//if trailLen <...
+			else {
+
 			}
-		}
+		}	
 	}
 	catch(e) {
 	}
-	console.log("j = ", j , " k= ", k);
 	renderer.render(scene, camera);
 }

@@ -1,5 +1,5 @@
 var numBodies = 3;
-var trailLength = 500;
+var trailLength = 10;
 
 function Body() {
 	this.mass = 1.0;	
@@ -43,9 +43,12 @@ Body.prototype.to_s = function() {
 	console.log("Vel = ", this.vel);
 }	
 Body.prototype.updateTrail = function() {
+	var tempPos = new THREE.Vector3();
+	tempPos.copy(this.pos);
 	if (this.trail.getLength() < trailLength) {		
-		var tempPos = new THREE.Vector3();
-		tempPos.copy(this.pos);
+		this.trail.enqueue(tempPos);
+	} else {
+		this.trail.dequeue();
 		this.trail.enqueue(tempPos);
 	}
 }
