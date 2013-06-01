@@ -1,7 +1,7 @@
-var nb = {};
-
-nb.numBodies = 3;
-nb.trailLength = 10;
+var nb = {
+	numBodies: 3,
+	trailLength: 1500,
+};
 
 nb.Body = function() {	
 	this.mass = 20.0;
@@ -9,7 +9,7 @@ nb.Body = function() {
 	this.trail = new Queue(); 
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);
-	scene.add(starMesh);
+	scene.add(this.starMesh);
 }
 nb.Body.prototype.starGeom = new THREE.TetrahedronGeometry(0.2,0);
 nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
@@ -32,8 +32,8 @@ nb.Body.prototype.accel = function(body_array) {
 	for (var i = 0; i < body_array.length; i++) {					
 		if (!(body_array[i] === this)) { //refactor internal to something less ugly. PS -- I miss you "unless"! Love you!
 			var r = new THREE.Vector3(0,0,0); 
-			r.copy(body_array[i].pos);
-			r.sub(this.pos); //get the distance between bodies.
+			r.copy(body_array[i].pos());
+			r.sub(this.pos()); //get the distance between bodies.
 			var r2 = r.dot(r);
 			var r3 = r2*Math.sqrt(r2);						
 			a.add(r.multiplyScalar(body_array[i].mass/r3)); //toDo: create copy method for body
@@ -50,8 +50,8 @@ nb.Body.prototype.epot = function(body_array){
 		body = body_array[i]; 					
 		if (!(body === this)) {
 			var r = new THREE.Vector3(0,0,0); 
-			r.copy(body.pos);
-			r.sub(this.pos); //get the distance between bodies.
+			r.copy(body.pos());
+			r.sub(this.pos()); //get the distance between bodies.
 			ep += -1*body.mass*this.mass/Math.sqrt(r.dot(r));
 		}
 	}
@@ -59,17 +59,99 @@ nb.Body.prototype.epot = function(body_array){
 }
 nb.Body.prototype.updateTrail = function() {
 	var tempPos = new THREE.Vector3();
-	tempPos.copy(this.pos);
-	if (this.trail.getLength() < trailLength) {		
-		this.trail.enqueue(tempPos);
-	} else {
-		this.trail.dequeue();
-		this.trail.enqueue(tempPos);
+	tempPos.copy(this.pos());
+	if (this.trail.getLength() < nb.trailLength) {
+		t = new THREE.Mesh(this.starTrailGeom, this.starTrailMaterial);		
+		scene.add(t);
+		t.position.copy(this.pos());
+		this.trail.enqueue(t);
+	} 
+	else {		
+		t = this.trail.dequeue();
+		t.position.copy(this.pos());
+		this.trail.enqueue(t);
 	}
+}
+nb.Body.prototype.getTrail = function(){
+	return this.trail.getQueue()
+}
+nb.Body.prototype.to_s = function() {
+	console.log("Mass = ", this.mass);
+	console.log("Pos = ", this.pos());
+	console.log("Vel = ", this.vel);
+	console.log("ekin = ", this.ekin());
+	console.log("epot = ", this.epot(n.bodies));  //is there a more general way to get this reference?
+	console.log("eTot = ", this.ekin() + this.epot(n.bodies));
+	console.log("=======") 
+}	
+/////////////////////////
+nb.nBodies = function() {
+	this.e0;
+	this.dt = 0.005;
+	this.nSteps = 0;
+	this.bodies = new Array(nb.numBodies);
+	for (var i = 0; i < nb.numBodies; i++) {
+		this.bodies[i] = new nb.Body();
+	}
+	this.time = 0;
+}
+//LEAPFROG integrator///////////////////////
+nb.nBodies.prototype.leapfrog = function() { 
+	var dt = this.dt;
+	var bodyArr = this.bodies; //get all the bodies								
+	this.bodies.forEach(function(body) {	
+	//for (var i = 0; i < nb.numBodies; i++) {
+		var tempVel = new THREE.Vector3(0,0,0);
+	//	body = this.bodies[i];
+		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));	
+		tempVel.copy(body.vel);
+		body.pos().add(tempVel.multiplyScalar(dt));
+		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));		
+		body.updateTrail();		
+	})
+	//}
+} 
+nb.nBodies.prototype.integrate = function(){
+	this.leapfrog();
+}
+nb.nBodies.prototype.simple_print = function() {
+	str = ["Total bodies: ", nb.numBodies, "\n", 
+			"dt: ", this.dt, "\n", 
+			"at time: ", this.time, "after ", this.nSteps, "steps: \n"].join(" ");
+	console.log(str);
+	this.bodies.forEach(function(body) {
+		body.to_s();
+	})
+	nrg = ["Total energy stats:", "\n",
+			"kin energy = ", this.ekin(), "\n",
+			"pot energy = ", this.epot(), "\n",
+			"total energy = ", this.e_tot(), "\n",
+			"(e_init - e_fin)/e_init: ", (this.e0 - this.e_tot())/this.e0].join(" ");
+	console.log(nrg);
+}
+nb.nBodies.prototype.ekin = function() {
+	ek = 0.0;
+	this.bodies.forEach(function(body){
+		ek += body.ekin();
+	})
+	return ek;
+}	
+nb.nBodies.prototype.epot = function() {
+	ep = 0.0;
+	var bodyArr = this.bodies;
+	this.bodies.forEach(function(body) {
+		ep += body.epot(bodyArr);
+	})
+	return ep/2;
+}
+nb.nBodies.prototype.e_init = function() {
+	return this.e0 = this.ekin() + this.epot();
+}
+nb.nBodies.prototype.e_tot = function() {
+	return (this.ekin() + this.epot());
 }
 
 /////////////////////
-
 var container;
 var camera, controls, scene, renderer;	
 var starMeshes = [];
@@ -85,28 +167,6 @@ function initCamScene() {
 	controls = new THREE.OrbitControls( camera );
 	controls.addEventListener( 'change', render );
 	scene = new THREE.Scene();
-}
-function initGeom() {	
-	var starGeom = new THREE.TetrahedronGeometry(0.2,0);			
-	var starMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
-	var starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
-	var starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
-	
-	/**
-	var starTrailMaterial = []
-	starTrailMaterial[0] = new THREE.MeshBasicMaterial({color:0xff0000, wireframe:true});
-	starTrailMaterial[1] = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
-	starTrailMaterial[2] = new THREE.MeshBasicMaterial({color:0x0000ff, wireframe:true});
-	**/
-	for (var i = 0; i < numBodies; i++) {
-		starMeshes[i] = new THREE.Mesh(starGeom, starMaterial);
-		scene.add(starMeshes[i]);
-		starTrailsArray[i] = new Array(trailLength);
-		for (var j = 0; j < trailLength; j++) {
-			starTrailsArray[i][j] = new THREE.Mesh(starTrailGeom, starTrailMaterial);
-			scene.add(starTrailsArray[i][j]);
-		}
-	}
 }
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: false } );
@@ -128,27 +188,12 @@ function animate() {
 }		
 				
 function render() {		
-/*
 	try {
-		nb.leapfrog();
-		for (var i = 0; i < numBodies; i++) {
-			starMeshes[i].position = nb.bodies[i].pos;		
-			var trailLen = nb.bodies[i].trail.getLength();	
-			if (trailLen < trailLength) {
-				for (var k =0; k < trailLen; k++) {
-					var tempPos = new THREE.Vector3();
-					tempPos.copy(nb.bodies[i].trail.get(k));
-					starTrailsArray[i][k].position = tempPos;						
-				}
-			console.log("body ", i, " trail array: ", nb.bodies[i].trail.getQueue());
-			}//if trailLen <...
-			else {
-				starTrailsArray[i][9].copy
-			}
-		}	
+		n.integrate();			
 	}
 	catch(e) {
-	}
-	*/
+	}	
 	renderer.render(scene, camera);
 }
+
+var n = new nb.nBodies;
