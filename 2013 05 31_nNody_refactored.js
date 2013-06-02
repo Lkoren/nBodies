@@ -1,8 +1,7 @@
 var nb = {
-	numBodies: 3,
-	trailLength: 1500,
+	numBodies: 4,
+	trailLength: 500,
 };
-
 nb.Body = function() {	
 	this.mass = 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
@@ -154,11 +153,8 @@ nb.nBodies.prototype.e_tot = function() {
 /////////////////////
 var container;
 var camera, controls, scene, renderer;	
-var starMeshes = [];
-//var starTrailsArray = []; //master array that holds numBodies sub-arrays. 
-
+//var starMeshes = [];
 initCamScene();
-//initGeom();
 initRenderer();
 animate();
 function initCamScene() {
@@ -185,8 +181,7 @@ function animate() {
 	requestAnimationFrame( animate );
 	controls.update();	
 	render();
-}		
-				
+}					
 function render() {		
 	try {
 		n.integrate();			

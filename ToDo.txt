@@ -3,6 +3,7 @@ Basic dev:
 - ability to serialize and save/load state 
 - encapsulate render and physics logic in functions.
 - add random rotation to each body
+- improve trail logic
 
 Phyics:
 - add rk4 integration method
@@ -11,8 +12,6 @@ Phyics:
 UI/UX:
 - GUI 
 	-get a better camera
-- STAR TRAILS
-	-fix real-time render issue	
 - shader effects
 - energy vizulization
 - web app on GAE, Heroku, other?
@@ -33,5 +32,5 @@ done!
 - migrate to GIT
 - seperate physics logic into new file
 - link mesh creation to body creation.
-
-
+- - STAR TRAILS
+	-fix real-time render issue	
