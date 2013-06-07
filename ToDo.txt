@@ -1,4 +1,18 @@
 
+
+- picking code for bodies + widgets for position/velocity setting
+- camera controls:
+	- set target
+	- follow system centre of mass
+	- resize frustum based on system setup
+
+-change trails over to particle system
+
+
+
+
+
+
 Basic dev:
 - ability to serialize and save/load state 
 - encapsulate render and physics logic in functions.

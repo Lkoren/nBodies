@@ -1,0 +1,43 @@
+n.simple_print()
+Total bodies:  3 
+ dt:  0.005 
+ at time:  0 after  0 steps: 
+ 2013%2005%2031_nNody_refactored.js:121
+Mass =  20 2013%2005%2031_nNody_refactored.js:79
+Pos =  
+THREE.Vector3 {x: 82.70554340414503, y: -2.286482544101964, z: 59.64847951363028, constructor: function, set: function…}
+ 2013%2005%2031_nNody_refactored.js:80
+Vel =  
+THREE.Vector3 {x: 1.0746044906685288, y: -0.8426038817460189, z: 1.4537987265792875, constructor: function, set: function…}
+ 2013%2005%2031_nNody_refactored.js:81
+ekin =  39.782868503019856 2013%2005%2031_nNody_refactored.js:82
+epot =  -98.43803680802591 2013%2005%2031_nNody_refactored.js:83
+eTot =  -58.65516830500606 2013%2005%2031_nNody_refactored.js:84
+======= 2013%2005%2031_nNody_refactored.js:85
+Mass =  20 2013%2005%2031_nNody_refactored.js:79
+Pos =  
+THREE.Vector3 {x: 83.7772745344868, y: -6.129562695905707, z: 56.839630532396995, constructor: function, set: function…}
+ 2013%2005%2031_nNody_refactored.js:80
+Vel =  
+THREE.Vector3 {x: 1.319080058605082, y: 0.9598601002754424, z: 0.7020223920007763, constructor: function, set: function…}
+ 2013%2005%2031_nNody_refactored.js:81
+ekin =  31.5413905198086 2013%2005%2031_nNody_refactored.js:82
+epot =  -99.15867385546736 2013%2005%2031_nNody_refactored.js:83
+eTot =  -67.61728333565875 2013%2005%2031_nNody_refactored.js:84
+======= 2013%2005%2031_nNody_refactored.js:85
+Mass =  20 2013%2005%2031_nNody_refactored.js:79
+Pos =  
+THREE.Vector3 {x: 105.51078735011889, y: -9.012655199167613, z: 64.67932051768254, constructor: function, set: function…}
+ 2013%2005%2031_nNody_refactored.js:80
+Vel =  
+THREE.Vector3 {x: 2.1496715867723433, y: -0.4586182059501794, z: 0.8661996746613156, constructor: function, set: function…}
+ 2013%2005%2031_nNody_refactored.js:81
+ekin =  55.817204661886535 2013%2005%2031_nNody_refactored.js:82
+epot =  -33.63854817834297 2013%2005%2031_nNody_refactored.js:83
+eTot =  22.178656483543563 2013%2005%2031_nNody_refactored.js:84
+======= 2013%2005%2031_nNody_refactored.js:85
+Total energy stats: 
+ kin energy =  127.14146368471499 
+ pot energy =  -115.61762942091812 
+ total energy =  11.523834263796871 
+ (e_init - e_fin)/e_init:  -0.00012105441027990079 
