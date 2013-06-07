@@ -1,6 +1,6 @@
 var nb = {
 	numBodies: 4,
-	trailLength: 500,
+	trailLength: 300,
 };
 nb.Body = function() {	
 	this.mass = 20.0;
@@ -97,23 +97,18 @@ nb.nBodies = function() {
 	this.time = 0;
 	this.go = false;	
 }
-
-
 //LEAPFROG integrator///////////////////////
 nb.nBodies.prototype.leapfrog = function() { 
 	var dt = this.dt;
 	var bodyArr = this.bodies; //get all the bodies								
 	this.bodies.forEach(function(body) {	
-	//for (var i = 0; i < nb.numBodies; i++) {
 		var tempVel = new THREE.Vector3(0,0,0);
-	//	body = this.bodies[i];
 		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));	
 		tempVel.copy(body.vel);
 		body.pos().add(tempVel.multiplyScalar(dt));
 		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));		
 		body.updateTrail();		
 	})
-	//}
 } 
 nb.nBodies.prototype.integrate = function(){
 	if (this.go){
@@ -125,11 +120,6 @@ nb.nBodies.prototype.stop_go = function(){
 	this.go = !this.go;
 	return this
 }
-/*
-nb.nBodies.prototype.reverse = function() {
-	this.dt *= -1;
-	return this
-}*/
 nb.nBodies.prototype.simple_print = function() {
 	str = ["Total bodies: ", nb.numBodies, "\n", 
 			"dt: ", this.dt, "\n", 
@@ -170,19 +160,17 @@ nb.nBodies.prototype.set_trailLength = function(x) {
 	nb.trailLength = x;
 	return this
 }
-nb.nBodies.prototype.change_num_stars = function(x) {	//ugly nuckle of code. Refactor. 
-	if (x) {
+nb.nBodies.prototype.change_num_stars = function(x) {	//kind of ugly, refactor
+	if (x > 0) {
 		if (x > this.bodies.length) {
-			var i;
-			for (i = 0; i < (x - this.bodies.length); i++) {
-				this.bodies[this.bodies.length] = new nb.Body();					
+			for (var i = 0; i < (x - this.bodies.length); i++) {
+				this.addStar();
 			}
 			return this
 		} else if ( this.bodies.length > x) {
 			var i;
 			for (i = 0; i < (this.bodies.length - x); i++) {
-				scene.remove(this.bodies[this.bodies.length-1].starMesh);
-				this.bodies.pop();
+				this.deleteStar();
 			}
 			return this
 		}
@@ -194,7 +182,18 @@ nb.nBodies.prototype.addStar = function() {
 	this.numBodies++;
 	return this 
 }
-nb.nBodies.prototype.deleteStar = function(star) {	
+nb.nBodies.prototype.deleteStar = function(star) {		
+	index = this.bodies.length-1;
+	if (this.bodies.length > 0) {
+		scene.remove(this.bodies[index].starMesh);
+		var len = this.bodies[index].trail.getLength();
+		for (var i = 0; i < len; i++) {			
+			scene.remove(this.bodies[index].trail.dequeue());
+		}
+		this.bodies.pop();
+		this.numBodies--;
+	}
+	return this
 }
 
 
@@ -202,7 +201,6 @@ nb.nBodies.prototype.deleteStar = function(star) {
 /////////////////////
 var container;
 var camera, controls, scene, renderer;	
-//var starMeshes = [];
 initCamScene();
 initRenderer();
 animate();
@@ -244,11 +242,10 @@ var n = new nb.nBodies;
 
 window.onload = function() {
 	var gui = new dat.GUI();
-	gui.add(n, "numBodies", 2, 100).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
+	gui.add(n, "numBodies", 2, 100).min(0).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
 	//gui.add(n, "set_trailLength", 0, 5000).name("Trail length");
 	gui.add(n, "stop_go").name("Play/Pause");
 	gui.add(n, "reverse").onChange(function() {n.dt *= -1;}).name("Reverse time");
 	gui.add(n, "addStar").name("Add another star");
 	gui.add(n, "deleteStar").name("Remove a star");
-
 }
