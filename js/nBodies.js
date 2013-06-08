@@ -196,12 +196,3 @@ nb.nBodies.prototype.deleteStar = function(star) {
 }
 var n = new nb.nBodies;
 
-window.onload = function() {
-	var gui = new dat.GUI();
-	gui.add(n, "numBodies", 2, 100).min(0).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
-	//gui.add(n, "set_trailLength", 0, 5000).name("Trail length");
-	gui.add(n, "stop_go").name("Play/Pause");
-	gui.add(n, "reverse").onChange(function() {n.dt *= -1;}).name("Reverse time");
-	gui.add(n, "addStar").name("Add another star");
-	gui.add(n, "deleteStar").name("Remove a star");
-}
