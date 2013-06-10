@@ -9,6 +9,8 @@ function initCamScene() {
 	controls = new THREE.OrbitControls( camera );
 	controls.addEventListener( 'change', render );
 	scene = new THREE.Scene();
+	scene.fog = new THREE.FogExp2( 0x000000, 0.0007 );
+
 }
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: false } );
@@ -36,4 +38,25 @@ function render() {
 	}	
 	renderer.render(scene, camera);
 }
+
+////Picking
+document.addEventListener('mousedown', onDocMouseClick, false);
+var projector = new THREE.Projector();	
+
+function onDocMouseClick(event) {
+
+	event.preventDefault();
+	var mouse = new THREE.Vector3();
+	mouse.x = (event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = -(event.clientY / window.innerHeight ) * 2 + 1;
+	mouse.z = 0.5;
+	var raycaster = projector.pickingRay(mouse.clone(), camera);
+	var intersects = [];
+	intersects = raycaster.intersectObject([mesh]);
+
+	console.log(intersects);
+
+
+}
+
 

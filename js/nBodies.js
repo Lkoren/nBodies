@@ -7,12 +7,16 @@ nb.Body = function() {
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.trail = new Queue(); 
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
+	//this.starMesh = new THREE.Particle(this.star_particle_mat);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);
 	scene.add(this.starMesh);
 }
 nb.Body.prototype.starGeom = new THREE.TetrahedronGeometry(0.2,0);
 nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
 nb.Body.prototype.starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
+
+nb.Body.prototype.star_particle_mat = new THREE.ParticleBasicMaterial({size: 5});
+
 nb.Body.prototype.starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
 nb.Body.prototype.setPos = function(v){
 	if (v instanceof THREE.Vector3) {

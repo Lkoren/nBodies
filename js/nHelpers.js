@@ -12,19 +12,20 @@ var projector = new THREE.Projector();
 
 function onDocMouseClick(event) {
 
-
-	var vector = new THREE.Vector3();
-	/*
-	vector.x = 2 * (event.clientX / container.clientWidth ) - 1;
-	vector.y = 1 - 2 * (event.clientY / container.clientHeight);
-	*/
-	vector.x = (event.clientX / window.innerWidth ) * 2 - 1;
-	vector.y = -(event.clientY / window.innerHeight ) * 2 + 1;
-	var raycaster = projector.pickingRay(vector.clone(), camera);
-	intersects = [];
+	event.preventDefault();
+	var mouse = new THREE.Vector3();
+	mouse.x = (event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = -(event.clientY / window.innerHeight ) * 2 + 1;
+	mouse.z = 0.5;
+	var raycaster = projector.pickingRay(mouse.clone(), camera);
+	intersects = [];	
 	n.bodies.forEach(function(body) { 
+
 		intersects.push(raycaster.intersectObject(body.starMesh));
 	});
+
+
+
 	console.log(intersects);
 /*
 	projector.unprojectVector( vector, camera );
