@@ -10,13 +10,8 @@ nb.Body = function() {
 	var starMaterial = new THREE.MeshBasicMaterial({color:0x000000});
 	this.starMesh = new THREE.Mesh(starGeom, starMaterial);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);
-
 	scene.add(this.starMesh);
 }
-
-nb.Body.prototype.starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
-//nb.Body.prototype.star_particle_mat = new THREE.ParticleBasicMaterial({size: 5});
-//nb.Body.prototype.starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
 nb.Body.prototype.setPos = function(v){
 	if (v instanceof THREE.Vector3) {
 		this.starMesh.position = v;
@@ -62,16 +57,12 @@ nb.Body.prototype.epot = function(body_array){
 nb.Body.prototype.updateTrail = function() {
 	var starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
 	var starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
-
 	if (this.trail.getLength() < nb.trailLength) {
 		t = new THREE.Mesh(starTrailGeom, starTrailMaterial);		
 		scene.add(t);
-	// t.position.copy(this.pos());
-	//	this.trail.enqueue(t);
 	} 
 	else {		
 		t = this.trail.dequeue();
-
 	}
 	t.position.copy(this.pos());
 	this.trail.enqueue(t);	
