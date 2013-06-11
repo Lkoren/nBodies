@@ -1,17 +1,25 @@
 var nb = {
 	numBodies: 4,
-	trailLength: 300,
+	trailLength: 3000,
 };
 nb.Body = function() {	
 	this.mass = 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
-	this.trail = new Queue(); 
 	var starGeom = new THREE.SphereGeometry(0.2, 32, 24);
 	var starMaterial = new THREE.MeshBasicMaterial({color:0x000000});
 	this.starMesh = new THREE.Mesh(starGeom, starMaterial);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);
+	
+	var trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x050505});
+	var trail_geom = new THREE.Geometry();	
+	trail_geom.vertices.push(new THREE.Vector3(0,0,0));	
+	this.trail = new THREE.ParticleSystem(trail_geom, trail_material); 
+
+	this.initTrail();
 	scene.add(this.starMesh);
+	scene.add(this.trail);
 }
+
 nb.Body.prototype.setPos = function(v){
 	if (v instanceof THREE.Vector3) {
 		this.starMesh.position = v;
@@ -55,20 +63,18 @@ nb.Body.prototype.epot = function(body_array){
 	return ep;
 }
 nb.Body.prototype.updateTrail = function() {
-	var starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
-	var starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
-	if (this.trail.getLength() < nb.trailLength) {
-		t = new THREE.Mesh(starTrailGeom, starTrailMaterial);		
-		scene.add(t);
-	} 
-	else {		
-		t = this.trail.dequeue();
+	var t = this.trail;
+	if (t.geometry.vertices.length > nb.trailLength) {
+		t.geometry.vertices.shift();
 	}
-	t.position.copy(this.pos());
-	this.trail.enqueue(t);	
+	t.geometry.vertices[t.geometry.vertices.length] = new THREE.Vector3().copy(this.pos());
+	t.geometry.verticesNeedUpdate = true;
 }
-nb.Body.prototype.getTrail = function(){
-	return this.trail.getQueue()
+nb.Body.prototype.initTrail = function() {
+	var t = this.trail.geometry.vertices;
+	for (var i = 0; i < nb.trailLength; i++) {
+		t.push(new THREE.Vector3(0,0,0));
+	}
 }
 nb.Body.prototype.to_s = function() {
 	console.log("Mass = ", this.mass);

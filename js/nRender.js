@@ -32,7 +32,12 @@ function animate() {
 }					
 function render() {		
 	try {
-		n.integrate();			
+		n.integrate();		
+		/*
+		n.bodies.forEach(function(b) {
+			//b.trail.geometry.verticesNeedUpdate = true;
+		})
+*/
 	}
 	catch(e) {
 	}	
