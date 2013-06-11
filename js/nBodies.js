@@ -9,17 +9,14 @@ nb.Body = function() {
 	var starGeom = new THREE.SphereGeometry(0.2, 32, 24);
 	var starMaterial = new THREE.MeshBasicMaterial({color:0x000000});
 	this.starMesh = new THREE.Mesh(starGeom, starMaterial);
-	//this.starMesh = new THREE.Particle(this.star_particle_mat);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);
+
 	scene.add(this.starMesh);
 }
-//nb.Body.prototype.starGeom = new THREE.TetrahedronGeometry(0.2,0);
-//nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
+
 nb.Body.prototype.starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
-
-nb.Body.prototype.star_particle_mat = new THREE.ParticleBasicMaterial({size: 5});
-
-nb.Body.prototype.starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
+//nb.Body.prototype.star_particle_mat = new THREE.ParticleBasicMaterial({size: 5});
+//nb.Body.prototype.starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
 nb.Body.prototype.setPos = function(v){
 	if (v instanceof THREE.Vector3) {
 		this.starMesh.position = v;
@@ -63,19 +60,21 @@ nb.Body.prototype.epot = function(body_array){
 	return ep;
 }
 nb.Body.prototype.updateTrail = function() {
-	var tempPos = new THREE.Vector3();
-	tempPos.copy(this.pos());
+	var starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
+	var starTrailMaterial = new THREE.MeshBasicMaterial({color:0xaaff33, wireframe:true});
+
 	if (this.trail.getLength() < nb.trailLength) {
-		t = new THREE.Mesh(this.starTrailGeom, this.starTrailMaterial);		
+		t = new THREE.Mesh(starTrailGeom, starTrailMaterial);		
 		scene.add(t);
-		t.position.copy(this.pos());
-		this.trail.enqueue(t);
+	// t.position.copy(this.pos());
+	//	this.trail.enqueue(t);
 	} 
 	else {		
 		t = this.trail.dequeue();
-		t.position.copy(this.pos());
-		this.trail.enqueue(t);
+
 	}
+	t.position.copy(this.pos());
+	this.trail.enqueue(t);	
 }
 nb.Body.prototype.getTrail = function(){
 	return this.trail.getQueue()
