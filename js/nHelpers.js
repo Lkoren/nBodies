@@ -79,3 +79,10 @@ window.onload = function() {
 	gui.add(n, "addStar").name("Add another star");
 	gui.add(n, "deleteStar").name("Remove a star");
 }
+
+////stats
+var stats;
+stats = new Stats();
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.top = '0px';
+container.appendChild( stats.domElement );

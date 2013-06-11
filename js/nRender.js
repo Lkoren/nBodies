@@ -29,6 +29,7 @@ function animate() {
 	requestAnimationFrame( animate );
 	controls.update();	
 	render();
+	stats.update();
 }					
 function render() {		
 	try {

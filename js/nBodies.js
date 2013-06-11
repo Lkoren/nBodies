@@ -1,25 +1,21 @@
 var nb = {
-	numBodies: 4,
-	trailLength: 3000,
+	numBodies: 3,
+	trailLength: 5000,
 };
 nb.Body = function() {	
 	this.mass = 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	var starGeom = new THREE.SphereGeometry(0.2, 32, 24);
-	var starMaterial = new THREE.MeshBasicMaterial({color:0x000000});
+	var starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
 	this.starMesh = new THREE.Mesh(starGeom, starMaterial);
-	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);
-	
-	var trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x050505});
+	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);	
+	var trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
 	var trail_geom = new THREE.Geometry();	
-	trail_geom.vertices.push(new THREE.Vector3(0,0,0));	
 	this.trail = new THREE.ParticleSystem(trail_geom, trail_material); 
-
 	this.initTrail();
 	scene.add(this.starMesh);
 	scene.add(this.trail);
 }
-
 nb.Body.prototype.setPos = function(v){
 	if (v instanceof THREE.Vector3) {
 		this.starMesh.position = v;
@@ -73,7 +69,7 @@ nb.Body.prototype.updateTrail = function() {
 nb.Body.prototype.initTrail = function() {
 	var t = this.trail.geometry.vertices;
 	for (var i = 0; i < nb.trailLength; i++) {
-		t.push(new THREE.Vector3(0,0,0));
+		t.push(new THREE.Vector3(1000,1000,1000)); //better fix for this? 
 	}
 }
 nb.Body.prototype.to_s = function() {
@@ -187,10 +183,7 @@ nb.nBodies.prototype.deleteStar = function(star) {
 	index = this.bodies.length-1;
 	if (this.bodies.length > 0) {
 		scene.remove(this.bodies[index].starMesh);
-		var len = this.bodies[index].trail.getLength();
-		for (var i = 0; i < len; i++) {			
-			scene.remove(this.bodies[index].trail.dequeue());
-		}
+		scene.remove(this.bodies[index].trail);
 		this.bodies.pop();
 		this.numBodies--;
 	}
