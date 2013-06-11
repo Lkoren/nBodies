@@ -6,13 +6,15 @@ nb.Body = function() {
 	this.mass = 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.trail = new Queue(); 
-	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
+	var starGeom = new THREE.SphereGeometry(0.2, 32, 24);
+	var starMaterial = new THREE.MeshBasicMaterial({color:0x000000});
+	this.starMesh = new THREE.Mesh(starGeom, starMaterial);
 	//this.starMesh = new THREE.Particle(this.star_particle_mat);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);
 	scene.add(this.starMesh);
 }
-nb.Body.prototype.starGeom = new THREE.TetrahedronGeometry(0.2,0);
-nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
+//nb.Body.prototype.starGeom = new THREE.TetrahedronGeometry(0.2,0);
+//nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
 nb.Body.prototype.starTrailGeom = new THREE.TetrahedronGeometry(0.05, 0);
 
 nb.Body.prototype.star_particle_mat = new THREE.ParticleBasicMaterial({size: 5});

@@ -7,9 +7,10 @@ priv: mouse vector -> projector.unproject( m, cam), intersects, var projector, r
 return intersects array.
 */
 ////Picking
-document.addEventListener('mousedown', onDocMouseClick, false);
+//document.addEventListener('mousedown', onDocMouseClick, false);
 var projector = new THREE.Projector();	
 
+/*
 function onDocMouseClick(event) {
 
 	event.preventDefault();
@@ -26,7 +27,6 @@ function onDocMouseClick(event) {
 
 
 
-	console.log(intersects);
 /*
 	projector.unprojectVector( vector, camera );
 	intersects = [];
@@ -61,10 +61,10 @@ function onDocMouseClick(event) {
 
 
 	}());
-*/
+
 }
 
-
+*/
 
 
 
