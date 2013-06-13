@@ -2,20 +2,29 @@ var nb = {
 	numBodies: 3,
 	trailLength: 5000,
 };
+
 nb.Body = function() {	
 	this.mass = 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
-	var starGeom = new THREE.SphereGeometry(0.2, 32, 24);
-	var starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
-	this.starMesh = new THREE.Mesh(starGeom, starMaterial);
-	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);	
-	var trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
+	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
+	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
-	this.trail = new THREE.ParticleSystem(trail_geom, trail_material); 
+	this.trail = new THREE.ParticleSystem(trail_geom, this.trail_material); 
 	this.initTrail();
+	this.init_vel_arrow();
+	this.pick_box = new THREE.Mesh(this.pick_box_geom, this.pick_box_mat);	
+	this.pick_box.position = this.pos();
 	scene.add(this.starMesh);
 	scene.add(this.trail);
+	scene.add(this.pick_box);	
+	this.pick_box.visible = false;
+	//this.show_vel = false;
 }
+nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.2, 32, 24);
+nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
+nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
+nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
+nb.Body.prototype.pick_box_mat = new THREE.MeshBasicMaterial({color:0x801010, wireframe:true});
 nb.Body.prototype.setPos = function(v){
 	if (v instanceof THREE.Vector3) {
 		this.starMesh.position = v;
@@ -72,6 +81,29 @@ nb.Body.prototype.initTrail = function() {
 		t.push(new THREE.Vector3(1000,1000,1000)); //better fix for this? 
 	}
 }
+nb.Body.prototype.vel_arrow_mat = new THREE.LineBasicMaterial({color:0x301010});
+//nb.Body.prototype.vel_arrow_geom = new THREE.Geometry();
+nb.Body.prototype.init_vel_arrow = function(){
+	this.vel_arrow_geom = new THREE.Geometry();
+	this.vel_arrow = new THREE.Line(this.vel_arrow_geom, this.vel_arrow_mat);
+	this.vel_arrow.geometry.vertices[0] = new THREE.Vector3().copy(this.pos());
+	this.vel_arrow.geometry.vertices[1] = new THREE.Vector3().copy(this.pos()).add(this.vel);
+	scene.add(this.vel_arrow);
+	this.vel_arrow.visible = false;
+};
+nb.Body.prototype.toggle_velocity = function() {
+	this.vel_arrow.visible = !this.vel_arrow.visible;
+	console.log(this.starMesh.id);
+/*	
+	if(this.show_vel) {			
+		this.vel_arrow.visible = true;
+	}else {
+//		scene.remove(this.vel_arrow);
+		this.vel_arrow.visible = false;
+	}
+	*/
+	return this;
+};
 nb.Body.prototype.to_s = function() {
 	console.log("Mass = ", this.mass);
 	console.log("Pos = ", this.pos());
@@ -81,6 +113,7 @@ nb.Body.prototype.to_s = function() {
 	console.log("eTot = ", this.ekin() + this.epot(n.bodies));
 	console.log("=======") 
 }	
+
 /////////////////////////
 nb.nBodies = function() {
 	this.e0;

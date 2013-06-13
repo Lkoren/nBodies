@@ -28,17 +28,12 @@ function onWindowResize() {
 function animate() {
 	requestAnimationFrame( animate );
 	controls.update();	
-	render();
 	stats.update();
+	render();	
 }					
 function render() {		
 	try {
 		n.integrate();		
-		/*
-		n.bodies.forEach(function(b) {
-			//b.trail.geometry.verticesNeedUpdate = true;
-		})
-*/
 	}
 	catch(e) {
 	}	

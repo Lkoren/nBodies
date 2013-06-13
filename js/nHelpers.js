@@ -1,18 +1,14 @@
 ////Misc helper code
 
-
 /*
 public: 
 priv: mouse vector -> projector.unproject( m, cam), intersects, var projector, raycaster, 
 return intersects array.
 */
 ////Picking
-//document.addEventListener('mousedown', onDocMouseClick, false);
+document.addEventListener('mousedown', onDocMouseClick, false);
 var projector = new THREE.Projector();	
-
-/*
 function onDocMouseClick(event) {
-
 	event.preventDefault();
 	var mouse = new THREE.Vector3();
 	mouse.x = (event.clientX / window.innerWidth ) * 2 - 1;
@@ -20,55 +16,15 @@ function onDocMouseClick(event) {
 	mouse.z = 0.5;
 	var raycaster = projector.pickingRay(mouse.clone(), camera);
 	intersects = [];	
-	n.bodies.forEach(function(body) { 
-
-		intersects.push(raycaster.intersectObject(body.starMesh));
+	n.bodies.some(function(body) {
+		raycaster.intersectObject(body.pick_box);
+		intersect = raycaster.intersectObject(body.pick_box);	
+		if (intersect[0]) {
+			intersect[0].object.visible = !intersect[0].object.visible;		
+			body.toggle_velocity();
+		}
 	});
-
-
-
-/*
-	projector.unprojectVector( vector, camera );
-	intersects = [];
-	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
-	n.bodies.forEach(function(body) { 
-		console.log(raycaster.intersectObjects(body.starMesh));	
-		intersects.push(raycaster.intersectObjects(body.starMesh));
-	});	
-	console.log(intersects);
-*/
-/*
-	e.preventDefault();
-		var m_vec = new THREE.Vector3(
-					 2*(e.clientX / window.innerWidth ) - 1, 
-					-2*(e.clientY / window.innerHeight ) + 1, 0.5 );
-		projector.unprojectVector( m_vec, camera );
-		var raycaster = new THREE.Raycaster(camera.position, 
-						m_vec.sub(camera.position).normalize());
-		console.log(raycaster.intersectObjects(n.bodies));
-		return raycaster.intersectObjects(n.bodies);
-*/
-	/*
-	var picking = (function(e) {
-		var m_vec = new THREE.Vector3(
-					 2*(e.clientX / window.innerWidth ) - 1, 
-					-2*(e.clientY / window.innerHeight ) + 1, 0.5 );
-		projector.unprojectVector( m_vec, camera );
-		var raycaster = new THREE.Raycaster(camera.position, 
-						m_vec.sub(camera.position).normalize());
-		alert(raycaster.intersectObjects(n.bodies));
-		return raycaster.intersectObjects(n.bodies);
-
-
-	}());
-
 }
-
-*/
-
-
-
-
 ////Gui
 window.onload = function() {
 	var gui = new dat.GUI();
@@ -79,10 +35,10 @@ window.onload = function() {
 	gui.add(n, "addStar").name("Add another star");
 	gui.add(n, "deleteStar").name("Remove a star");
 }
-
 ////stats
 var stats;
 stats = new Stats();
 stats.domElement.style.position = 'absolute';
 stats.domElement.style.top = '0px';
 container.appendChild( stats.domElement );
+
