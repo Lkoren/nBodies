@@ -26,7 +26,7 @@ nb.Body = function() {
 	this.vel_y = this.vel.y;	
 	this.vel_z = this.vel.z;	
 }
-nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.2, 32, 24);
+nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 32, 24);
 nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
 nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
@@ -145,7 +145,7 @@ nb.Body.prototype.get_vel_x = function(x){
 	return this.vel.x;
 }
 nb.Body.prototype.set_vel_y = function(y){
-	this.vel.y += y;
+	this.vel.y += y;h
 	return this;
 }
 nb.Body.prototype.set_vel_z = function(z){

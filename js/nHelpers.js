@@ -32,6 +32,9 @@ function onDocMouseClick(event) {
 				starGui.add(body, "vel_x",-5,5).step(0.1).onChange(function(x) {body.set_vel_x(x)});
 				starGui.add(body, "vel_y",-5,5).step(0.1).onChange(function(y) {body.set_vel_y(y)});
 				starGui.add(body, "vel_z",-5,5).step(0.1).onChange(function(z) {body.set_vel_z(z)});
+				console.log(body.starMesh.position);
+				//camera.lookAt(body.starMesh.position);
+				//camera.target.position.copy(body.pos()); //lookat the body
 			} else {			
 				gui.removeFolder('velocity');
 			}
