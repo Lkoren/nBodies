@@ -6,10 +6,11 @@ animate();
 function initCamScene() {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 	camera.position.z = 20;
-	controls = new THREE.OrbitControls( camera );
+	//controls = new THREE.OrbitControls( camera );
+	controls = new THREE.TrackballControls( camera );
 	controls.addEventListener( 'change', render );
 	scene = new THREE.Scene();
-	scene.fog = new THREE.FogExp2( 0x000000, 0.0007 );
+	scene.fog = new THREE.FogExp2( 0x202020, 50 );
 
 }
 function initRenderer() {
