@@ -14,11 +14,17 @@ nb.Body = function() {
 	this.init_vel_arrow();
 	this.pick_box = new THREE.Mesh(this.pick_box_geom, this.pick_box_mat);	
 	this.pick_box.position = this.pos();
+	this.axis = new THREE.AxisHelper(1);
+	this.axis.postition = new THREE.Vector3().copy(this.pos());
 	scene.add(this.starMesh);
 	scene.add(this.trail);
 	scene.add(this.pick_box);	
+	scene.add(this.axis);
 	this.pick_box.visible = false;
-	//this.show_vel = false;
+	this.axis.visible = false;
+	this.vel_x = this.vel.x;	//this is really clunky, used for adjusting velocity via gui, refactor this.	
+	this.vel_y = this.vel.y;	
+	this.vel_z = this.vel.z;	
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.2, 32, 24);
 nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
@@ -82,7 +88,6 @@ nb.Body.prototype.initTrail = function() {
 	}
 }
 nb.Body.prototype.vel_arrow_mat = new THREE.LineBasicMaterial({color:0x301010});
-//nb.Body.prototype.vel_arrow_geom = new THREE.Geometry();
 nb.Body.prototype.init_vel_arrow = function(){
 	this.vel_arrow_geom = new THREE.Geometry();
 	this.vel_arrow = new THREE.Line(this.vel_arrow_geom, this.vel_arrow_mat);
@@ -92,18 +97,23 @@ nb.Body.prototype.init_vel_arrow = function(){
 	this.vel_arrow.visible = false;
 };
 nb.Body.prototype.toggle_velocity = function() {
+	this.update_velocity();
 	this.vel_arrow.visible = !this.vel_arrow.visible;
-	console.log(this.starMesh.id);
-/*	
-	if(this.show_vel) {			
-		this.vel_arrow.visible = true;
-	}else {
-//		scene.remove(this.vel_arrow);
-		this.vel_arrow.visible = false;
-	}
-	*/
+	this.vel_arrow.geometry.verticesNeedUpdate = true;
 	return this;
 };
+nb.Body.prototype.update_velocity = function() {
+	this.vel_arrow.geometry.vertices[0] = new THREE.Vector3().copy(this.pos());
+	this.vel_arrow.geometry.vertices[1] = new THREE.Vector3().copy(this.pos()).add(this.vel);	
+	this.vel_arrow.geometry.verticesNeedUpdate = true;
+	return this;	
+}
+
+nb.Body.prototype.toggle_axis = function(){
+	this.axis.position = new THREE.Vector3().copy(this.pos());
+	this.axis.visible = !this.axis.visible;
+	return this;
+}
 nb.Body.prototype.to_s = function() {
 	console.log("Mass = ", this.mass);
 	console.log("Pos = ", this.pos());
@@ -113,6 +123,35 @@ nb.Body.prototype.to_s = function() {
 	console.log("eTot = ", this.ekin() + this.epot(n.bodies));
 	console.log("=======") 
 }	
+//refactor this logic:
+nb.Body.prototype.set_vel_x = function(x){
+	this.vel.x = x;
+	this.update_velocity();
+	return this;
+}
+nb.Body.prototype.set_vel_y = function(y){
+	this.vel.y = y;
+	this.update_velocity();
+	return this;
+}
+nb.Body.prototype.set_vel_z = function(z){
+	this.vel.z = z;
+	this.update_velocity();
+	return this;
+}
+
+/*
+nb.Body.prototype.get_vel_x = function(x){	
+	return this.vel.x;
+}
+nb.Body.prototype.set_vel_y = function(y){
+	this.vel.y += y;
+	return this;
+}
+nb.Body.prototype.set_vel_z = function(z){
+	this.vel.z += z;
+	return this;
+}*/
 
 /////////////////////////
 nb.nBodies = function() {
@@ -212,15 +251,17 @@ nb.nBodies.prototype.addStar = function() {
 	this.numBodies++;
 	return this 
 }
-nb.nBodies.prototype.deleteStar = function(star) {		
+nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use obj.traverse
 	index = this.bodies.length-1;
 	if (this.bodies.length > 0) {
 		scene.remove(this.bodies[index].starMesh);
 		scene.remove(this.bodies[index].trail);
+		scene.remove(this.bodies[index].pick_box);
+		scene.remove(this.bodies[index].vel_arrow);
 		this.bodies.pop();
 		this.numBodies--;
-	}
-	return this
-}
+	};
+	return this;
+};
 var n = new nb.nBodies;
 
