@@ -1,3 +1,6 @@
+//Universal Attraction: web-based n-body simulator by Liav Koren is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+//Based on a work at http://www.liavkoren.com/nBody_main.html.
+
 var nb = {
 	numBodies: 3,
 	trailLength: 5000,

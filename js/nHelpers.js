@@ -1,12 +1,10 @@
-////Misc helper code
+//Universal Attraction: web-based n-body simulator by Liav Koren is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+//Based on a work at http://www.liavkoren.com/nBody_main.html.
 
-/*
-public: 
-priv: mouse vector -> projector.unproject( m, cam), intersects, var projector, raycaster, 
-return intersects array.
-*/
+////Misc helper code
 ////Picking
-document.addEventListener('mousedown', onDocMouseClick, false);
+//document.addEventListener('mousedown', onDocMouseClick, false);
+renderer.domElement.addEventListener( 'mousedown', onDocMouseClick, false );
 var projector = new THREE.Projector();	
 var gui = new dat.GUI();
 //var starGui;
@@ -44,7 +42,7 @@ function onDocMouseClick(event) {
 ////Gui
 window.onload = function() {
 	//var gui = new dat.GUI();
-	gui.add(n, "numBodies", 2, 100).min(0).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
+	gui.add(n, "numBodies", 2, 400).min(0).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
 	//gui.add(n, "set_trailLength", 0, 5000).name("Trail length");
 	gui.add(n, "stop_go").name("Play/Pause");
 	gui.add(n, "reverse").onChange(function() {n.dt *= -1;}).name("Reverse time");
