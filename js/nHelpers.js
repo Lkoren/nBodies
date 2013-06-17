@@ -30,7 +30,9 @@ function onDocMouseClick(event) {
 				starGui.add(body, "vel_x",-5,5).step(0.1).onChange(function(x) {body.set_vel_x(x)});
 				starGui.add(body, "vel_y",-5,5).step(0.1).onChange(function(y) {body.set_vel_y(y)});
 				starGui.add(body, "vel_z",-5,5).step(0.1).onChange(function(z) {body.set_vel_z(z)});
-				console.log(body.starMesh.position);
+				//console.log(body.starMesh.position);
+				//controls.target.set(body.pos());
+				console.log("click");
 				//camera.lookAt(body.starMesh.position);
 				//camera.target.position.copy(body.pos()); //lookat the body
 			} else {			
@@ -48,6 +50,7 @@ window.onload = function() {
 	gui.add(n, "reverse").onChange(function() {n.dt *= -1;}).name("Reverse time");
 	gui.add(n, "addStar").name("Add another star");
 	gui.add(n, "deleteStar").name("Remove a star");	
+	gui.add(n, "eps", 0,10).step(0.1).name("Softening");
 }
 ////http://stackoverflow.com/questions/14710559/dat-gui-how-hide-menu-from-code 
 dat.GUI.prototype.removeFolder = function(name) {

@@ -46,14 +46,14 @@ nb.Body.prototype.pos = function() {
 	return this.starMesh.position
 }
 // return the accel vector on a body, produced by all other bodies:
-nb.Body.prototype.accel = function(body_array) { 
+nb.Body.prototype.accel = function(body_array, eps) { 
 	var a = new THREE.Vector3(0,0,0);
 	for (var i = 0; i < body_array.length; i++) {					
 		if (!(body_array[i] === this)) { //refactor internal to something less ugly. PS -- I miss you "unless"! Love you!
 			var r = new THREE.Vector3(0,0,0); 
 			r.copy(body_array[i].pos());
 			r.sub(this.pos()); //get the distance between bodies.
-			var r2 = r.dot(r);
+			var r2 = r.dot(r) + eps*eps;
 			var r3 = r2*Math.sqrt(r2);						
 			a.add(r.multiplyScalar(body_array[i].mass/r3)); //toDo: create copy method for body
 		}
@@ -70,7 +70,7 @@ nb.Body.prototype.epot = function(body_array){
 		if (!(body === this)) {
 			var r = new THREE.Vector3(0,0,0); 
 			r.copy(body.pos());
-			r.sub(this.pos()); //get the distance between bodies.
+			r.sub(this.pos() + n.eps*n.eps); //get the distance between bodies.
 			ep += -1*body.mass*this.mass/Math.sqrt(r.dot(r));
 		}
 	}
@@ -143,19 +143,6 @@ nb.Body.prototype.set_vel_z = function(z){
 	return this;
 }
 
-/*
-nb.Body.prototype.get_vel_x = function(x){	
-	return this.vel.x;
-}
-nb.Body.prototype.set_vel_y = function(y){
-	this.vel.y += y;h
-	return this;
-}
-nb.Body.prototype.set_vel_z = function(z){
-	this.vel.z += z;
-	return this;
-}*/
-
 /////////////////////////
 nb.nBodies = function() {
 	this.e0;
@@ -169,6 +156,13 @@ nb.nBodies = function() {
 	}
 	this.time = 0;
 	this.go = false;	
+	this.eps = 0.01;
+}
+
+//numerical softening parameter. See ArtCompSci, vol 4, pp 100...
+nb.nBodies.prototype.set_eps = function(e) { 
+	this.eps = e;
+	return this;
 }
 //LEAPFROG integrator///////////////////////
 nb.nBodies.prototype.leapfrog = function() { 
@@ -176,10 +170,10 @@ nb.nBodies.prototype.leapfrog = function() {
 	var bodyArr = this.bodies; //get all the bodies								
 	this.bodies.forEach(function(body) {	
 		var tempVel = new THREE.Vector3(0,0,0);
-		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));	
+		body.vel.add(body.accel(bodyArr, n.eps).multiplyScalar(0.5*dt));	
 		tempVel.copy(body.vel);
 		body.pos().add(tempVel.multiplyScalar(dt));
-		body.vel.add(body.accel(bodyArr).multiplyScalar(0.5*dt));		
+		body.vel.add(body.accel(bodyArr, n.eps).multiplyScalar(0.5*dt));		
 		body.updateTrail();		
 	})
 } 

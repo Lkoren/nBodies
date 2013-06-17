@@ -9,8 +9,6 @@ animate();
 function initCamScene() {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 	camera.position.z = 20;
-//	controls = new THREE.TrackballControls(camera, renderer.domElement);
-//	controls.addEventListener( 'change', render );
 	scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2( 0x202020, 0.2 );
 
@@ -19,7 +17,6 @@ function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );			
 	controls = new THREE.TrackballControls(camera, renderer.domElement);
-//	controls = new THREE.TrackballControls(camera);
 	controls.addEventListener( 'change', render );	
 	container = document.getElementById( 'container' );
 	container.appendChild( renderer.domElement );
@@ -34,7 +31,7 @@ function onWindowResize() {
 function animate() {
 	requestAnimationFrame( animate );
 	controls.update();	
-	stats.update();
+	//stats.update();
 	render();	
 }					
 function render() {		
@@ -45,4 +42,3 @@ function render() {
 	}	
 	renderer.render(scene, camera);
 }
-
