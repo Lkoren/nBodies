@@ -31,7 +31,7 @@ function onWindowResize() {
 function animate() {
 	requestAnimationFrame( animate );
 	controls.update();	
-	//stats.update();
+	stats.update();
 	render();	
 }					
 function render() {		
