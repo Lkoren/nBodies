@@ -30,12 +30,22 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 				controls.target = body.pos(); //set camera
 				controls.noPan = true;
 				selected_bodies.push(body);
-			} else {			
+			} else {	
+				deleteGui_elements(body);	
+				/*	
 				gui.removeFolder('Body ' + (n.bodies.indexOf(body) + 1));
 				selected_bodies.splice(selected_bodies.indexOf(body), 1);
+				*/
 			}
 		}
 	});
+}
+
+function deleteGui_elements(body) {
+	console.log(body);
+
+	gui.removeFolder('Body ' + (n.bodies.indexOf(body) + 1));
+	selected_bodies.splice(selected_bodies.indexOf(body), 1);	
 }
 
 ////Gui
@@ -52,33 +62,31 @@ function addFolder(body) { //pass in the ref to the body that is being clicked, 
 	starGui.add(body, "vel_y",-5,5).step(0.1).onChange(function(y) {body.set_vel_y(y)});
 	starGui.add(body, "vel_z",-5,5).step(0.1).onChange(function(z) {body.set_vel_z(z)});	
 }
+function cam_pan_toggle() { //bug: two clicks to release lock first time body is selected. 
+	controls.noPan = !controls.noPan;
+ 	if(controls.noPan) {																							
+		t = new THREE.Vector3().copy(controls.target);
+		controls.target = t;
+		controls.noPan = false;
+	} else if (!(controls.noPan)) {
+		l = selected_bodies.length;
+		pos = selected_bodies[l-1].pos();
+		controls.target = pos;
+		controls.noPan = true;
+	}	
+}
 
+////need to remove folders when bodies are removed!!
 window.onload = function() {
-	//var gui = new dat.GUI();
 	gui.add(n, "numBodies", 2, 400).name("Number of bodies").min(0).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
-	//gui.add(n, "set_trailLength", 0, 5000).name("Trail length");
 	gui.add(n, "stop_go").name("Play/Pause");
 	gui.add(n, "reverse").onChange(function() {n.dt *= -1;}).name("Reverse time");
 	gui.add(n, "addStar").name("Add another star");
 	gui.add(n, "deleteStar").name("Remove a star");	
 	gui.add(n, "eps", 0,10).step(0.1).name("Softening");
 	gui.add(n, "simple_print").name("Save state");
-	gui.add(controls, "noPan").name("Lock cam on target").listen().onChange(function() {if(controls.noPan) {																							
-																								t = new THREE.Vector3().copy(controls.target);
-																								controls.target = t;
-																								console.log("true branch");
-																								controls.noPan = false;
-																								console.log(controls.noPan);
-																							} else {
-																								console.log("false branch");
-																								
-																								l = selected_bodies.length;
-																								pos = selected_bodies[l].pos();
-																								controls.target = pos;
-																								console.log(controls.noPan);
-																								controls.noPan = true;
-																							}
-																							});}	
+	gui.add(controls, "noPan").name("Lock cam on target").listen().onChange(function() {cam_pan_toggle()});
+}	
 
 dat.GUI.prototype.removeFolder = function(name) { ////http://stackoverflow.com/questions/14710559/dat-gui-how-hide-menu-from-code 
     var folder = this.__folders[name];

@@ -249,12 +249,19 @@ nb.nBodies.prototype.addStar = function() {
 	return this 
 }
 nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use obj.traverse
-	index = this.bodies.length-1;
+	var index = this.bodies.length-1;
+	var i;
 	if (this.bodies.length > 0) {
 		scene.remove(this.bodies[index].starMesh);
 		scene.remove(this.bodies[index].trail);
 		scene.remove(this.bodies[index].pick_box);
 		scene.remove(this.bodies[index].vel_arrow);
+		/*
+		if (i =  selected_bodies.indexOf(this) > -1) {
+			console.log(i);
+			deleteGui_elements(this);
+		}
+		*/
 		this.bodies.pop();
 		this.numBodies--;
 	};
