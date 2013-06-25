@@ -58,23 +58,6 @@ function addFolder(body) { //pass in the ref to the body that is being clicked, 
 	starGui.add(body, "vel_y",-5,5).step(0.1).onChange(function(y) {body.set_vel_y(y)});
 	starGui.add(body, "vel_z",-5,5).step(0.1).onChange(function(z) {body.set_vel_z(z)});	
 }
-/*
-function cam_pan_toggle() { //bug: two clicks to release lock first time body is selected. 
-	console.log("toggle", selected_bodies);
-	controls.noPan = !controls.noPan;
- 	if(controls.noPan) {//if the camera is locked on a body
-		t = new THREE.Vector3().copy(controls.target);
-		controls.target = t;
-		controls.noPan = false;
-	} else if (!(controls.noPan)) {
-		l = selected_bodies.length;
-		console.log("l = ", l);		
-		pos = selected_bodies[l-1].pos();
-		controls.target = pos;
-		controls.noPan = true;
-	}	
-}*/
-
 function cam_pan_toggle() {
 	controls.noPan = !controls.noPan;
 	if (controls.noPan) {
@@ -88,7 +71,6 @@ function lock_cam_on_body(body) {
 	controls.noPan = true;
 }
 function release_cam(){
-
 	t = new THREE.Vector3().copy(controls.target);
 	controls.target = t;
 	controls.noPan = false;

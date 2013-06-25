@@ -66,8 +66,14 @@ function initGeom(params) {
     xAxisMesh.rotation.z -= 90 * Math.PI / 180;
     xAxisMesh.position.x += params.height / 2;
     xAxisMesh.scale = new THREE.Vector3(10,10,10);
+    x_helper = createArrow("red");
+    x_helper.position.y +=params.height/2;
+    x_helper.rotation.z -= 90*Math.PI/180;
+    x_helper.position.x += params.height/2;
+    x_helper.scale =  new THREE.Vector3(10,10,10);
 
     scene.add(xAxisMesh);
+    scene.add(x_helper);
     //axis_helper.add(xAxisMesh);
     
     yAxisMaterial = new THREE.MeshBasicMaterial({color: 0x00FF00});
@@ -101,10 +107,36 @@ function initGeom(params) {
   var cubeMaterial = new THREE.MeshBasicMaterial( { color: 0x000088 } );
   cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
   cube.position.set(100,0,0);
-  scene.add(cube);
+  //scene.add(cube);
     scene.add(zAxisMesh);
 }
+function createArrow(color) {
+    var geom = new THREE.Geometry();
+    var v = geom.vertices;
+    v.push(new THREE.Vector3(2,0,0));
+    v.push(new THREE.Vector3(2,9,0));
+    v.push(new THREE.Vector3(7,8,0));
+    v.push(new THREE.Vector3(0,15,0));
+    v.push(new THREE.Vector3(-7,8,0));
+    v.push(new THREE.Vector3(-2,9,0));
+    v.push(new THREE.Vector3(-2,0,0));
 
+    var f = geom.faces;
+    f.push(new THREE.Face3(6,1,0));
+    f.push(new THREE.Face3(6,5,1));
+    f.push(new THREE.Face3(4,3,2));
+    
+    if (color) try{ 
+        c = new THREE.Color(color);
+    } catch(e) {
+        c = new THREE.Color();
+        c.r = Math.random()*255;
+        c.g = Math.random()*255;
+        c.b = Math.random()*255;
+    }
+    var mat = new THREE.MeshBasicMaterial({color:c});
+    return new THREE.Mesh(geom, mat);
+}
 
 function onDocumentMouseMove( event ) 
 {
@@ -120,19 +152,10 @@ function onDocumentMouseMove( event )
 var intersects;
 function update()
 {
-    // find intersections
-    // create a Ray with origin at the mouse position
-    //   and direction into the scene (camera direction)
     var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
     projector.unprojectVector( vector, camera );
     var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
-
-    // create an array containing all objects in the scene with which the ray intersects
     intersects = ray.intersectObjects( scene.children );
-
-    // INTERSECTED = the object in the scene currently closest to the camera 
-    //      and intersected by the Ray projected from the mouse position    
-    // if there is one (or more) intersections
     if ( intersects.length > 0 )
     {
         // if the closest object intersected is not the currently stored intersection object
@@ -164,11 +187,10 @@ function onDocMouseClick(event) {
     if (INTERSECTED) {
         if (INTERSECTED.currentHex == 255) { //blue = y Axis
             console.log(INTERSECTED.position);
-
             console.log("blue");
         } else if (INTERSECTED.currentHex == 16711680 ) { //Red = x Axis
             console.log(INTERSECTED.position);
-            //console.log("red");
+            console.log("red");
         } else if (INTERSECTED.currentHex == 65280  ) {
             console.log(INTERSECTED.position);
             console.log("green");
