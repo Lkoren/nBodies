@@ -25,7 +25,7 @@ Phyics:
 
 UI/UX:
 - GUI 
-	-get a better camera
+	
 - shader effects
 - energy vizulization
 - web app on GAE, Heroku, other?
@@ -33,7 +33,7 @@ UI/UX:
 - impliment something from http://suki.ipb.ac.rs/3body/ ??? 
 
 Advanced dev:
-- move to THREE's partical system?
+
 - extend Vector3's syntax to be more natural?
 - profile/optimize the code?
 	- impliment parts in asm.js?
@@ -48,3 +48,7 @@ done!
 - link mesh creation to body creation.
 - - STAR TRAILS
 	-fix real-time render issue	
+-get a better camera
+- move to THREE's partical system
+	-trails implimented as particle systems.
+	
