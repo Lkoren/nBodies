@@ -11,19 +11,24 @@ function initCamScene() {
     var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 20000 );
 	camera.position.z = 20;
-	controls = new THREE.OrbitControls( camera );
-	controls.addEventListener( 'change', render );
+	//controls = new THREE.OrbitControls( camera );
+	//controls.addEventListener( 'change', render );
 	scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2( 0x000000, 0.0007 );
-    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-    document.addEventListener('mousedown', onDocMouseClick, false);
-
     projector = new THREE.Projector();
 
 }
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setSize( window.innerWidth, window.innerHeight );			
+	renderer.setSize( window.innerWidth, window.innerHeight );	
+		
+    controls = new THREE.TrackballControls(camera, renderer.domElement);
+    controls.addEventListener( 'change', render );  
+
+
+    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+    document.addEventListener('mousedown', onDocMouseClick, false);
+    
     container = document.createElement( 'div' );
     document.body.appendChild( container );
     container.appendChild( renderer.domElement );
@@ -59,21 +64,17 @@ function initGeom(params) {
     xAxisGeometry = new THREE.CylinderGeometry(params.radius, params.radius, params.height);
     xAxisMesh = new THREE.Mesh(xAxisGeometry, xAxisMaterial);
     xArrowMesh = new THREE.Mesh(arrowGeometry, xAxisMaterial);    
-    xAxisMesh.add(xArrowMesh);
-
-    
+    xAxisMesh.add(xArrowMesh);  
+   
     xArrowMesh.position.y += params.height / 2;
     xAxisMesh.rotation.z -= 90 * Math.PI / 180;
     xAxisMesh.position.x += params.height / 2;
-    xAxisMesh.scale = new THREE.Vector3(10,10,10);
-    x_helper = createArrow("red");
-    x_helper.position.y +=params.height/2;
-    x_helper.rotation.z -= 90*Math.PI/180;
-    x_helper.position.x += params.height/2;
-    x_helper.scale =  new THREE.Vector3(10,10,10);
+    //xAxisMesh.scale = new THREE.Vector3(10,10,10);
+
+    var x = make_x_line();
+    scene.add(x);
 
     scene.add(xAxisMesh);
-    scene.add(x_helper);
     //axis_helper.add(xAxisMesh);
     
     yAxisMaterial = new THREE.MeshBasicMaterial({color: 0x00FF00});
@@ -84,7 +85,8 @@ function initGeom(params) {
     yArrowMesh.position.y += params.height / 2;
     yAxisMesh.position.y += params.height / 2;
 
-    yAxisMesh.scale = new THREE.Vector3(10,10,10);    scene.add(yAxisMesh);
+    //yAxisMesh.scale = new THREE.Vector3(10,10,10);    
+    scene.add(yAxisMesh);
     //axis_helper.add(yAxisMesh);
 
     zAxisMaterial = new THREE.MeshBasicMaterial({
@@ -98,7 +100,7 @@ function initGeom(params) {
     zArrowMesh.position.y += params.height / 2;
     zAxisMesh.position.z += params.height / 2;
 
-    zAxisMesh.scale = new THREE.Vector3(10,10,10);
+    //zAxisMesh.scale = new THREE.Vector3(10,10,10);
     //axis_helper.add(zAxisMesh);    
     //scene.add(axis_helper);    
 
@@ -107,43 +109,24 @@ function initGeom(params) {
   var cubeMaterial = new THREE.MeshBasicMaterial( { color: 0x000088 } );
   cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
   cube.position.set(100,0,0);
-  //scene.add(cube);
+ // scene.add(cube);
     scene.add(zAxisMesh);
 }
-function createArrow(color) {
-    var geom = new THREE.Geometry();
-    var v = geom.vertices;
-    v.push(new THREE.Vector3(2,0,0));
-    v.push(new THREE.Vector3(2,9,0));
-    v.push(new THREE.Vector3(7,8,0));
-    v.push(new THREE.Vector3(0,15,0));
-    v.push(new THREE.Vector3(-7,8,0));
-    v.push(new THREE.Vector3(-2,9,0));
-    v.push(new THREE.Vector3(-2,0,0));
 
-    var f = geom.faces;
-    f.push(new THREE.Face3(6,1,0));
-    f.push(new THREE.Face3(6,5,1));
-    f.push(new THREE.Face3(4,3,2));
-    
-    if (color) try{ 
-        c = new THREE.Color(color);
-    } catch(e) {
-        c = new THREE.Color();
-        c.r = Math.random()*255;
-        c.g = Math.random()*255;
-        c.b = Math.random()*255;
-    }
-    var mat = new THREE.MeshBasicMaterial({color:c});
-    return new THREE.Mesh(geom, mat);
+function make_x_line(){
+    var mat = new THREE.LineBasicMaterial({color:0x880000});
+    var geom = new THREE.Geometry();
+    geom.vertices.push(new THREE.Vector3(0,0,0));
+    geom.vertices.push(new THREE.Vector3(250,0,0));
+    return new THREE.Line(geom, mat);
 }
+
 
 function onDocumentMouseMove( event ) 
 {
     // the following line would stop any other event handler from firing
     // (such as the mouse's TrackballControls)
-    // event.preventDefault();
-    
+    // event.preventDefault();    
     // update the mouse variable
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -152,10 +135,19 @@ function onDocumentMouseMove( event )
 var intersects;
 function update()
 {
+    // find intersections
+    // create a Ray with origin at the mouse position
+    //   and direction into the scene (camera direction)
     var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
     projector.unprojectVector( vector, camera );
     var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+    // create an array containing all objects in the scene with which the ray intersects
     intersects = ray.intersectObjects( scene.children );
+
+    // INTERSECTED = the object in the scene currently closest to the camera 
+    //      and intersected by the Ray projected from the mouse position    
+    // if there is one (or more) intersections
     if ( intersects.length > 0 )
     {
         // if the closest object intersected is not the currently stored intersection object
@@ -182,18 +174,165 @@ function update()
     }
     controls.update();
 }
-
+//var xAxisVec; //deletable?
 function onDocMouseClick(event) {
+    console.log("hi!");
     if (INTERSECTED) {
         if (INTERSECTED.currentHex == 255) { //blue = y Axis
             console.log(INTERSECTED.position);
+
             console.log("blue");
         } else if (INTERSECTED.currentHex == 16711680 ) { //Red = x Axis
-            console.log(INTERSECTED.position);
+            controls.noPan = true;
+            controls.noRotate = true;
+
             console.log("red");
         } else if (INTERSECTED.currentHex == 65280  ) {
             console.log(INTERSECTED.position);
             console.log("green");
         }
+    } else {
+        controls.noPan = false;
+        controls.noRotate = false;  
     }
+/*
+    xAxisVec = new THREE.Vector3().copy(xAxisMesh.position);
+    p = new THREE.Projector();
+    xAxisVec.x += 250;          //deletable?
+    p.projectVector(xAxisVec, camera); //deletable?
+    */
+    drag_ray = shootRay();    
 }
+
+function shootRay() {
+    var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+    projector.unprojectVector( vector, camera );
+    vector.sub(camera.position);
+    var geom = new THREE.Geometry();
+    geom.vertices.push(new THREE.Vector3().copy(vector));
+    geom.vertices.push(new THREE.Vector3().copy(camera.position));    
+    var mat = new THREE.LineBasicMaterial({color:0xffff00});
+    var l = new THREE.Line(geom, mat);
+    scene.add(l);    
+    var origin = new THREE.Vector3(0,0,0);
+    var xAxis = new THREE.Vector3(250,0,0);
+    get_skew_dist(camera.position, vector, origin, xAxis);
+
+
+/* purpose of this?
+    var rayVector = new THREE.Vector3().copy(vector);
+    rayVector.sub(camera.position);    
+    return rayVector;
+    */
+}
+//skew line algo from http://nrich.maths.org/askedNRICH/edited/2360.html
+//1st step, find the shortest distance between the skew lines:
+//pass in two lines. The form for line is L = offsetVector + t*directionVector, where t is a free param.
+function get_skew_dist(offset1, vect1, offset2, vect2) { 
+    var diff = new THREE.Vector3(), solution_vector = new THREE.Vector3(), norm, solution_length; 
+    diff.copy(offset1);
+    diff.sub(offset2);
+    solution_vector.copy(vect2);
+    solution_vector.cross(new THREE.Vector3().copy(vect1)).normalize();
+    solution_length = diff.dot(solution_vector);
+    solution_vector.multiplyScalar(solution_length);    
+
+    //console.log("sol vector is ", solution_vector);
+    var b = new THREE.Vector3().copy(offset1);
+    b.add(solution_vector);
+    b.multiplyScalar(-1);
+    b.add(offset2);
+
+    //console.log("returned 1st solution is: ", solve_eq_sys(vect1, vect2, b));
+    //console.log(check_solution(solve_eq_sys(vect1, vect2, b), b));
+    if (check_solution(solve_eq_sys(vect1, vect2, b), b)) { 
+        build_skew_line(b);
+    } else {
+        var b = new THREE.Vector3().copy(offset1);
+        b.sub(solution_vector);
+        b.multiplyScalar(-1);
+        b.add(offset2);
+        check_solution(solve_eq_sys(vect1, vect2, b), b);
+        build_skew_line(b);
+    }
+
+    
+    // check a candidate solution from solve_eq_sys(), check it against the lines.
+    //give L1 = L2 => xV1 - yV2 = right_side
+    function check_solution(sol, right_side) {  
+        var x = sol[0];
+        var y = sol[1];     
+        var LHS = new THREE.Vector3();
+        LHS.setX(x*vect1.x + y*vect2.x);
+        LHS.setY(x*vect1.y + y*vect2.y);
+        LHS.setZ(x*vect1.z + y*vect2.z);
+        console.log("left hand side: \n ", LHS, "\n right hand side: \n", right_side);
+        console.log("=======")
+        LHS.sub(right_side);        
+        return (LHS.length() < 0.001);        
+    }
+    function build_skew_line(sol) { //uses the found solution to Ax = b.
+        var skew_line_mat = new THREE.LineBasicMaterial({color:0x0000ff});
+        var skew_line_geom = new THREE.Geometry();
+        console.log("incoming solution is", sol);
+        var x = sol.x;
+        var y = sol.y;
+        var start = new THREE.Vector3().copy(vect1);
+        var end = new THREE.Vector3().copy(vect2);
+        start.multiplyScalar(x).add(offset1);
+        end.multiplyScalar(y).add(offset2);
+        skew_line_geom.vertices.push(start);
+        skew_line_geom.vertices.push(end);
+        var skew_line = new THREE.Line(skew_line_geom, skew_line_mat);
+        skew_line.name = "Skew line " + scene.children.length;
+//        skew_line.scale = new THREE.Vector3(10,10,10);
+        scene.add(skew_line);
+    }
+
+}
+
+function solve_eq_sys(v1, v2, b) { //solve sys of Ax = b, where A is two equations for skew lines.
+    /* console.log("v1 = ", v1);
+    console.log("v2 = ", v2);
+    console.log("b = ", b);  */
+    var a = $M([ [v1.x, v2.x, b.x],
+                 [v1.y, v2.y, b.y], 
+                 [v1.z, v2.z, b.z] ]);
+    var a = a.toRightTriangular();
+    var sol_y = a.e(2,3)/a.e(2,2);
+    var sol_x = (a.e(1,3) - a.e(1,2)*sol_y)/a.e(1,1);
+    /*console.log("x,y = ", sol_x, ", ", sol_y);
+    console.log("==========") */
+    return [sol_x, sol_y];
+
+}
+
+/*
+var off1 = new THREE.Vector3(1,2,1);
+var off2 = new THREE.Vector3(5,1,3);
+var vec1 = new THREE.Vector3(1,0,-2);
+var vec2 = new THREE.Vector3(-2,1,0);
+*/
+
+var off1 = new THREE.Vector3(0,-1,1);
+var vec1 = new THREE.Vector3(1,0,0);
+
+var off2 = new THREE.Vector3(5,0,0);
+var vec2 = new THREE.Vector3(0,-1,0);
+
+var line_mat = new THREE.LineBasicMaterial({color:0x000000});
+var L1_geom = new THREE.Geometry();
+var L2_geom = new THREE.Geometry();
+
+L1_geom.vertices.push(new THREE.Vector3(-10,-1,1));
+L1_geom.vertices.push(new THREE.Vector3(10,-1,1))
+L2_geom.vertices.push(new THREE.Vector3(5,10,0));
+L2_geom.vertices.push(new THREE.Vector3(5,-10,0));
+var L1 = new THREE.Line(L1_geom, line_mat);
+var L2 = new THREE.Line(L2_geom, line_mat);
+scene.add(L1);
+scene.add(L2);
+///
+var a = new THREE.Vector3(1,5,10);
+var b = new THREE.Vector3(-2,7,9);
+var c = new THREE.Vector3(6,5,-3);
