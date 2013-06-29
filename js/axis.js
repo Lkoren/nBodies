@@ -210,77 +210,78 @@ function shootRay() {
     scene.add(l);    
     var origin = new THREE.Vector3(0,0,0);
     var xAxis = new THREE.Vector3(250,0,0);
-    get_skew_dist(camera.position, vector, origin, xAxis);
+    build_skew_line(camera.position, vector, origin, xAxis);
 }
+
 //skew line algo from http://nrich.maths.org/askedNRICH/edited/2360.html
 //1st step, find the shortest distance between the skew lines:
 //pass in two lines. The form for line is L = offsetVector + t*directionVector, where t is a free param.
-function get_skew_dist(offset1, vect1, offset2, vect2) { 
-    console.log("===================")
-    console.log("L1 = (",offset1.x, ", ", offset1.y, ", ",offset1.z, ") + x(",vect1.x, ", ", vect1.y, ", ", vect1.z, ")\n" );
-    console.log("L2 = (",offset2.x, ", ", offset2.y, ", ",offset2.z, ") + x(",vect2.x, ", ", vect2.y, ", ", vect2.z, ")\n" );    
-    var diff = new THREE.Vector3(), solution_vector = new THREE.Vector3(), norm, solution_length; 
+//We'll call the shortest line connecting the two lines the skew_line_solution_vector
+//function build_skew_line(offset1, vect1, offset2, vect2) { 
+function build_skew_line(offset1, vect1, offset2, vect2) { 
+    
+    var skew_line_mat = new THREE.LineBasicMaterial({color:0x0000ff});
+    var offset1, vect1, offset2, vect2;
+
+
+
+    /*console.log("===================")
+    console.log(" L1 = ", offset1.to_s(), " + x ", vect1.to_s());
+    console.log(" L2 = ", offset2.to_s(), " + x ", vect2.to_s());*/
+    var diff = new THREE.Vector3();
+    var skew_line_solution_vector = new THREE.Vector3();
+    var skew_line_solution_length; 
     diff.copy(offset1);
     diff.sub(offset2);
-    solution_vector.copy(vect2);
-    solution_vector.cross(new THREE.Vector3().copy(vect1)).normalize();
-    solution_length = diff.dot(solution_vector);
-    solution_vector.multiplyScalar(solution_length);    
-
-    console.log("vector of the shortest line that joins them = ", solution_vector);
+    skew_line_solution_vector.copy(vect2);
+    skew_line_solution_vector.cross(new THREE.Vector3().copy(vect1)).normalize();
+    skew_line_solution_length = diff.dot(skew_line_solution_vector);
+    skew_line_solution_vector.multiplyScalar(skew_line_solution_length);    
+    //console.log("vector of the shortest line that joins them = ", skew_line_solution_vector);
     var b = new THREE.Vector3().copy(offset1);
-    b.add(solution_vector);
+    b.add(skew_line_solution_vector);
     b.multiplyScalar(-1);
     b.add(offset2);
 
-    //console.log("returned 1st solution is: ", solve_eq_sys(vect1, vect2, b));
-    //console.log(check_solution(solve_eq_sys(vect1, vect2, b), b));
     if (check_solution(solve_eq_sys(vect1, vect2, b), b)) { 
-       // build_skew_line(b);
-       build_skew_line(solve_eq_sys(vect1, vect2, b));
+       draw_skew_line(solve_eq_sys(vect1, vect2, b));
     } else {
         var b = new THREE.Vector3().copy(offset1);
-        b.sub(solution_vector);
+        b.sub(skew_line_solution_vector);
         b.multiplyScalar(-1);
         b.add(offset2);
         check_solution(solve_eq_sys(vect1, vect2, b), b);
-        //build_skew_line(b);
-        build_skew_line(solve_eq_sys(vect1, vect2, b));
+        draw_skew_line(solve_eq_sys(vect1, vect2, b));
     }
 
     // check a candidate solution from solve_eq_sys() against the lines.
     //give L1 = L2 => xV1 - yV2 = right_side
     function check_solution(sol, right_side) {  
-        console.log("checker recieves candidate sol: " + sol);
+        //console.log("checker recieves candidate sol: " + sol);
         var x = sol[0];
         var y = sol[1];     
         var LHS = new THREE.Vector3();
         LHS.setX(x*vect1.x + y*vect2.x);
         LHS.setY(x*vect1.y + y*vect2.y);
         LHS.setZ(x*vect1.z + y*vect2.z);
-        console.log("=======");
+        /*console.log("=======");
         console.log("left hand side: \n ", LHS, "\n \n right hand side: \n", right_side);
-        console.log("=======");
+        console.log("=======");*/
         LHS.sub(right_side);        
         return (LHS.length() < 0.001);        
     }
-    function build_skew_line(sol) { //uses the found solution to Ax = b.
-//console.log("L1 = (",offset1.x, ", ", offset1.y, ", ",offset1.z, ") + x(",vect1.x, ", ", vect1.y, ", ", vect1.z, ")\n" );
-  //  console.log("L2 = (",offset2.x, ", ", offset2.y, ", ",offset2.z, ") + x(",vect2.x, ", ", vect2.y, ", ", vect2.z, ")\n" );            
-        console.log(" L1 = ", offset1.to_s(), " + x ", vect1.to_s());
+    function draw_skew_line(sol) { //uses the found solution to Ax = b.       
+        /*console.log(" L1 = ", offset1.to_s(), " + x ", vect1.to_s());
         console.log(" L2 = ", offset2.to_s(), " + x ", vect2.to_s());
-        var skew_line_mat = new THREE.LineBasicMaterial({color:0x0000ff});
-        var skew_line_geom = new THREE.Geometry();
-        console.log("incoming solution is", sol);
-        /*var x = sol.x;
-        var y = sol.y;*/
-        var x = sol[0];
-        var y = sol[1];
+        console.log("incoming solution is", sol); */
+        
+        var skew_line_geom = new THREE.Geometry();        
         var start = new THREE.Vector3().copy(vect1);
         var end = new THREE.Vector3().copy(vect2);
+        var x = sol[0];
+        var y = sol[1];        
         start.multiplyScalar(x).add(offset1);
         end.multiplyScalar(-y).add(offset2);
-        console.log("start point = " + start.to_s() + " \n end point = " + end.to_s());
         skew_line_geom.vertices.push(start);
         skew_line_geom.vertices.push(end);
         var skew_line = new THREE.Line(skew_line_geom, skew_line_mat);
