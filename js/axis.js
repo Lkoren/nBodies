@@ -72,7 +72,7 @@ function initGeom(params) {
     //xAxisMesh.scale = new THREE.Vector3(10,10,10);
 
     var x = make_x_line();
-    scene.add(x);
+    //scene.add(x);
 
     scene.add(xAxisMesh);
     //axis_helper.add(xAxisMesh);
@@ -174,7 +174,7 @@ function update()
     }
     controls.update();
 }
-//var xAxisVec; //deletable?
+
 function onDocMouseClick(event) {
     console.log("hi!");
     if (INTERSECTED) {
@@ -195,12 +195,6 @@ function onDocMouseClick(event) {
         controls.noPan = false;
         controls.noRotate = false;  
     }
-/*
-    xAxisVec = new THREE.Vector3().copy(xAxisMesh.position);
-    p = new THREE.Projector();
-    xAxisVec.x += 250;          //deletable?
-    p.projectVector(xAxisVec, camera); //deletable?
-    */
     drag_ray = shootRay();    
 }
 
@@ -217,18 +211,14 @@ function shootRay() {
     var origin = new THREE.Vector3(0,0,0);
     var xAxis = new THREE.Vector3(250,0,0);
     get_skew_dist(camera.position, vector, origin, xAxis);
-
-
-/* purpose of this?
-    var rayVector = new THREE.Vector3().copy(vector);
-    rayVector.sub(camera.position);    
-    return rayVector;
-    */
 }
 //skew line algo from http://nrich.maths.org/askedNRICH/edited/2360.html
 //1st step, find the shortest distance between the skew lines:
 //pass in two lines. The form for line is L = offsetVector + t*directionVector, where t is a free param.
 function get_skew_dist(offset1, vect1, offset2, vect2) { 
+    console.log("===================")
+    console.log("L1 = (",offset1.x, ", ", offset1.y, ", ",offset1.z, ") + x(",vect1.x, ", ", vect1.y, ", ", vect1.z, ")\n" );
+    console.log("L2 = (",offset2.x, ", ", offset2.y, ", ",offset2.z, ") + x(",vect2.x, ", ", vect2.y, ", ", vect2.z, ")\n" );    
     var diff = new THREE.Vector3(), solution_vector = new THREE.Vector3(), norm, solution_length; 
     diff.copy(offset1);
     diff.sub(offset2);
@@ -237,7 +227,7 @@ function get_skew_dist(offset1, vect1, offset2, vect2) {
     solution_length = diff.dot(solution_vector);
     solution_vector.multiplyScalar(solution_length);    
 
-    //console.log("sol vector is ", solution_vector);
+    console.log("vector of the shortest line that joins them = ", solution_vector);
     var b = new THREE.Vector3().copy(offset1);
     b.add(solution_vector);
     b.multiplyScalar(-1);
@@ -246,49 +236,63 @@ function get_skew_dist(offset1, vect1, offset2, vect2) {
     //console.log("returned 1st solution is: ", solve_eq_sys(vect1, vect2, b));
     //console.log(check_solution(solve_eq_sys(vect1, vect2, b), b));
     if (check_solution(solve_eq_sys(vect1, vect2, b), b)) { 
-        build_skew_line(b);
+       // build_skew_line(b);
+       build_skew_line(solve_eq_sys(vect1, vect2, b));
     } else {
         var b = new THREE.Vector3().copy(offset1);
         b.sub(solution_vector);
         b.multiplyScalar(-1);
         b.add(offset2);
         check_solution(solve_eq_sys(vect1, vect2, b), b);
-        build_skew_line(b);
+        //build_skew_line(b);
+        build_skew_line(solve_eq_sys(vect1, vect2, b));
     }
 
-    
-    // check a candidate solution from solve_eq_sys(), check it against the lines.
+    // check a candidate solution from solve_eq_sys() against the lines.
     //give L1 = L2 => xV1 - yV2 = right_side
     function check_solution(sol, right_side) {  
+        console.log("checker recieves candidate sol: " + sol);
         var x = sol[0];
         var y = sol[1];     
         var LHS = new THREE.Vector3();
         LHS.setX(x*vect1.x + y*vect2.x);
         LHS.setY(x*vect1.y + y*vect2.y);
         LHS.setZ(x*vect1.z + y*vect2.z);
-        console.log("left hand side: \n ", LHS, "\n right hand side: \n", right_side);
-        console.log("=======")
+        console.log("=======");
+        console.log("left hand side: \n ", LHS, "\n \n right hand side: \n", right_side);
+        console.log("=======");
         LHS.sub(right_side);        
         return (LHS.length() < 0.001);        
     }
     function build_skew_line(sol) { //uses the found solution to Ax = b.
+//console.log("L1 = (",offset1.x, ", ", offset1.y, ", ",offset1.z, ") + x(",vect1.x, ", ", vect1.y, ", ", vect1.z, ")\n" );
+  //  console.log("L2 = (",offset2.x, ", ", offset2.y, ", ",offset2.z, ") + x(",vect2.x, ", ", vect2.y, ", ", vect2.z, ")\n" );            
+        console.log(" L1 = ", offset1.to_s(), " + x ", vect1.to_s());
+        console.log(" L2 = ", offset2.to_s(), " + x ", vect2.to_s());
         var skew_line_mat = new THREE.LineBasicMaterial({color:0x0000ff});
         var skew_line_geom = new THREE.Geometry();
         console.log("incoming solution is", sol);
-        var x = sol.x;
-        var y = sol.y;
+        /*var x = sol.x;
+        var y = sol.y;*/
+        var x = sol[0];
+        var y = sol[1];
         var start = new THREE.Vector3().copy(vect1);
         var end = new THREE.Vector3().copy(vect2);
         start.multiplyScalar(x).add(offset1);
-        end.multiplyScalar(y).add(offset2);
+        end.multiplyScalar(-y).add(offset2);
+        console.log("start point = " + start.to_s() + " \n end point = " + end.to_s());
         skew_line_geom.vertices.push(start);
         skew_line_geom.vertices.push(end);
         var skew_line = new THREE.Line(skew_line_geom, skew_line_mat);
         skew_line.name = "Skew line " + scene.children.length;
-//        skew_line.scale = new THREE.Vector3(10,10,10);
         scene.add(skew_line);
     }
 
+}
+
+THREE.Vector3.prototype.to_s = function() {
+    var out = "(" +  this.x + ", " + this.y + ", " + this.z + ")";
+    return out;   
 }
 
 function solve_eq_sys(v1, v2, b) { //solve sys of Ax = b, where A is two equations for skew lines.
@@ -314,24 +318,63 @@ var vec1 = new THREE.Vector3(1,0,-2);
 var vec2 = new THREE.Vector3(-2,1,0);
 */
 
-var off1 = new THREE.Vector3(0,-1,1);
-var vec1 = new THREE.Vector3(1,0,0);
-
-var off2 = new THREE.Vector3(5,0,0);
-var vec2 = new THREE.Vector3(0,-1,0);
+/*
+var off1 = new THREE.Vector3(1,2,3);
+var vec1 = new THREE.Vector3(2,3,5);
+var off2 = new THREE.Vector3(-2,3,1);
+var vec2 = new THREE.Vector3(1,3,6);
 
 var line_mat = new THREE.LineBasicMaterial({color:0x000000});
 var L1_geom = new THREE.Geometry();
 var L2_geom = new THREE.Geometry();
 
-L1_geom.vertices.push(new THREE.Vector3(-10,-1,1));
-L1_geom.vertices.push(new THREE.Vector3(10,-1,1))
-L2_geom.vertices.push(new THREE.Vector3(5,10,0));
-L2_geom.vertices.push(new THREE.Vector3(5,-10,0));
-var L1 = new THREE.Line(L1_geom, line_mat);
-var L2 = new THREE.Line(L2_geom, line_mat);
+L1_geom.vertices.push(new THREE.Vector3(-19,-28,-47));
+L1_geom.vertices.push(new THREE.Vector3(21,32,53))
+L2_geom.vertices.push(new THREE.Vector3(-12,-27,-59));
+L2_geom.vertices.push(new THREE.Vector3(8,33,61)); 
+*/
+
+var line_mat1 = new THREE.LineBasicMaterial({color:0xff0000});
+var line_mat2 = new THREE.LineBasicMaterial({color:0x00ff00});
+var L1_geom = new THREE.Geometry();
+var L2_geom = new THREE.Geometry();
+
+
+var off1 = new THREE.Vector3(10,0,10);
+var vec1 = new THREE.Vector3(0,10,0);
+var off2 = new THREE.Vector3(0,10,0);
+var vec2 = new THREE.Vector3(10,0,0);
+
+L1_geom.vertices.push(off1);
+L1_geom.vertices.push(new THREE.Vector3(10,10,10));
+L2_geom.vertices.push(off2);
+L2_geom.vertices.push(new THREE.Vector3(10,10,0)); 
+
+/*
+var off1 = new THREE.Vector3(0,0,10);
+var vec1 = new THREE.Vector3(200,-100,-200);
+var off2 = new THREE.Vector3(0,0,0);
+var vec2 = new THREE.Vector3(25,0,0);
+
+
+
+L1_geom.vertices.push(off1);
+L1_geom.vertices.push(new THREE.Vector3(200,-100,-190));
+L2_geom.vertices.push(off2);
+L2_geom.vertices.push(new THREE.Vector3(25,0,0)); 
+*/
+
+/*
+L1_geom.vertices.push(new THREE.Vector3(1,2,3));
+L1_geom.vertices.push(new THREE.Vector3(3,5,8))
+L2_geom.vertices.push(new THREE.Vector3(-2,3,1));
+L2_geom.vertices.push(new THREE.Vector3(-1,6,7)); */
+var L1 = new THREE.Line(L1_geom, line_mat1);
+var L2 = new THREE.Line(L2_geom, line_mat2);
+
 scene.add(L1);
 scene.add(L2);
+
 ///
 var a = new THREE.Vector3(1,5,10);
 var b = new THREE.Vector3(-2,7,9);
