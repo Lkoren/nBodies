@@ -2,7 +2,12 @@ var container, cube, projector;
 var camera, controls, scene, renderer;	
 var axis_helper = new THREE.Object3D();
 var mouse = {x:0, y:0}, INTERSECTED;
-var pick_sphere;
+var intersects;
+var mouse_button_pressed = false;
+var xAxisMesh, yAxisMesh, zAxisMesh, x_axis_line;
+var x_axis_line, y_axis_line, z_axis_line;
+
+
 initCamScene();
 initRenderer();
 initGeom({});
@@ -12,29 +17,18 @@ function initCamScene() {
     var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 20000 );
 	camera.position.z = 20;
-	//controls = new THREE.OrbitControls( camera );
-	//controls.addEventListener( 'change', render );
 	scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2( 0x000000, 0.0007 );
     projector = new THREE.Projector();
-    var sp_geom = new THREE.SphereGeometry(0.15, 32, 24);
-    var sp_mat = new THREE.MeshBasicMaterial({color:0xcccccc, wireframe: true});
-    pick_sphere = new THREE.Mesh(sp_geom, sp_mat);
-    scene.add(pick_sphere);
-    pick_sphere.visible = false;
 }
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setSize( window.innerWidth, window.innerHeight );	
-		
+	renderer.setSize( window.innerWidth, window.innerHeight );		
     controls = new THREE.TrackballControls(camera, renderer.domElement);
     controls.addEventListener( 'change', render );  
-
-
     document.addEventListener( 'mousemove', onDocumentMouseMove, false );
     document.addEventListener('mousedown', mousedown, false);
     document.addEventListener('mouseup', mouseup, false);
-    
     container = document.createElement( 'div' );
     document.body.appendChild( container );
     container.appendChild( renderer.domElement );
@@ -55,11 +49,9 @@ function render() {
 	renderer.render(scene, camera);
 }
 
-var xAxisMesh, yAxisMesh, zAxisMesh, x_axis_line;
 function initGeom(params) {
     var arrowGeometry, xArrowMesh, xAxisGeometry, xAxisMaterial, yArrowMesh, 
     yAxisGeometry, yAxisMaterial, zArrowMesh, zAxisGeometry, zAxisMaterial;
-
     if (params == null) {
       params = {};
     }
@@ -70,19 +62,13 @@ function initGeom(params) {
     xAxisGeometry = new THREE.CylinderGeometry(params.radius, params.radius, params.height);
     xAxisMesh = new THREE.Mesh(xAxisGeometry, xAxisMaterial);
     xArrowMesh = new THREE.Mesh(arrowGeometry, xAxisMaterial);    
-    xAxisMesh.add(xArrowMesh);  
-   
+    xAxisMesh.add(xArrowMesh);    
     xArrowMesh.position.y += params.height / 2;
     xAxisMesh.rotation.z -= 90 * Math.PI / 180;
     xAxisMesh.position.x += params.height / 2;
-    //xAxisMesh.scale = new THREE.Vector3(10,10,10);
-
-    x_axis_line = make_x_line();
-    scene.add(x_axis_line);
-
+    var axis_lines = make_axis_lines();
+    scene.add(axis_lines);
     scene.add(xAxisMesh);
-    //axis_helper.add(xAxisMesh);
-    
     yAxisMaterial = new THREE.MeshBasicMaterial({color: 0x00FF00});
     yAxisGeometry = new THREE.CylinderGeometry(params.radius, params.radius, params.height);
     yAxisMesh = new THREE.Mesh(yAxisGeometry, yAxisMaterial);
@@ -90,104 +76,68 @@ function initGeom(params) {
     yAxisMesh.add(yArrowMesh);
     yArrowMesh.position.y += params.height / 2;
     yAxisMesh.position.y += params.height / 2;
-
-    //yAxisMesh.scale = new THREE.Vector3(10,10,10);    
     scene.add(yAxisMesh);
-    //axis_helper.add(yAxisMesh);
-
-    zAxisMaterial = new THREE.MeshBasicMaterial({
-      color: 0x0000FF
-    });
+    zAxisMaterial = new THREE.MeshBasicMaterial({color: 0x0000FF});
     zAxisGeometry = new THREE.CylinderGeometry(params.radius, params.radius, params.height);
     zAxisMesh = new THREE.Mesh(zAxisGeometry, zAxisMaterial);
     zArrowMesh = new THREE.Mesh(arrowGeometry, zAxisMaterial);
     zAxisMesh.add(zArrowMesh);
     zAxisMesh.rotation.x += 90 * Math.PI / 180;
     zArrowMesh.position.y += params.height / 2;
-    zAxisMesh.position.z += params.height / 2;
-
-    //zAxisMesh.scale = new THREE.Vector3(10,10,10);
-    //axis_helper.add(zAxisMesh);    
-    //scene.add(axis_helper);    
-
-////////////
-  var cubeGeometry = new THREE.CubeGeometry( 50, 50, 50 );
-  var cubeMaterial = new THREE.MeshBasicMaterial( { color: 0x000088 } );
-  cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
-  cube.position.set(100,0,0);
- // scene.add(cube);
+    zAxisMesh.position.z += params.height / 2; 
     scene.add(zAxisMesh);
 }
-
-function make_x_line(){
+function make_axis_lines(){
     var mat = new THREE.LineBasicMaterial({color:0x880000});
-    var geom = new THREE.Geometry();
-    geom.vertices.push(new THREE.Vector3(0,0,0));
-    geom.vertices.push(new THREE.Vector3(250,0,0));
-    return new THREE.Line(geom, mat);
-}
-
-var intersects;
-function update(){
-    // find intersections
-    // create a Ray with origin at the mouse position
-    //   and direction into the scene (camera direction)
-    var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-    projector.unprojectVector( vector, camera );
-    var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
-
-    // create an array containing all objects in the scene with which the ray intersects
-    intersects = ray.intersectObjects( scene.children );
-
-    // INTERSECTED = the object in the scene currently closest to the camera 
-    //      and intersected by the Ray projected from the mouse position    
-    // if there is one (or more) intersections
-    if ( intersects.length > 0 )
-    {
-        // if the closest object intersected is not the currently stored intersection object
-        if ( intersects[ 0 ].object != INTERSECTED ) {
-            // restore previous intersection object (if it exists) to its original color
-            if ( INTERSECTED ) 
-                INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-            // store reference to closest object as current intersection object
-            INTERSECTED = intersects[ 0 ].object;
-            // store color of closest object (for later restoration)
-            INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-            // set a new color for closest object
-            INTERSECTED.material.color.setHex( 0xffff00 );
-        }
-    } 
-    else // there are no intersections
-    {
-        // restore previous intersection object (if it exists) to its original color
-        if ( INTERSECTED ) 
-            INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-        // remove previous intersection object reference
-        //     by setting current intersection object to "nothing"
-        INTERSECTED = null;
-    }
-    controls.update();
-}
-var mouse_button_pressed = false;
-function mousedown(event) {
-    mouse_button_pressed = true;
-    controls.noRotate = true;
-    var y_axis_line, z_axis_line;
-    var mat = new THREE.LineBasicMaterial({color:0x880000});
+    var x_geom = new THREE.Geometry();
+    var line_axis_obj = new THREE.Object3D;    
+    x_geom.vertices.push(new THREE.Vector3(0,0,0));
+    x_geom.vertices.push(new THREE.Vector3(250,0,0));
+    x_axis_line = new THREE.Line(x_geom, mat);
+    line_axis_obj.add(x_axis_line);
+        
+    mat = new THREE.LineBasicMaterial({color:0x008800});
     var y_geom = new THREE.Geometry();
     y_geom.vertices.push(new THREE.Vector3(0,0,0));
     y_geom.vertices.push(new THREE.Vector3(0,250,0));
     y_axis_line = new THREE.Line(y_geom, mat);
+    line_axis_obj.add(y_axis_line);
+
+    mat = new THREE.LineBasicMaterial({color:0x000088});
     var z_geom = new THREE.Geometry();
     z_geom.vertices.push(new THREE.Vector3(0,0,0));
     z_geom.vertices.push(new THREE.Vector3(0,0,250));    
-    z_axis_line = new THREE.Line(z_geom, mat);
-    scene.add(y_axis_line);
-    scene.add(z_axis_line);
+    z_axis_line = new THREE.Line(z_geom, mat)
+    line_axis_obj.add(z_axis_line);
+    return(line_axis_obj);
+}
 
+function update(){
+    var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+    projector.unprojectVector( vector, camera );
+    var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+    intersects = ray.intersectObjects( scene.children );
+    if ( intersects.length > 0 ) {
+        if ( intersects[ 0 ].object != INTERSECTED ) {
+            if ( INTERSECTED ) 
+                INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+            INTERSECTED = intersects[ 0 ].object;
+            INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+            INTERSECTED.material.color.setHex( 0xffff00 );
+        }
+    } else {
+        if ( INTERSECTED ) 
+            INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+        INTERSECTED = null;
+    }
+    controls.update();
+}
+
+function mousedown(event) {
+    mouse_button_pressed = true;
+    controls.noRotate = true;
     if (INTERSECTED) {
         if (INTERSECTED.currentHex == 255) { //blue = z Axis
-            //console.log(INTERSECTED.position);
             console.log("blue");
             //drag_ray = shootRay(z_axis_line);    
         } else if (INTERSECTED.currentHex == 16711680 ) { //Red = x Axis
@@ -196,7 +146,6 @@ function mousedown(event) {
             //drag_ray = shootRay(x_axis_line);    
             console.log("red");
         } else if (INTERSECTED.currentHex == 65280  ) { // y axis
-            //console.log(INTERSECTED.position);
             console.log("green");
             //drag_ray = shootRay(y_axis_line);            
         }        
@@ -221,7 +170,7 @@ function onDocumentMouseMove( event ) {
 
 function mouseup() {
     console.log("up!");
-    pick_sphere.visible = false;
+    //pick_sphere.visible = false;
     mouse_button_pressed = false;
     controls.noRotate = false;
 }
@@ -291,7 +240,7 @@ function build_skew_line(line1, line2) {
          scene.remove(sl);
          hide_pick_sphere();
     } else {
-        show_pick_sphere(sl.geometry.vertices[1]);
+        update_widget(sl.geometry.vertices[1]);
         controls.noRotate = true;
     }
 
@@ -324,16 +273,17 @@ function build_skew_line(line1, line2) {
         return skew_line;
     }
 }
-function show_pick_sphere(origin) {
-    //pick_sphere.position = origin;
+function update_widget(origin) {
     xAxisMesh.position = origin;
     yAxisMesh.position = origin;
     zAxisMesh.position = origin;
-    pick_sphere.visible = true;
+    x_axis_line.position = origin;
+    y_axis_line.position = origin;
+    z_axis_line.position = origin;
 }
 
 function hide_pick_sphere(){
-    pick_sphere.visible = false;
+    //pick_sphere.visible = false;
 }
 
 function make_line_equation(line) {
@@ -353,7 +303,6 @@ THREE.Line.prototype.length = function() {
     if (this instanceof THREE.Line) {
         a = new THREE.Vector3().copy(this.geometry.vertices[0]);        
         a.sub(this.geometry.vertices[1]);
-        console.log(a);
         return a.length();
     }
 }
