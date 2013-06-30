@@ -4,9 +4,10 @@ var axis_helper = new THREE.Object3D();
 var mouse = {x:0, y:0}, INTERSECTED;
 var intersects;
 var mouse_button_pressed = false;
-var xAxisMesh, yAxisMesh, zAxisMesh, x_axis_line;
+//var xAxisMesh, yAxisMesh, zAxisMesh, x_axis_line;
 var x_axis_line, y_axis_line, z_axis_line;
 var x_pick_box, y_pick_box, z_pick_box;
+var sliding_axis; //keeps track of which, if any, axis we are alowed to move along. 
 
 initCamScene();
 initRenderer();
@@ -48,49 +49,32 @@ function animate() {
 function render() {		
 	renderer.render(scene, camera);
 }
-var x;
-x = new THREE.Object3D();
-function initGeom(params) {
-    var arrowGeometry, xArrowMesh, xAxisGeometry, xAxisMaterial, yArrowMesh, 
-    yAxisGeometry, yAxisMaterial, zArrowMesh, zAxisGeometry, zAxisMaterial;
+var widget = {
+    origin: new THREE.Vector3();
+}
+
+function initGeom(params) {    
     params = params || {}; //check for null val.
     params.radius = params.radius || 0.05;
     params.height = params.height || 2;	    
     scene.add(make_axis_lines());
-    x_pick_box = make_axis_pick_box(0xff9999,  params);
+    //make_axis_lines();
+    x_pick_box = make_axis_pick_box(0xff9999, params, "x");
     x_pick_box.rotation.z -= 90 * Math.PI / 180;
     x_pick_box.position.x += params.height / 1.0;
     x_pick_box.position.y = 0;
     scene.add(x_pick_box);
-
-//    yAxisMesh = make_axis_mesh(0x00ff00, params);
-    y_pick_box = make_axis_pick_box(0x99ff99, params);
+    y_pick_box = make_axis_pick_box(0x99ff99, params, "y");
     y_pick_box.rotation.y += 90 * Math.PI / 180;
-    //yAxisMesh.add(y_pick_box);
-    //yAxisMesh.position.y += params.height / 1.5;
-    //scene.add(yAxisMesh);
+    y_pick_box.position.y += params.height;
     scene.add(y_pick_box);
-    //zAxisMesh = make_axis_mesh(0x0000ff, params);
-    z_pick_box = make_axis_pick_box(0x9999ff,  params);
-    z_pick_box.rotation.y += 90 * Math.PI / 180;     
-    /*zAxisMesh.add(z_pick_box);
-    zAxisMesh.rotation.x += 90 * Math.PI / 180;    
-    //zAxisMesh.position.z += params.height / 1.5; 
-    scene.add(zAxisMesh);*/
+    z_pick_box = make_axis_pick_box(0x9999ff, params, "z");
+    z_pick_box.rotation.x += 90 * Math.PI / 180;     
+    z_pick_box.rotation.y += 90 * Math.PI / 180;  
+    z_pick_box.position.z += params.height;
     scene.add(z_pick_box);
 }
-function make_axis_mesh(c, params) {
-    col = c || 0x000000;
-    var mat = new THREE.MeshBasicMaterial({color: col});
-    var arrow_geom = new THREE.CylinderGeometry(0, 2 * params.radius, params.height / 5);
-    var axis_geom = new THREE.CylinderGeometry(params.radius, params.radius, params.height);
-    var axis_mesh = new THREE.Mesh(axis_geom, mat);
-    var arrow_mesh = new THREE.Mesh(arrow_geom, mat);
-    arrow_mesh.position.setY(params.height/2);
-    axis_mesh.add(arrow_mesh);
-    return axis_mesh;
-}
-function make_axis_lines(){
+function make_axis_lines(){//refactor this to be just geometry?
     var mat = new THREE.LineBasicMaterial({color:0x880000});
     var x_geom = new THREE.Geometry();
     var line_axis_obj = new THREE.Object3D;    
@@ -111,19 +95,18 @@ function make_axis_lines(){
     z_geom.vertices.push(new THREE.Vector3(0,0,0));
     z_geom.vertices.push(new THREE.Vector3(0,0,250));    
     z_axis_line = new THREE.Line(z_geom, mat)
-    z_axis_line.name = "z";
+    z_axis_line.name = "z";    
     line_axis_obj.add(z_axis_line);
     return(line_axis_obj);
 }
-function make_axis_pick_box(col, params){
+function make_axis_pick_box(col, params, name){
     col = 0x000000 || col;
     var mat = new THREE.MeshBasicMaterial({color:col, transparent: true, opacity: 0.7});
     var wireframe_mat = new THREE.MeshBasicMaterial({color:col, wireframe:true, transparency: true, opacity: 0.7});
     var geom = new THREE.CubeGeometry(0.05 * params.height, 1.5 * params.height, 0.5 * params.height);
     var pick_cube = new THREE.Mesh(geom, mat);
     pick_cube.add(new THREE.Mesh(geom, wireframe_mat));
-    pick_cube.position.setY(1*params.height); //delete after cleanup
-    pick_cube.axis = "x";
+    pick_cube.axis = name;
     return pick_cube;
 }
 function update(){
@@ -134,11 +117,9 @@ function update(){
     if ( intersects.length > 0 ) {
         if ( intersects[ 0 ].object != INTERSECTED ) {
             if ( INTERSECTED ) 
-                //console.log(intersects[ 0 ].object);
                 INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
             INTERSECTED = intersects[ 0 ].object;
             INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-            console.log(INTERSECTED.currentHex);
             INTERSECTED.material.color.setHex( 0xffff00 );
         }
     } else {
@@ -159,7 +140,6 @@ function unlock_cam() {
     return controls;
 }
 ////mouse events:
-var sliding_axis;
 function mousedown(event) { //better way to do this than using sliding_axis?
     mouse_button_pressed = true;
     controls.noRotate = true;
@@ -168,26 +148,24 @@ function mousedown(event) { //better way to do this than using sliding_axis?
             lock_cam();
             shootRay(x_axis_line);    
             sliding_axis = x_axis_line;
-            //console.log("red");
         } else if (INTERSECTED.currentHex == 10092441) { //Green = y axis
-            //console.log("green");
             shootRay(y_axis_line);
             sliding_axis = y_axis_line;
         } else if (INTERSECTED.currentHex == 10066431) { //Blue = z Axis
-            //console.log("blue");
             shootRay(z_axis_line);    
             sliding_axis = z_axis_line;            
         }
     } else {
         controls.noPan = false;
         controls.noRotate = false;  
+        sliding_axis = null;
     }    
 }
 function mouseMove( event ) {
     // event.preventDefault();    
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    if (mouse_button_pressed) {
+    if (mouse_button_pressed && sliding_axis) {
         shootRay(sliding_axis);
        // controls.noRotate = true;
     } else {
@@ -199,8 +177,7 @@ function mouseup() {
     controls.noRotate = false;
 }
 ////Geometry stuff:
-function shootRay(targ_line) {
-    console.log(targ_line.name);
+function shootRay(targ_line) {//shoot a ray from the mouse pos past the target line. The two lines are then passed to build_skew_line
     var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
     projector.unprojectVector( vector, camera );
     vector.sub(camera.position);
@@ -216,7 +193,7 @@ function shootRay(targ_line) {
 //both skew lines. The form for line is L = offsetVector + t*directionVector, where t is a free param. We'll call this shortest line
 //which connecting the two lines the skew_line_solution_vector 
 function build_skew_line(line1, line2) {   
-    var skew_line_mat = new THREE.LineBasicMaterial({color:0x0000ff});
+    var skew_line_mat = new THREE.LineBasicMaterial({color:0x333333});
     var diff = new THREE.Vector3();
     var skew_line_solution_vector = new THREE.Vector3();
     var skew_line_solution_length; 
@@ -292,6 +269,7 @@ function build_skew_line(line1, line2) {
     }
 }
 function update_widget(origin, params) {
+    var origin_x_offset, origin_y_offset, origin_z_offset;
     params = params || {}; //check for null val.
     params.radius = params.radius || 0.05;
     params.height = params.height || 2;    
@@ -301,9 +279,19 @@ function update_widget(origin, params) {
     y_pick_box.position.y += params.height;
     z_pick_box.position = new THREE.Vector3().copy(origin);
     z_pick_box.position.z += params.height;
-    x_axis_line.position = origin;
-    y_axis_line.position = origin;
-    z_axis_line.position = origin;
+    //toDo: refactor to something nicer.
+    origin_x_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(250,0,0));
+    origin_y_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,250,0));
+    origin_z_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,0,250));
+    x_axis_line.geometry.vertices[0].copy(origin);
+    x_axis_line.geometry.vertices[1] = origin_x_offset;    
+    y_axis_line.geometry.vertices[0].copy(origin);
+    y_axis_line.geometry.vertices[1] = origin_y_offset;
+    z_axis_line.geometry.vertices[0].copy(origin);
+    z_axis_line.geometry.vertices[1] = origin_z_offset;
+    x_axis_line.geometry.verticesNeedUpdate = true;
+    y_axis_line.geometry.verticesNeedUpdate = true;
+    z_axis_line.geometry.verticesNeedUpdate = true;   
 }
 function make_line_equation(line) {
     var offset, vector;
