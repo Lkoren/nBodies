@@ -1,6 +1,6 @@
 var container, cube, projector;
 var camera, controls, scene, renderer;	
-var axis_helper = new THREE.Object3D();
+//var axis_helper = new THREE.Object3D();
 var mouse = {x:0, y:0}, INTERSECTED;
 var intersects;
 var mouse_button_pressed = false;
@@ -49,9 +49,7 @@ function animate() {
 function render() {		
 	renderer.render(scene, camera);
 }
-var widget = {
-    origin: new THREE.Vector3();
-}
+
 
 function initGeom(params) {    
     params = params || {}; //check for null val.
