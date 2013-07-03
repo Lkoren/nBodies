@@ -57,7 +57,12 @@ WIDGET_FACTORY.start_factory = function() {
 }
 WIDGET_FACTORY.mouse_over_widget = null;
 WIDGET_FACTORY.intersected_widget = null;
-//WIDGET_FACTORY
+WIDGET_FACTORY.xz_plane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 8,8), new THREE.MeshBasicMaterial({color: 0x000000, opacity: 0.25, transparent: true, wireframe: true}));
+WIDGET_FACTORY.xz_plane.rotation.x = 90 * Math.PI/180;
+WIDGET_FACTORY.xz_plane.visible = true;
+scene.add(WIDGET_FACTORY.xz_plane);
+
+////WIDGET_FACTORY: make/remove methods:
 WIDGET_FACTORY.make_widget = function(origin, params) {
 	var widget = {};
 	widget.origin = origin || new THREE.Vector3(0,0,0);
@@ -75,12 +80,6 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	}
 	function init_widget() {
 		var axis_lines, axis_pick_boxes;
-//		that.axis_lines = make_widget_axis_lines();	//useful to have axis_lines for updating all three at once: axis_lines.position = new ...
-		/*that.x_axis = that.axis_lines.children[0];
-		that.y_axis = that.axis_lines.children[1];
-		that.z_axis = that.axis_lines.children[2];*/
-//		that.axis_lines.position = widget.origin;
-		//scene.add(that.axis_lines);
 		that.x_axis = make_axis_line(new THREE.Vector3(0.5,0,0), new THREE.Vector3(4,0,0), 0x880000, "x axis line");
 		that.y_axis = make_axis_line(new THREE.Vector3(0,0.5,0), new THREE.Vector3(0,4,0), 0x008800, "y axis line");
 		that.z_axis = make_axis_line(new THREE.Vector3(0,0,0.5), new THREE.Vector3(0,0,4), 0x000088, "z axis line");
@@ -95,17 +94,6 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 		that.z_axis.geometry.vertices[0].add(v);
 		that.z_axis.geometry.vertices[1].add(v);
 	}
-	/*function make_widget_axis_lines() {
-	    var line_axis_obj = new THREE.Object3D();
-	    var x_axis_line, y_axis_line, z_axis_line;
-	    x_axis_line = make_axis_line(new THREE.Vector3(0.5,0,0),new THREE.Vector3(4,0,0), 0x880000, "x axis line");
-	    y_axis_line = make_axis_line(new THREE.Vector3(0,0.5,0), new THREE.Vector3(0,4,0), 0x008800, "y axis line");
-	    z_axis_line = make_axis_line(new THREE.Vector3(0,0,0.5), new THREE.Vector3(0,0,4), 0x000088, "z axis line");
-	    line_axis_obj.add(x_axis_line);
-	    line_axis_obj.add(y_axis_line);
-	    line_axis_obj.add(z_axis_line);
-	    return(line_axis_obj);  		
-	}*/
 	function make_axis_line(v1, v2, col, name) {
 		var geom = new THREE.Geometry();
 		var mat = new THREE.LineBasicMaterial({color: col});
@@ -150,6 +138,7 @@ WIDGET_FACTORY.remove_widget = function(w)  {
 	this.widgets.splice(this.widgets.indexOf(w),1);
 	return this.widgets
 }
+////geometry methods:
 WIDGET_FACTORY.shootRay = function(targ_line) {
     var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
     projector.unprojectVector( vector, camera );
@@ -159,7 +148,7 @@ WIDGET_FACTORY.shootRay = function(targ_line) {
     	////change this to vec3?:
 	    var mat = new THREE.LineBasicMaterial({color:0xffff00});
 	    var l = new THREE.Line(geom, mat);
-	    scene.add(l);    
+	    //scene.add(l);    
     this.build_skew_line(l, targ_line);    
 }
 //skew line algo from http://nrich.maths.org/askedNRICH/edited/2360.html . 1st step, find the length of the shortest line that connects
@@ -262,8 +251,7 @@ WIDGET_FACTORY.build_skew_line = function(line1, line2) {
 	}
 }
 
-
-////
+////event listeners:
 
 function mousedown(event) { //better way to do this than using sliding_axis?
     mouse_button_pressed = true;
@@ -272,12 +260,11 @@ function mousedown(event) { //better way to do this than using sliding_axis?
     	WIDGET_FACTORY.widgets.forEach(function(w){ //get that widget!    		
     		if (w.intersected(INTERSECTED)) {
 				WIDGET_FACTORY.intersected_widget = w;
-				//console.log(w);
     		}
     	})
     	controls.enabled = false;
+    	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);
         if (INTERSECTED.currentHex == 16751001) { //Red = x Axis
-            controls.enabled = false;
             //shootRay(intersected_widget, intersected_widget.x_axis);    
            // sliding_axis = x_axis_line;
         } else if (INTERSECTED.currentHex == 10092441) { //Green = y axis
