@@ -57,9 +57,11 @@ WIDGET_FACTORY.start_factory = function() {
 }
 WIDGET_FACTORY.mouse_over_widget = null;
 WIDGET_FACTORY.intersected_widget = null;
+WIDGET_FACTORY.widget_counter = 0;
 WIDGET_FACTORY.xz_plane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 8,8), new THREE.MeshBasicMaterial({color: 0x000000, opacity: 0.25, transparent: true, wireframe: true}));
 WIDGET_FACTORY.xz_plane.rotation.x = 90 * Math.PI/180;
 WIDGET_FACTORY.xz_plane.visible = true;
+WIDGET_FACTORY.skew_line;
 scene.add(WIDGET_FACTORY.xz_plane);
 
 ////WIDGET_FACTORY: make/remove methods:
@@ -69,17 +71,49 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	widget.params = params || {};
 	widget.params.radius = widget.params.radius || 0.05;
     widget.params.height = widget.params.height || 2; 
+    widget.id;
 	this.widgets.push(widget);	
 	var that = widget;
 	init_widget();		
 	widget.getDescendants = function() {
 		return [that.x_pick_box, that.y_pick_box, that.z_pick_box];
 	}
-	widget.intersected = function(m) {
+	widget.intersected = function(m) { //true if the passed axis mesh is part of this widget
 		return this.getDescendants().indexOf(m) > - 1 ? true : false;
 	}
+	widget.update_position = function(origin) {
+		var origin_x_offset, origin_y_offset, origin_z_offset;
+/*	    params = params || {}; //check for null val.
+	    params.radius = params.radius || 0.05;
+	    params.height = params.height || 2;    */
+	    
+	    this.origin.copy(origin);	    
+	    //this.origin.y += this.params.height;
+	    
+	    this.x_pick_box.position = new THREE.Vector3().copy(origin);	    
+	    this.y_pick_box.position = new THREE.Vector3().copy(origin);	    
+	    this.z_pick_box.position = new THREE.Vector3().copy(origin);
+	    this.x_pick_box.position.x += this.params.height;
+	    this.y_pick_box.position.y += this.params.height;
+	    this.z_pick_box.position.z += this.params.height;
+	    //toDo: refactor to something nicer.
+	    origin_x_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(250,0,0));
+	    origin_y_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,250,0));
+	    origin_z_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,0,250));
+	    this.x_axis.geometry.vertices[0].copy(origin);
+	    this.x_axis.geometry.vertices[1] = origin_x_offset;    
+	    this.y_axis.geometry.vertices[0].copy(origin);
+	    this.y_axis.geometry.vertices[1] = origin_y_offset;
+	    this.z_axis.geometry.vertices[0].copy(origin);
+	    this.z_axis.geometry.vertices[1] = origin_z_offset;
+	    this.x_axis.geometry.verticesNeedUpdate = true;
+	    this.y_axis.geometry.verticesNeedUpdate = true;
+	    this.z_axis.geometry.verticesNeedUpdate = true;   		
+	}
+	//INTERSECTED.currentHex == 10092441
 	function init_widget() {
-		var axis_lines, axis_pick_boxes;
+		var axis_lines, axis_pick_boxes;		
+		that.id = ++WIDGET_FACTORY.widget_counter;
 		that.x_axis = make_axis_line(new THREE.Vector3(0.5,0,0), new THREE.Vector3(4,0,0), 0x880000, "x axis line");
 		that.y_axis = make_axis_line(new THREE.Vector3(0,0.5,0), new THREE.Vector3(0,4,0), 0x008800, "y axis line");
 		that.z_axis = make_axis_line(new THREE.Vector3(0,0,0.5), new THREE.Vector3(0,0,4), 0x000088, "z axis line");
@@ -200,7 +234,7 @@ WIDGET_FACTORY.build_skew_line = function(line1, line2) {
 	        skew_line = draw_skew_line(candidate_solution);
 	    }
 	    if (skew_line.length() < 3) {
-	       // update_widget(skew_line.geometry.vertices[1]);
+	        WIDGET_FACTORY.intersected_widget.update_position(skew_line.geometry.vertices[1]);
 	       // controls.enabled = false;        
 	    }
     }
@@ -252,16 +286,10 @@ WIDGET_FACTORY.build_skew_line = function(line1, line2) {
 }
 
 ////event listeners:
-
 function mousedown(event) { //better way to do this than using sliding_axis?
     mouse_button_pressed = true;
 
     if (INTERSECTED) { //INTERSECTED stores the MESH that is currently picked, but we need the WIDGET that the mesh is a part of:
-    	WIDGET_FACTORY.widgets.forEach(function(w){ //get that widget!    		
-    		if (w.intersected(INTERSECTED)) {
-				WIDGET_FACTORY.intersected_widget = w;
-    		}
-    	})
     	controls.enabled = false;
     	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);
         if (INTERSECTED.currentHex == 16751001) { //Red = x Axis
@@ -270,13 +298,14 @@ function mousedown(event) { //better way to do this than using sliding_axis?
         } else if (INTERSECTED.currentHex == 10092441) { //Green = y axis
             //shootRay(y_axis_line);
             //sliding_axis = y_axis_line;
-            WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.y_axis);    
+           
+           // WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.y_axis);    
         } else if (INTERSECTED.currentHex == 10066431) { //Blue = z Axis            
             //sliding_axis = z_axis_line;            
         }
     } else {
         controls.enabled = true;
-        WIDGET_FACTORY.intersected_widget = null;
+       // WIDGET_FACTORY.intersected_widget = null;
     }    
 }
 function check_for_intersection() {
@@ -292,32 +321,35 @@ function check_for_intersection() {
 			INTERSECTED = intersects[ 0 ].object;
 			INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 			INTERSECTED.material.color.setHex( 0xffff00 );
-			//plane.position.copy( INTERSECTED.position );
-			//plane.lookAt( camera.position );
 			}
 		} else {
 		    if ( INTERSECTED ) 
             	INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
         	INTERSECTED = null;		
 	}
-	//console.log(INTERSECTED);
 	return INTERSECTED;
 }
-
 function mousemove( event ) {
-    check_for_intersection();
+    var intersected_mesh = check_for_intersection();
+	//WIDGET_FACTORY.widgets.forEach(function(w){ //keep the factory updated.
+	for (var i = 0; i < WIDGET_FACTORY.widgets.length; i++ ) {
+		if (WIDGET_FACTORY.widgets[i].intersected(intersected_mesh)) {
+			WIDGET_FACTORY.intersected_widget = WIDGET_FACTORY.widgets[i];
+			break;
+		} 
+		WIDGET_FACTORY.intersected_widget = null;	    		
+    }
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    if (mouse_button_pressed && sliding_axis) {
-        shootRay(sliding_axis);
-       // controls.noRotate = true;
-    } else {
-        controls.noRotate = false;
-    }    
+    if (mouse_button_pressed && WIDGET_FACTORY.intersected_widget) {  	    	
+    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.y_axis);    
+    	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);
+    	controls.enabled = false;
+    }     
 }
 function mouseup() {
     mouse_button_pressed = false;
-    controls.noRotate = false;
+    controls.enabled = true;
 }
 ////
 THREE.Line.prototype.length = function() {

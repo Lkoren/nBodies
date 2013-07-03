@@ -307,7 +307,6 @@ function solve_eq_sys(v1, v2, b) { //solve sys of Ax = b, where A is two equatio
     var sol_y = a.e(2,3)/a.e(2,2);
     var sol_x = (a.e(1,3) - a.e(1,2)*sol_y)/a.e(1,1);
     return [sol_x, sol_y];
-
 }
 THREE.Vector3.prototype.to_s = function() {
     var out = "(" +  this.x + ", " + this.y + ", " + this.z + ")";
