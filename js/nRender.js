@@ -2,14 +2,14 @@
 //Based on a work at http://www.liavkoren.com/nBody_main.html.
 var
  container;
-var camera, controls, scene, renderer;	
+var camera, controls, renderer;	
 initCamScene();
 initRenderer();
 animate();
 function initCamScene() {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 	camera.position.z = 20;
-	scene = new THREE.Scene();
+	//scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2( 0x202020, 0.2 );
 
 }
@@ -21,6 +21,11 @@ function initRenderer() {
 	container = document.getElementById( 'container' );
 	container.appendChild( renderer.domElement );
 	window.addEventListener( 'resize', onWindowResize, false );
+
+	document.addEventListener( 'mousemove', mousemove, false );
+    document.addEventListener('mousedown', mousedown, false);
+    document.addEventListener('mouseup', mouseup, false);
+    window.addEventListener( 'resize', onWindowResize, false );
 }
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
@@ -37,6 +42,7 @@ function animate() {
 function render() {		
 	try {
 		n.integrate();		
+		check_for_intersection();
 	}
 	catch(e) {
 	}	

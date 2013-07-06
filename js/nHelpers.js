@@ -14,8 +14,9 @@ function onDocMouseClick(event) {
 }
 
 function find_picked_bodies() { 	//standard raycasting picking code:
-	var mouse = getMouseCoord();
+	var mouse = getMouseNDCoord();
 	var raycaster = projector.pickingRay(mouse.clone(), camera);
+	var gui, guiContainer;
 	intersects = [];		
 	//check each body for picking, using the picking box as the test:
 	n.bodies.some(function(body) {
@@ -27,11 +28,19 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 			body.toggle_axis();				
 			if (intersect[0].object.visible) { //add the velocity gui elements.
 				addFolder(body);
-				controls.target = body.pos(); //set camera
-				controls.noPan = true;
+				//controls.target = body.pos(); //set camera
+				//controls.noPan = true;
 				selected_bodies.push(body);
-			} else {	
-				console.log(body);
+				gui = new dat.GUI({autoPlace:false});
+				guiContainer = document.getElementById('gui');
+				guiContainer.appendChild(gui.domElement);
+				guiContainer.style.visibility = "visible";				
+				$('#gui').css({"top": document.height/4 + "px", "left": document.width/2 + 25 + "px"})
+				w.make_widget(intersect[0].object.position, {height:0.5})				
+			} else {					
+				guiContainer = document.getElementById('gui');
+				guiContainer.style.visibility = "hidden";
+				//gui.removeFolder
 				cam_pan_toggle();
 				deleteGui_elements(body);					
 			}
@@ -45,13 +54,14 @@ function deleteGui_elements(body) {
 }
 
 ////Gui
-function getMouseCoord() {
+function getMouseNDCoord() {
  	var mouse = new THREE.Vector3();
 	mouse.x = (event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = -(event.clientY / window.innerHeight ) * 2 + 1;
 	mouse.z = 0.5;
 	return mouse;
 }
+
 function addFolder(body) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
 	var starGui = gui.addFolder('Body ' + (n.bodies.indexOf(body) + 1));
 	starGui.add(body, "vel_x",-5,5).step(0.1).onChange(function(x) {body.set_vel_x(x)});

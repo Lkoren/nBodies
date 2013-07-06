@@ -27,7 +27,9 @@ mousedown,
 mouseup
 */
 
-var projector;
+var projector, scene, camera;
+
+
 var mouse_button_pressed = false;
 var sliding_axis; //keeps track of which, if any, axis we are alowed to move along. 
 var mouse = {x:0, y:0}, INTERSECTED;
@@ -35,15 +37,26 @@ var mouse = {x:0, y:0}, INTERSECTED;
 var w,x; 
 //var x_axis_line, y_axis_line, z_axis_line;
 //var x_pick_box, y_pick_box, z_pick_box;
-initCamScene();
+/*initCamScene();
 initRenderer();
-animate();
+animate();*/
 
 projector = new THREE.Projector();
 
+function initCamScene() {
+	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
+	camera.position.z = 20;
+	scene = new THREE.Scene();
+	scene.fog = new THREE.FogExp2( 0x202020, 0.2 );
+
+}
+initCamScene();
+
 function WIDGET_FACTORY() {
 	//this.widgets = [];  --why is this not a publically accesible var?
+	{};
 };
+
 WIDGET_FACTORY.widgets = [];
 WIDGET_FACTORY.update = function() {
 	/*var private = "private";
@@ -67,7 +80,7 @@ WIDGET_FACTORY.xz_plane.rotation.y = Math.PI/180;
 WIDGET_FACTORY.xz_plane.visible = false;
 WIDGET_FACTORY.skew_line;
 WIDGET_FACTORY.currentHex = new THREE.Color(0,0,0);
-scene.add(WIDGET_FACTORY.xz_plane);
+//scene.add(WIDGET_FACTORY.xz_plane);
 
 ////WIDGET_FACTORY: make/remove methods:
 WIDGET_FACTORY.make_widget = function(origin, params) {
@@ -246,7 +259,7 @@ WIDGET_FACTORY.build_skew_line = function(line1, line2) {
 	        candidate_solution = solve_eq_sys(L1_vect, L2_vect, b); 
 	        skew_line = draw_skew_line(candidate_solution);
 	    }
-	    if (skew_line.length() < 3) {
+	    if (skew_line.length() < 4.5) {
 	        WIDGET_FACTORY.intersected_widget.update_position(skew_line.geometry.vertices[1]);
 	       // controls.enabled = false;        
 	    }
@@ -341,6 +354,7 @@ function mousedown(event) { //better way to do this than using sliding_axis?
     mouse_button_pressed = true;
     if (INTERSECTED) {
     	controls.enabled = false;
+    	console.log(controls.enabled);
     	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);    	
     } 
 }
@@ -373,6 +387,7 @@ function mousemove( event ) {
 function mouseup() {
     mouse_button_pressed = false;
     controls.enabled = true;
+    console.log(controls.enabled);
     WIDGET_FACTORY.intersected_widget = null;
 }
 ////
@@ -387,5 +402,5 @@ THREE.Line.prototype.length = function() {
 var a = new THREE.Vector3(1,2,3);
 var b = new THREE.Vector3(5,5,5);
 var w = WIDGET_FACTORY.start_factory();
-var x = w.make_widget(a);
-var y = w.make_widget(b);
+/*var x = w.make_widget(a);
+var y = w.make_widget(b);*/

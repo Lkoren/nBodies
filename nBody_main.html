@@ -6,12 +6,13 @@ Based on a work at http://www.liavkoren.com/nBody_main.html. -->
 		<title>orbit controls test</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
+		<!--<style>
 			body {
 				margin:0px;
 				overflow: hidden;
 			}
-		</style>
+		</style>-->
+		<link rel="stylesheet" href="./css/n_body.css"/>
 
 	</head>
 	<body>
@@ -19,21 +20,38 @@ Based on a work at http://www.liavkoren.com/nBody_main.html. -->
 		<div class = "info">
 			<p>This is an experimental, n-body simulator, running in WebGL. This would not have been possible without Mr Doob's excellent <a href = " ">three.js</a> framework, as well as the excellent <a href="http://www.artcompsci.org/">Art of Computational Science/Maya Open Lab</a> resource by Piet Hut and Jun Makino. While incomplete and, apparently inactive, the Maya Open Lab is an excellent introduction to Ruby, astronomical simulation and the nuances of numerical simulation.</p>
 
-			<p>The N Body problem dates to Netwon's work on gravity. Two bodies moving under the influence of gravity have a small and well-understood set of behaviors -- they orbit each other. However, three or more bodies behave in much more complex ways. General analytic solutions to the three body problem have been discovered over the decades (several of them by major figures of 18/19th century math), as well as most recently by [insert names].</p>
+			<p>Unfortunately, this also means that this project requires javascript. It also, at the moment, requires a webGL enabled browser. A canvas based version which will run on non-webGL compatable platforms is in my development plan, however canvas can't provide the same sort of performance as a GPU. 
 
-			<p>Currently this simulation models bodies as point masses, and uses a leap-frog integration method to calculate motion. Leap-frog is time-reversible, but only second-order accurate. Numerical easing hasn't yet been implimented (but is on the dev path), which can result in bad solutions when two particles interact closely. A implimenting a runga-kutta [sp?] fourth-order integrator is also part of the dev-path. Currently I am still focused on developing several core interface features.</p> 
+			<p>Also, Chrome current provides the best performance. Some features do not work in all versions of Firefox. WebGL is currently not supported by IE, although it is expected in IE11. 
+
+			<p>The N Body problem dates to Netwon's work on gravity. Two bodies moving under the influence of gravity have a small and well-understood set of behaviors -- they orbit each other. However, three or more bodies behave in much more complex ways. General analytic solutions to the three body problem have been discovered over the decades (several of them by major figures of 18/19th century math), as well as most recently by <a href="http://suki.ipb.ac.rs/3body/">Milovan Šuvakov and Veljko Dmitrašinović</a>.</p>
+
+			<p>Currently this simulation models bodies as point masses, and uses a leap-frog integration method to calculate motion. Leap-frog is time-reversible, but only second-order accurate. Numerical softening has recently been implimented. Implimenting a runga-kutta fourth-order integrator is also part of the dev-path. Currently I am still focused on developing several core interface features.</p> 
 
 			<p>Questions/comments can be directed to liav [d.o.t.] koren [a.t] gee-mail [d.o.t c.o.m]<p>
 		</div>
+		<div id = "gui">
+			<span>"This is the hidden UI widget div"</span>
+		</div>
 		<!--<script src="//ajax.googleapis.com/ajax/libs/dojo/1.9.0/dojo/dojo.js" data-dojo-config="async: true"></script> -->
 		<!-- //// -->
-		<script type="text/javascript" src="./js/libs/three.min.js"></script>
-		<script type="text/javascript" src="./js/libs/TrackballControls.js"></script>	
-		<script type="text/javascript" src="./js/libs/dat.gui.js"></script>
-		<script type="text/javascript" src="./js/libs/stats.min.js"></script>	
-		<!-- //// -->
-		<script type="text/javascript" src="./js/nRender.js"></script>			
-		<script type="text/javascript" src="./js/nBodies.js"></script>	
-		<script type="text/javascript" src="./js/nHelpers.js"></script>			
 	</body>
+	<script type ="text/javascript" async src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
+	<script>
+		$(document).ready(function() {
+			$(".info").hide();
+		})			
+	</script>	
+	<script type="text/javascript" src="./js/libs/three.min.js"></script>
+	<script type="text/javascript" src="./js/libs/TrackballControls.js"></script>	
+	<script type="text/javascript" src="./js/libs/dat.gui.js"></script>
+	<script type="text/javascript" src="./js/libs/stats.min.js"></script>	
+	<script type="text/javascript" src="./widget/js/libs/sylvester.js"></script>	
+	<!-- //// -->
+	<script type="text/javascript" src="./js/widget_factory.js"></script>	
+	<script type="text/javascript" src="./js/nRender.js"></script>			
+	<script type="text/javascript" src="./js/nBodies.js"></script>	
+	<script type="text/javascript" src="./js/nHelpers.js"></script>		
+
+	<!--//// -->	
 </html>
