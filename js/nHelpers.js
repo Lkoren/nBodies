@@ -13,40 +13,84 @@ function onDocMouseClick(event) {
 	find_picked_bodies();
 }
 
+var body_gui, guiContainer;
 function find_picked_bodies() { 	//standard raycasting picking code:
 	var mouse = getMouseNDCoord();
 	var raycaster = projector.pickingRay(mouse.clone(), camera);
-	var gui, guiContainer;
+	
 	intersects = [];		
 	//check each body for picking, using the picking box as the test:
 	n.bodies.some(function(body) {
+
 		raycaster.intersectObject(body.pick_box);
 		intersect = raycaster.intersectObject(body.pick_box);	
 		if (intersect[0]) {
 			intersect[0].object.visible = !intersect[0].object.visible;		//toggles visibility of the pickbox
 			body.toggle_velocity();
 			body.toggle_axis();				
-			if (intersect[0].object.visible) { //add the velocity gui elements.
-				addFolder(body);
-				//controls.target = body.pos(); //set camera
-				//controls.noPan = true;
-				selected_bodies.push(body);
-				gui = new dat.GUI({autoPlace:false});
-				guiContainer = document.getElementById('gui');
-				guiContainer.appendChild(gui.domElement);
-				guiContainer.style.visibility = "visible";				
-				$('#gui').css({"top": document.height/4 + "px", "left": document.width/2 + 25 + "px"})
-				w.make_widget(intersect[0].object.position, {height:0.5})				
-			} else {					
-				guiContainer = document.getElementById('gui');
-				guiContainer.style.visibility = "hidden";
-				//gui.removeFolder
-				cam_pan_toggle();
-				deleteGui_elements(body);					
+
+			body_gui = new dat.GUI({autoPlace:false});
+
+			if (intersect[0].object.visible) { //add the velocity gui elements.				
+
+
+				selected_bodies.push(body);						
+				body.create_gui_div()
+				guiContainer = document.getElementById('gui_' + body.id);				
+				guiContainer.appendChild(body_gui.domElement);				
+				body.update_gui_div_position(get_body_screen_coords(body.starMesh))	
+				body_gui.addFolder('Body ' + body.id)
+				//body_gui.add(body, "pick_box.position").name("position")
+				body_gui.add(body, "pos_x").name("position x:")				
+				body_gui.add(body, "pos_y").name("position y:")
+				body_gui.add(body, "pos_z").name("position z:")				
+				body_gui.add(body, "vel_x").name("velocity x:")
+				body_gui.add(body, "vel_y").name("velocity y:")
+				body_gui.add(body, "vel_z").name("velocity z:")
+				//body_gui.add(body, "camera_target").name("lock camera on target")
+				//									.listen().onChange(function(val) {toggle_cam_lock(val).bind(body, val, body)})
+				body_gui.add(body, 'camera_target').name("Toggle camera lock")
+
+
+				body.widget = w.make_widget(intersect[0].object.position, {height:0.5})				
+			} else {		
+				guiContainer = document.getElementById('gui_' + body.id);
+				//console.log(guiContainer, ",", body_gui)
+				$('#gui_' + body.id).remove()
+				WIDGET_FACTORY.remove_widget(body.widget)
+				delete body.widget
+				//cam_pan_toggle();
+				//deleteGui_elements(body);					
 			}
 		}
 	});
 }
+
+
+
+function update_floating_gui() {
+	if (selected_bodies.length > 0) {
+
+	}
+}
+
+function remove_gui(gui, parent){
+  	if(!parent) {
+    	parent = DAT.GUI.autoPlaceContainer;
+  	}
+  	console.log("parent = ", parent);
+  	parent.removeChild(gui.domElement);
+}
+
+function get_body_screen_coords(mesh) {
+	var halfWidth = window.innerWidth/2;
+	var halfHeight = window.innerHeight/2;
+	var vector = new projector.projectVector(new THREE.Vector3().getPositionFromMatrix(mesh.matrixWorld), camera);
+	vector.x = (vector.x*halfWidth)+halfWidth
+	vector.y = -1*(vector.y*halfHeight)+halfHeight
+	return vector
+}
+
 
 function deleteGui_elements(body) {
 	gui.removeFolder('Body ' + (n.bodies.indexOf(body) + 1));
@@ -61,6 +105,9 @@ function getMouseNDCoord() {
 	mouse.z = 0.5;
 	return mouse;
 }
+function getMouseScreenCoord() {
+	return ({x: event.clientX, y:event.clientY})
+}
 
 function addFolder(body) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
 	var starGui = gui.addFolder('Body ' + (n.bodies.indexOf(body) + 1));
@@ -68,7 +115,7 @@ function addFolder(body) { //pass in the ref to the body that is being clicked, 
 	starGui.add(body, "vel_y",-5,5).step(0.1).onChange(function(y) {body.set_vel_y(y)});
 	starGui.add(body, "vel_z",-5,5).step(0.1).onChange(function(z) {body.set_vel_z(z)});	
 }
-function cam_pan_toggle() {
+/*function cam_pan_toggle() {
 	controls.noPan = !controls.noPan;
 	if (controls.noPan) {
 		lock_cam_on_body(selected_bodies.last());
@@ -79,7 +126,14 @@ function cam_pan_toggle() {
 function lock_cam_on_body(body) {
 	controls.target = body.pos();
 	controls.noPan = true;
+}*/
+function toggle_cam_lock(val) {
+	console.log("toggle: ", this)
+	console.log("ars: ", arguments)
+	controls.enabled = !controls.enabled;
+	controls.enabled ? release_cam : controls.target = body.pos()
 }
+
 function release_cam(){
 	t = new THREE.Vector3().copy(controls.target);
 	controls.target = t;
@@ -109,6 +163,7 @@ dat.GUI.prototype.removeFolder = function(name) { ////http://stackoverflow.com/q
     delete this.__folders[name];
     this.onResize();
   }
+
 
 ////stats
 var stats;

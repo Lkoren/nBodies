@@ -195,6 +195,12 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	return widget; //ding! widget is done.
 }
 WIDGET_FACTORY.remove_widget = function(w)  {
+	scene.remove(w.x_pick_box);
+	scene.remove(w.y_pick_box);
+	scene.remove(w.z_pick_box);
+	scene.remove(w.x_axis)
+	scene.remove(w.y_axis)
+	scene.remove(w.z_axis)
 	this.widgets.splice(this.widgets.indexOf(w),1);
 	return this.widgets
 }
@@ -364,7 +370,7 @@ function mousemove( event ) {
 		if (WIDGET_FACTORY.widgets[i].intersected(intersected_mesh)) {
 			WIDGET_FACTORY.intersected_widget = WIDGET_FACTORY.widgets[i];
 			break;
-		} 
+		} 		
     }
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;    

@@ -4,9 +4,10 @@
 var nb = {
 	numBodies: 3,
 	trailLength: 5000,
+	bodyID_Counter: 0
 };
 
-nb.Body = function() {	
+nb.Body = function(i) {	
 	this.mass = 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
@@ -25,11 +26,19 @@ nb.Body = function() {
 	scene.add(this.axis);
 	this.pick_box.visible = false;
 	this.axis.visible = false;
-	this.vel_x = this.vel.x;	//this is really clunky, used for adjusting velocity via gui, refactor this.	
+	this.vel_x = this.vel.x;	//this is really clunky, used for adjusting position/velocity via gui, refactor this.	
 	this.vel_y = this.vel.y;	
 	this.vel_z = this.vel.z;	
+	this.pos_x = this.pos().x
+	this.pos_y = this.pos().y
+	this.pos_z = this.pos().z	
+	//this.camera_target = false;
+	this.id = i;	
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 32, 24);
+nb.Body.prototype.camera_target = function() {
+	console.log("hi!", this);
+}
 nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
 nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
@@ -142,6 +151,28 @@ nb.Body.prototype.set_vel_z = function(z){
 	this.update_velocity();
 	return this;
 }
+nb.Body.prototype.create_gui_div = function(){
+	var div = document.createElement("div")	
+	div.style.visibility = "hidden"
+	div.style.opacity = "0.5"
+	div.style.width = "150px"
+	div.style.height = "50px"
+	div.style.position = "absolute"
+	div.style["background-color"] = "#1050ff"
+	div.style["z-index"] = "50"
+	div.id = "gui_" + this.id;		
+	this.gui_div = div;
+	document.body.appendChild(this.gui_div);
+}
+nb.Body.prototype.update_gui_div_position = function(pos) {
+	pos = pos || get_body_screen_coords(this.starMesh)
+	this.gui_div.style.left = pos.x + 20 + "px"
+	this.gui_div.style.top = pos.y + 20 + "px"
+	this.gui_div.style.visibility = "visible"
+}
+nb.Body.prototype.remove_div = function() {
+	this.gui_div.parentNode.removeChild(this.gui_div);
+}
 
 /////////////////////////
 nb.nBodies = function() {
@@ -151,8 +182,9 @@ nb.nBodies = function() {
 	this.bodies = new Array(nb.numBodies);
 	this.numBodies = nb.numBodies;
 	this.reverse = false;
-	for (var i = 0; i < nb.numBodies; i++) {
-		this.bodies[i] = new nb.Body();
+	for (var i = 0; i < nb.numBodies; i++) {		
+		this.bodies[i] = new nb.Body(nb.bodyID_Counter);
+		nb.bodyID_Counter = ++nb.bodyID_Counter;
 	}
 	this.time = 0;
 	this.go = false;	
@@ -243,8 +275,9 @@ nb.nBodies.prototype.change_num_stars = function(x) {	//kind of ugly, refactor
 		}
 	}
 }
-nb.nBodies.prototype.addStar = function() {
-	this.bodies[this.bodies.length] = new nb.Body();
+nb.nBodies.prototype.addStar = function() {	
+	this.bodies[this.bodies.length] = new nb.Body(nb.bodyID_Counter);	
+	nb.bodyID_Counter = ++nb.bodyID_Counter;
 	this.numBodies++;
 	return this 
 }
