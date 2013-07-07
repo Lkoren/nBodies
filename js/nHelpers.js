@@ -73,14 +73,9 @@ function addFolder(body, folderName) { //pass in the ref to the body that is bei
 	starGui.add(body, "pos_x").listen().name("position x:")
 	starGui.add(body, "pos_y").listen().name("position y:")
 	starGui.add(body, "pos_z").listen().name("position z:")
-	/*starGui.add(body, "vel_x",-5,5).step(0.1).listen().onChange(function(x) {body.set_vel_x(x)});
-	starGui.add(body, "vel_y",-5,5).step(0.1).listen().onChange(function(y) {body.set_vel_y(y)});
-	starGui.add(body, "vel_z",-5,5).step(0.1).listen().onChange(function(z) {body.set_vel_z(z)});		*/
 	starGui.add(body, "vel_x",-5,5).step(0.1).listen().onChange(function(x) {body.set_vel(new THREE.Vector3(x,0,0))});
 	starGui.add(body, "vel_y",-5,5).step(0.1).listen().onChange(function(y) {body.set_vel(new THREE.Vector3(0,y,0))});
 	starGui.add(body, "vel_z",-5,5).step(0.1).listen().onChange(function(z) {body.set_vel(new THREE.Vector3(0,0,z))});			
-
-
 }
 function release_cam(){
 	t = new THREE.Vector3().copy(controls.target);
@@ -98,6 +93,13 @@ window.onload = function() {
 	//gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {cam_pan_toggle()});
 	gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {release_cam()});
 }	
+function widget_move(e) {
+	n.bodies.forEach(function(body) {
+		if (body.gui_div) {
+			body.update_pos_vel()
+	}
+	})
+}
 ////stats
 var stats;
 stats = new Stats();
@@ -121,3 +123,5 @@ dat.GUI.prototype.removeFolder = function(name) {
 	delete this.__folders[name];
 this.onResize();
 }
+
+document.addEventListener('widget_move', widget_move, false)

@@ -31,7 +31,6 @@ nb.Body = function(i) {
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 32, 24);
 nb.Body.prototype.toggle_camera_lock = function() {
-	console.log("toggle cam lock");
 	if (nb.nBodies.camera_target != this.pos()) {
 		controls.target = this.pos();
 		nb.nBodies.camera_target = this.pos();
@@ -182,7 +181,15 @@ nb.Body.prototype.update_gui_div_position = function(pos) {
 nb.Body.prototype.remove_div = function() {
 	this.gui_div.parentNode.removeChild(this.gui_div);
 }
-
+nb.Body.prototype.update_pos_vel = function(){
+	this.pos_x = this.starMesh.position.x
+	this.pos_y = this.starMesh.position.y
+	this.pos_z = this.starMesh.position.z	
+	this.vel_x = this.vel.x;
+	this.vel_y = this.vel.y;	
+	this.vel_z = this.vel.z;	
+	console.log(starMesh.position)
+}
 /////////////////////////
 nb.nBodies = function() {
 	this.e0;
@@ -224,6 +231,7 @@ nb.nBodies.prototype.integrate = function(){
 	if (this.go){
 		this.leapfrog();
 		this.update_gui();
+
 	}	
 	return this
 }
@@ -315,3 +323,4 @@ nb.nBodies.prototype.update_gui= function() {
 		}
 	})
 }
+

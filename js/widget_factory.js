@@ -361,7 +361,6 @@ var raycaster, plane_intersection, vector;
 function mousedown(event) { //better way to do this than using sliding_axis?
     mouse_button_pressed = true;
     if (INTERSECTED) {
-    	//controls.enabled = false;
     	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);    	
     } 
 }
@@ -373,23 +372,18 @@ function mousemove( event ) {
 			break;
 		} 		
     }
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;    
+    mouse = getMouseNDCoord()
     if (mouse_button_pressed && WIDGET_FACTORY.intersected_widget && INTERSECTED) {
     	if (INTERSECTED.currentHex == 10092441) { //Green = y axis    		    	
 	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.y_axis);    
-	    	//WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);
-	    	controls.enabled = false;
 	    } else if (INTERSECTED.currentHex == 16751001) { //Blue = z Axis
-	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.x_axis);    
-	    	//WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);
-	    	controls.enabled = false;
+	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.x_axis);        	
 	    } else if (INTERSECTED.currentHex == 10066431) { //Red = x Axis
-	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.z_axis);    
-	    	//WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);
-	    	controls.enabled = false;
-    	} 
-	}
+	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.z_axis);        	
+    	}     	
+    	controls.enabled = false
+    	send_widget_event()
+	}	
 	n.update_gui();
 }
 function mouseup() {
@@ -397,6 +391,11 @@ function mouseup() {
     controls.enabled = true;
     WIDGET_FACTORY.intersected_widget = null;
 }
+function send_widget_event() {
+    var event = new Event('widget_move')
+	document.dispatchEvent(event);		
+}
+
 ////
 THREE.Line.prototype.length = function() {
     if (this instanceof THREE.Line) {

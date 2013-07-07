@@ -13,6 +13,7 @@ function initCamScene() {
 	scene.fog = new THREE.FogExp2( 0x202020, 0.2 );
 
 }
+
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );			
@@ -21,10 +22,10 @@ function initRenderer() {
 	container = document.getElementById( 'container' );
 	container.appendChild( renderer.domElement );
 	window.addEventListener( 'resize', onWindowResize, false );
-
 	document.addEventListener( 'mousemove', mousemove, false );
     document.addEventListener('mousedown', mousedown, false);
     document.addEventListener('mouseup', mouseup, false);
+    
     window.addEventListener( 'resize', onWindowResize, false );
 }
 function onWindowResize() {
