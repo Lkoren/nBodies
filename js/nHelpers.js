@@ -25,25 +25,23 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 			body.toggle_velocity();
 			body_gui = new dat.GUI({autoPlace:false});
 			if (intersect[0].object.visible) { //add the velocity gui elements.				
-				body.widget = w.make_widget(intersect[0].object.position, {height:0.5})			
+				body.pos_widget = w.make_widget(intersect[0].object.position, {height:0.5})		
+				body.vel_widget = w.make_widget(body.vel_arrow.geometry.vertices[1], {height:0.15})	
 				body.create_gui_div()
 				guiContainer = document.getElementById('gui_' + body.id);				
 				guiContainer.appendChild(body_gui.domElement);				
 				body.update_gui_div_position(get_body_screen_coords(body.starMesh))	
 				body_gui.addFolder('Body ' + body.id)
-				body_gui.add(body, "pos_x").listen().name("position x:")
-				body_gui.add(body, "pos_y").listen().name("position y:")
-				body_gui.add(body, "pos_z").listen().name("position z:")
-				body_gui.add(body, "vel_x").listen().name("velocity x:")
-				body_gui.add(body, "vel_y").listen().name("velocity y:")
-				body_gui.add(body, "vel_z").listen().name("velocity z:")
-				body_gui.add(body, 'toggle_camera_lock').name("Toggle camera lock")				
+				body_gui.add(body, 'toggle_camera_lock').name("Toggle camera lock")			
+				addFolder(body, 'Body ' + body.id);					
 			} else {		
 				guiContainer = document.getElementById('gui_' + body.id);
 				$('#gui_' + body.id).remove()
-				WIDGET_FACTORY.remove_widget(body.widget)
-				delete body.widget			
+				WIDGET_FACTORY.remove_widget(body.pos_widget)
+				WIDGET_FACTORY.remove_widget(body.vel_widget)
+				delete body.pos_widget			
 				delete body.gui_div
+				gui.removeFolder('Body ' + body.id)
 			}
 		}
 	});
@@ -70,17 +68,24 @@ function getMouseNDCoord() {
 	mouse.z = 0.5;
 	return mouse;
 }
-function addFolder(body) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
-	var starGui = gui.addFolder('Body ' + (n.bodies.indexOf(body) + 1));
-	starGui.add(body, "vel_x",-5,5).step(0.1).onChange(function(x) {body.set_vel_x(x)});
-	starGui.add(body, "vel_y",-5,5).step(0.1).onChange(function(y) {body.set_vel_y(y)});
-	starGui.add(body, "vel_z",-5,5).step(0.1).onChange(function(z) {body.set_vel_z(z)});	
+function addFolder(body, folderName) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
+	var starGui = gui.addFolder(folderName);
+	starGui.add(body, "pos_x").listen().name("position x:")
+	starGui.add(body, "pos_y").listen().name("position y:")
+	starGui.add(body, "pos_z").listen().name("position z:")
+	/*starGui.add(body, "vel_x",-5,5).step(0.1).listen().onChange(function(x) {body.set_vel_x(x)});
+	starGui.add(body, "vel_y",-5,5).step(0.1).listen().onChange(function(y) {body.set_vel_y(y)});
+	starGui.add(body, "vel_z",-5,5).step(0.1).listen().onChange(function(z) {body.set_vel_z(z)});		*/
+	starGui.add(body, "vel_x",-5,5).step(0.1).listen().onChange(function(x) {body.set_vel(new THREE.Vector3(x,0,0))});
+	starGui.add(body, "vel_y",-5,5).step(0.1).listen().onChange(function(y) {body.set_vel(new THREE.Vector3(0,y,0))});
+	starGui.add(body, "vel_z",-5,5).step(0.1).listen().onChange(function(z) {body.set_vel(new THREE.Vector3(0,0,z))});			
+
+
 }
 function release_cam(){
 	t = new THREE.Vector3().copy(controls.target);
 	controls.target = t;
 	controls.noPan = false;
-	console.log("release");
 }
 window.onload = function() {
 	gui.add(n, "numBodies", 2, 400).name("Number of bodies").min(0).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
@@ -103,4 +108,16 @@ container.appendChild( stats.domElement );
 Array.prototype.last = function() {
 	l = this.length;
 	return this[l-1];
+}
+
+//http://stackoverflow.com/questions/14710559/dat-gui-how-hide-menu-from-code
+dat.GUI.prototype.removeFolder = function(name) {
+	var folder = this.__folders[name];
+	if (!folder) {
+	  return;
+	}
+	folder.close();
+	this.__ul.removeChild(folder.domElement.parentNode);
+	delete this.__folders[name];
+this.onResize();
 }

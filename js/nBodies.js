@@ -148,6 +148,18 @@ nb.Body.prototype.set_vel_z = function(z){
 	this.update_velocity();
 	return this;
 }
+nb.Body.prototype.set_vel = function(v) {
+	console.log("incoming: ", v, " current: ", this.vel)
+	if (v.x) {
+		this.vel.x = v.x
+	} else if (v.y) {
+		this.vel.y = v.y
+	} else if (v.z) {
+		this.vel.z = v.z
+	}
+	console.log("result: ", this.vel)
+	this.update_velocity();
+}
 nb.Body.prototype.create_gui_div = function(){
 	var div = document.createElement("div")	
 	div.style.visibility = "hidden"
@@ -205,13 +217,14 @@ nb.nBodies.prototype.leapfrog = function() {
 		body.pos().add(tempVel.multiplyScalar(dt));
 		body.vel.add(body.accel(bodyArr, n.eps).multiplyScalar(0.5*dt));		
 		body.updateTrail();		
+		if (body.vel_arrow.visible) body.update_velocity()
 	})
 } 
 nb.nBodies.prototype.integrate = function(){
 	if (this.go){
 		this.leapfrog();
 		this.update_gui();
-	}
+	}	
 	return this
 }
 nb.nBodies.prototype.stop_go = function(){
@@ -288,12 +301,6 @@ nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use 
 		scene.remove(this.bodies[index].trail);
 		scene.remove(this.bodies[index].pick_box);
 		scene.remove(this.bodies[index].vel_arrow);
-		/*
-		if (i =  selected_bodies.indexOf(this) > -1) {
-			console.log(i);
-			deleteGui_elements(this);
-		}
-		*/
 		this.bodies.pop();
 		this.numBodies--;
 	};
@@ -304,8 +311,7 @@ nb.nBodies.prototype.update_gui= function() {
 	this.bodies.forEach(function(body) {
 		if(body.gui_div) { 
 			body.update_gui_div_position(get_body_screen_coords(body.starMesh)) 
-			console.log(body);
-			body.widget.update_position(body.pos())
+			body.pos_widget.update_position(body.pos())
 		}
 	})
 }
