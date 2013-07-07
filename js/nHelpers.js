@@ -7,12 +7,11 @@
 renderer.domElement.addEventListener( 'mousedown', onDocMouseClick, false );
 var projector = new THREE.Projector();	
 var gui = new dat.GUI();
-var selected_bodies = [];
+//var selected_bodies = [];
 function onDocMouseClick(event) {
 	event.preventDefault();
 	find_picked_bodies();
 }
-
 var body_gui, guiContainer;
 function find_picked_bodies() { 	//standard raycasting picking code:
 	var mouse = getMouseNDCoord();
@@ -28,8 +27,9 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 			body.toggle_axis();				
 			body_gui = new dat.GUI({autoPlace:false});
 			if (intersect[0].object.visible) { //add the velocity gui elements.				
-				body.widget = w.make_widget(intersect[0].object.position, {height:0.5})			
-				selected_bodies.push(body);						
+				//body.widget = w.make_widget(intersect[0].object.position, {height:0.5})			
+				body.widget = w.make_widget(body.pos(), {height:0.5})			
+				//selected_bodies.push(body);						
 				body.create_gui_div()
 				guiContainer = document.getElementById('gui_' + body.id);				
 				guiContainer.appendChild(body_gui.domElement);				
@@ -65,10 +65,6 @@ function get_body_screen_coords(mesh) {
 	vector.y = -1*(vector.y*halfHeight)+halfHeight
 	return vector
 }
-/*function deleteGui_elements(body) {
-	gui.removeFolder('Body ' + (n.bodies.indexOf(body) + 1));
-	selected_bodies.splice(selected_bodies.indexOf(body), 1);	
-}*/
 ////Gui
 function getMouseNDCoord() {
  	var mouse = new THREE.Vector3();
@@ -77,35 +73,12 @@ function getMouseNDCoord() {
 	mouse.z = 0.5;
 	return mouse;
 }
-/*function getMouseScreenCoord() {
-	return ({x: event.clientX, y:event.clientY})
-}*/
-
 function addFolder(body) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
 	var starGui = gui.addFolder('Body ' + (n.bodies.indexOf(body) + 1));
 	starGui.add(body, "vel_x",-5,5).step(0.1).onChange(function(x) {body.set_vel_x(x)});
 	starGui.add(body, "vel_y",-5,5).step(0.1).onChange(function(y) {body.set_vel_y(y)});
 	starGui.add(body, "vel_z",-5,5).step(0.1).onChange(function(z) {body.set_vel_z(z)});	
 }
-/*function cam_pan_toggle() {
-	controls.noPan = !controls.noPan;
-	if (controls.noPan) {
-		lock_cam_on_body(selected_bodies.last());
-	} else {
-		release_cam();
-	}
-}
-function lock_cam_on_body(body) {
-	controls.target = body.pos();
-	controls.noPan = true;
-}*/
-
-/*function toggle_cam_lock(val) {
-	console.log("toggle: ", this)
-	console.log("ars: ", arguments)
-	controls.enabled = !controls.enabled;
-	controls.enabled ? release_cam : controls.target = body.pos()
-}*/
 function release_cam(){
 	t = new THREE.Vector3().copy(controls.target);
 	controls.target = t;
@@ -123,16 +96,6 @@ window.onload = function() {
 	//gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {cam_pan_toggle()});
 	gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {release_cam()});
 }	
-/*dat.GUI.prototype.removeFolder = function(name) { ////http://stackoverflow.com/questions/14710559/dat-gui-how-hide-menu-from-code 
-    var folder = this.__folders[name];
-    if (!folder) {
-      return;
-    }
-    folder.close();
-    this.__ul.removeChild(folder.domElement.parentNode);
-    delete this.__folders[name];
-    this.onResize();
-  }*/
 ////stats
 var stats;
 stats = new Stats();

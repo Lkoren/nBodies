@@ -222,6 +222,7 @@ nb.nBodies.prototype.leapfrog = function() {
 nb.nBodies.prototype.integrate = function(){
 	if (this.go){
 		this.leapfrog();
+		this.update_gui();
 	}
 	return this
 }
@@ -311,4 +312,12 @@ nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use 
 	return this;
 };
 var n = new nb.nBodies;
+nb.nBodies.prototype.update_gui= function() {
+	this.bodies.forEach(function(body) {
+		if(body.gui_div) { 
+			body.update_gui_div_position(get_body_screen_coords(body.starMesh)) 
+			body.widget.update_position(body.pos())
+		}
+	})
+}
 

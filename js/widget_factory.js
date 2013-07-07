@@ -99,9 +99,11 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	widget.intersected = function(m) { //true if the passed axis mesh is part of this widget
 		return this.getDescendants().indexOf(m) > - 1 ? true : false;
 	}
-	widget.update_position = function(origin) {
+	widget.update_position = function(origin) {		
 		var origin_x_offset, origin_y_offset, origin_z_offset;
 	    var offset = new THREE.Vector3(0,0,0);
+	    console.log(INTERSECTED)
+	    INTERSECTED = INTERSECTED || {}
 	    if (INTERSECTED.axis == "y pick box") {
 //		    offset.copy(WIDGET_FACTORY.intersection_point).sub(WIDGET_FACTORY.xz_plane.position);
 //		    origin.y -= offset.y; //this introduces a slight bug in the dragging logic.
@@ -115,7 +117,8 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	    }
 
 
-	    this.origin.copy(origin);	       	    
+	    this.origin.copy(origin);	       	   
+	    console.log(this.origin);
 	    this.x_pick_box.position = new THREE.Vector3().copy(origin);	    
 	    this.y_pick_box.position = new THREE.Vector3().copy(origin);	    
 	    this.z_pick_box.position = new THREE.Vector3().copy(origin);
@@ -359,8 +362,7 @@ var raycaster, plane_intersection, vector;
 function mousedown(event) { //better way to do this than using sliding_axis?
     mouse_button_pressed = true;
     if (INTERSECTED) {
-    	controls.enabled = false;
-    	console.log(controls.enabled);
+    	//controls.enabled = false;
     	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);    	
     } 
 }
@@ -393,7 +395,6 @@ function mousemove( event ) {
 function mouseup() {
     mouse_button_pressed = false;
     controls.enabled = true;
-    console.log(controls.enabled);
     WIDGET_FACTORY.intersected_widget = null;
 }
 ////
