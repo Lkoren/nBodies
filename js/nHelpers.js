@@ -7,7 +7,6 @@
 renderer.domElement.addEventListener( 'mousedown', onDocMouseClick, false );
 var projector = new THREE.Projector();	
 var gui = new dat.GUI();
-//var selected_bodies = [];
 function onDocMouseClick(event) {
 	event.preventDefault();
 	find_picked_bodies();
@@ -24,12 +23,9 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 		if (intersect[0]) {
 			intersect[0].object.visible = !intersect[0].object.visible;		//toggles visibility of the pickbox
 			body.toggle_velocity();
-			body.toggle_axis();				
 			body_gui = new dat.GUI({autoPlace:false});
 			if (intersect[0].object.visible) { //add the velocity gui elements.				
-				//body.widget = w.make_widget(intersect[0].object.position, {height:0.5})			
-				body.widget = w.make_widget(body.pos(), {height:0.5})			
-				//selected_bodies.push(body);						
+				body.widget = w.make_widget(intersect[0].object.position, {height:0.5})			
 				body.create_gui_div()
 				guiContainer = document.getElementById('gui_' + body.id);				
 				guiContainer.appendChild(body_gui.domElement);				
@@ -47,6 +43,7 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 				$('#gui_' + body.id).remove()
 				WIDGET_FACTORY.remove_widget(body.widget)
 				delete body.widget			
+				delete body.gui_div
 			}
 		}
 	});

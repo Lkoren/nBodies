@@ -1,31 +1,20 @@
 
-
-- picking code for bodies + widgets for position/velocity setting
 - camera controls:
 	- set target
 	- follow system centre of mass
 	- resize frustum based on system setup
 
--change trails over to particle system
-
-
-
-
-
-
 Basic dev:
 - ability to serialize and save/load state 
 - encapsulate render and physics logic in functions.
-- add random rotation to each body
 - improve trail logic
 
 Phyics:
 - add rk4 integration method
-- numerical easing
+
 
 UI/UX:
-- GUI 
-	
+- GUI 	
 - shader effects
 - energy vizulization
 - web app on GAE, Heroku, other?
@@ -51,4 +40,5 @@ done!
 -get a better camera
 - move to THREE's partical system
 	-trails implimented as particle systems.
-	
+- numerical easing
+- picking code for bodies + widgets for position/velocity setting

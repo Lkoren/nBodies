@@ -6,7 +6,6 @@ var nb = {
 	trailLength: 5000,
 	bodyID_Counter: 0
 };
-
 nb.Body = function(i) {	
 	this.mass = 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
@@ -18,21 +17,16 @@ nb.Body = function(i) {
 	this.init_vel_arrow();
 	this.pick_box = new THREE.Mesh(this.pick_box_geom, this.pick_box_mat);	
 	this.pick_box.position = this.pos();
-	this.axis = new THREE.AxisHelper(1);
-	this.axis.postition = new THREE.Vector3().copy(this.pos());
 	scene.add(this.starMesh);
 	scene.add(this.trail);
 	scene.add(this.pick_box);	
-	scene.add(this.axis);
 	this.pick_box.visible = false;
-	this.axis.visible = false;
 	this.vel_x = this.vel.x;	//this is really clunky, used for adjusting position/velocity via gui, refactor this.	
 	this.vel_y = this.vel.y;	
 	this.vel_z = this.vel.z;	
 	this.pos_x = this.pos().x
 	this.pos_y = this.pos().y
 	this.pos_z = this.pos().z	
-	//this.camera_target = false;
 	this.id = i;	
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 32, 24);
@@ -128,12 +122,6 @@ nb.Body.prototype.update_velocity = function() {
 	this.vel_arrow.geometry.vertices[1] = new THREE.Vector3().copy(this.pos()).add(this.vel);	
 	this.vel_arrow.geometry.verticesNeedUpdate = true;
 	return this;	
-}
-
-nb.Body.prototype.toggle_axis = function(){
-	this.axis.position = new THREE.Vector3().copy(this.pos());
-	this.axis.visible = !this.axis.visible;
-	return this;
 }
 nb.Body.prototype.to_s = function() {
 	console.log("Mass = ", this.mass);
@@ -316,8 +304,8 @@ nb.nBodies.prototype.update_gui= function() {
 	this.bodies.forEach(function(body) {
 		if(body.gui_div) { 
 			body.update_gui_div_position(get_body_screen_coords(body.starMesh)) 
+			console.log(body);
 			body.widget.update_position(body.pos())
 		}
 	})
 }
-

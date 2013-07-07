@@ -135,7 +135,7 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	    this.z_axis.geometry.vertices[1] = origin_z_offset;
 	    this.x_axis.geometry.verticesNeedUpdate = true;
 	    this.y_axis.geometry.verticesNeedUpdate = true;
-	    this.z_axis.geometry.verticesNeedUpdate = true;
+	    this.z_axis.geometry.verticesNeedUpdate = true;	    
 	}
 
 	//INTERSECTED.currentHex == 10092441
@@ -390,6 +390,7 @@ function mousemove( event ) {
 	    	controls.enabled = false;
     	} 
 	}
+	n.update_gui();
 }
 function mouseup() {
     mouse_button_pressed = false;
