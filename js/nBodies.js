@@ -188,7 +188,6 @@ nb.Body.prototype.update_pos_vel = function(){
 	this.vel_x = this.vel.x;
 	this.vel_y = this.vel.y;	
 	this.vel_z = this.vel.z;	
-	console.log(starMesh.position)
 }
 /////////////////////////
 nb.nBodies = function() {
