@@ -36,8 +36,17 @@ nb.Body = function(i) {
 	this.id = i;	
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 32, 24);
-nb.Body.prototype.camera_target = function() {
-	console.log("hi!", this);
+nb.Body.prototype.toggle_camera_lock = function() {
+	console.log("toggle cam lock");
+	if (nb.nBodies.camera_target != this.pos()) {
+		controls.target = this.pos();
+		nb.nBodies.camera_target = this.pos();
+		controls.noPan = true;
+	} else {
+		controls.target = new THREE.Vector3().copy(this.pos())
+		controls.noPan = false;
+		nb.nBodies.camera_target = null;
+	}
 }
 nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
@@ -155,8 +164,8 @@ nb.Body.prototype.create_gui_div = function(){
 	var div = document.createElement("div")	
 	div.style.visibility = "hidden"
 	div.style.opacity = "0.5"
-	div.style.width = "150px"
-	div.style.height = "50px"
+	div.style.width = "250px"
+	div.style.height = "25px"
 	div.style.position = "absolute"
 	div.style["background-color"] = "#1050ff"
 	div.style["z-index"] = "50"
@@ -189,6 +198,7 @@ nb.nBodies = function() {
 	this.time = 0;
 	this.go = false;	
 	this.eps = 0.01;
+	this.camera_target = null;
 }
 
 //numerical softening parameter. See ArtCompSci, vol 4, pp 100...
