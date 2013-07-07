@@ -99,11 +99,9 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	widget.intersected = function(m) { //true if the passed axis mesh is part of this widget
 		return this.getDescendants().indexOf(m) > - 1 ? true : false;
 	}
-	widget.update_position = function(origin) {		
+	widget.update_position_by_translation = function(origin) {		
 		var origin_x_offset, origin_y_offset, origin_z_offset;
 	    var offset = new THREE.Vector3(0,0,0);
-	    console.log(INTERSECTED)
-	    INTERSECTED = INTERSECTED || {}
 	    if (INTERSECTED.axis == "y pick box") {
 //		    offset.copy(WIDGET_FACTORY.intersection_point).sub(WIDGET_FACTORY.xz_plane.position);
 //		    origin.y -= offset.y; //this introduces a slight bug in the dragging logic.
@@ -115,10 +113,10 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	    } else if (INTERSECTED.axis == "z pick box") {
 	    	origin.z -= this.params.height;	//less buggy, but not quite as nice.			    						
 	    }
-
-
+	    this.update_position(origin)
+	}
+	widget.update_position = function(origin) {
 	    this.origin.copy(origin);	       	   
-	    console.log(this.origin);
 	    this.x_pick_box.position = new THREE.Vector3().copy(origin);	    
 	    this.y_pick_box.position = new THREE.Vector3().copy(origin);	    
 	    this.z_pick_box.position = new THREE.Vector3().copy(origin);
@@ -137,8 +135,9 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	    this.z_axis.geometry.vertices[1] = origin_z_offset;
 	    this.x_axis.geometry.verticesNeedUpdate = true;
 	    this.y_axis.geometry.verticesNeedUpdate = true;
-	    this.z_axis.geometry.verticesNeedUpdate = true;   		
+	    this.z_axis.geometry.verticesNeedUpdate = true;
 	}
+
 	//INTERSECTED.currentHex == 10092441
 	function init_widget() {
 		var axis_lines, axis_pick_boxes;		
@@ -269,7 +268,7 @@ WIDGET_FACTORY.build_skew_line = function(line1, line2) {
 	        skew_line = draw_skew_line(candidate_solution);
 	    }
 	    if (skew_line.length() < 4.5) {
-	        WIDGET_FACTORY.intersected_widget.update_position(skew_line.geometry.vertices[1]);
+	        WIDGET_FACTORY.intersected_widget.update_position_by_translation(skew_line.geometry.vertices[1]);
 	       // controls.enabled = false;        
 	    }
     }
