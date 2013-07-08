@@ -113,6 +113,7 @@ nb.Body.prototype.init_vel_arrow = function(){
 };
 nb.Body.prototype.toggle_velocity = function() {
 	this.update_velocity_arrow_geometry();
+
 	this.vel_arrow.visible = !this.vel_arrow.visible;
 	this.vel_arrow.geometry.verticesNeedUpdate = true;
 	return this;
@@ -132,22 +133,6 @@ nb.Body.prototype.to_s = function() {
 	console.log("eTot = ", this.ekin() + this.epot(n.bodies));
 	console.log("=======") 
 }	
-//refactor this logic:
-/*nb.Body.prototype.set_vel_x = function(x){
-	this.vel.x = x;
-	this.update_velocity_arrow_geometry();
-	return this;
-}
-nb.Body.prototype.set_vel_y = function(y){
-	this.vel.y = y;
-	this.update_velocity_arrow_geometry();
-	return this;
-}
-nb.Body.prototype.set_vel_z = function(z){
-	this.vel.z = z;
-	this.update_velocity_arrow_geometry();
-	return this;
-}*/
 nb.Body.prototype.set_vel = function(v, widget) {
 	if (v.x) {
 		this.vel.x = v.x
@@ -233,7 +218,7 @@ nb.nBodies.prototype.integrate = function(){
 	if (this.go){
 		this.leapfrog();
 		this.update_gui();
-
+		update_vel_while_integrating()
 	}	
 	return this
 }
@@ -321,8 +306,13 @@ nb.nBodies.prototype.update_gui= function() {
 	this.bodies.forEach(function(body) {
 		if(body.gui_div) { 
 			body.update_gui_div_position(get_body_screen_coords(body.starMesh)) 
-			body.pos_widget.update_position(body.pos())
+			body.pos_widget.update_position(body.pos())			
 		}
 	})
 }
 
+update_vel_while_integrating = function() {
+	n.bodies.forEach(function(body) {
+		if (body.vel_widget) body.vel_widget.update_position(body.vel_arrow.geometry.vertices[1])
+	})
+}
