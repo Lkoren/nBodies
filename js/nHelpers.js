@@ -105,20 +105,19 @@ function widget_move(e) {
 	n.bodies.forEach(function(body) {
 		if (body.gui_div) {
 			body.update_pos_vel()
-	}
-		if (e.detail.params.type == "velocity") {
-			console.log("new vel: ", e.detail)
-			if (e.detail.intersected_mesh.axis == "x pick box") {
-				body.vel.x = e.detail.origin.x - body.pos().x
-			} else if (e.detail.intersected_mesh.axis == "y pick box") {
-				body.vel.y = e.detail.origin.y - body.pos().y
-			} else if (e.detail.intersected_mesh.axis == "z pick box") {
-				body.vel.z = e.detail.origin.z - body.pos().z
+			if (e.detail.params.type == "velocity" && e.detail == body.vel_widget  ) {
+				if (e.detail.intersected_mesh.axis == "x pick box") {
+					body.vel.x = e.detail.origin.x - body.pos().x
+				} else if (e.detail.intersected_mesh.axis == "y pick box") {
+					body.vel.y = e.detail.origin.y - body.pos().y
+				} else if (e.detail.intersected_mesh.axis == "z pick box") {
+					body.vel.z = e.detail.origin.z - body.pos().z
+				}
+			} else if (e.detail.params.type == "position") {
+				var temp = new THREE.Vector3().copy(body.pos()).add(body.vel)
+				body.vel_widget.update_position(temp)
 			}
 			body.update_velocity_arrow_geometry()
-			//body.vel = e.detail.origin
-
-			//body.set_vel(new_vel, e.detail) //adding e.detail to this call is a bad hack as part of the sloppy widget update code.
 		}
 	})
 }
