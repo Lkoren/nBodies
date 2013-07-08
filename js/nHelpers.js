@@ -70,9 +70,9 @@ function getMouseNDCoord() {
 }
 function addFolder(body, folderName) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
 	var starGui = gui.addFolder(folderName);
-	starGui.add(body, "pos_x").listen().name("position x:").onChange(function() {update_body_widget()})
-	starGui.add(body, "pos_y").listen().name("position y:").onChange(function() {update_body_widget()})
-	starGui.add(body, "pos_z").listen().name("position z:").onChange(function() {update_body_widget()})
+	starGui.add(body, "pos_x").step(0.1).listen().name("position x:").onChange(function() {update_body_widget()})
+	starGui.add(body, "pos_y").step(0.1).listen().name("position y:").onChange(function() {update_body_widget()})
+	starGui.add(body, "pos_z").step(0.1).listen().name("position z:").onChange(function() {update_body_widget()})
 	starGui.add(body, "vel_x",-5,5).step(0.1).listen().onChange(function(x) {body.set_vel(new THREE.Vector3(x,0,0))});
 	starGui.add(body, "vel_y",-5,5).step(0.1).listen().onChange(function(y) {body.set_vel(new THREE.Vector3(0,y,0))});
 	starGui.add(body, "vel_z",-5,5).step(0.1).listen().onChange(function(z) {body.set_vel(new THREE.Vector3(0,0,z))});			
