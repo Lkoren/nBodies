@@ -25,8 +25,8 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 			body.toggle_velocity();
 			body_gui = new dat.GUI({autoPlace:false});
 			if (intersect[0].object.visible) { //add the velocity gui elements.				
-				body.pos_widget = w.make_widget(intersect[0].object.position, {height:0.5})		
-				body.vel_widget = w.make_widget(body.vel_arrow.geometry.vertices[1], {height:0.15})	
+				body.pos_widget = w.make_widget(intersect[0].object.position, {height:0.5, type: "position"})		
+				body.vel_widget = w.make_widget(body.vel_arrow.geometry.vertices[1], {height:0.15, type: "velocity"})	
 				body.create_gui_div()
 				guiContainer = document.getElementById('gui_' + body.id);				
 				guiContainer.appendChild(body_gui.domElement);				
@@ -73,14 +73,15 @@ function addFolder(body, folderName) { //pass in the ref to the body that is bei
 	starGui.add(body, "pos_x").step(0.1).listen().name("position x:").onChange(function() {update_body_widget()})
 	starGui.add(body, "pos_y").step(0.1).listen().name("position y:").onChange(function() {update_body_widget()})
 	starGui.add(body, "pos_z").step(0.1).listen().name("position z:").onChange(function() {update_body_widget()})
-	starGui.add(body, "vel_x",-5,5).step(0.1).listen().onChange(function(x) {body.set_vel(new THREE.Vector3(x,0,0))});
-	starGui.add(body, "vel_y",-5,5).step(0.1).listen().onChange(function(y) {body.set_vel(new THREE.Vector3(0,y,0))});
-	starGui.add(body, "vel_z",-5,5).step(0.1).listen().onChange(function(z) {body.set_vel(new THREE.Vector3(0,0,z))});			
+	//velocity update method is older, should probably be refactored to match position update method.
+	starGui.add(body, "vel_x",-5,5).step(0.1).listen().onChange(function(x) {body.set_vel(new THREE.Vector3(x,0,0), body.vel_widget)});
+	starGui.add(body, "vel_y",-5,5).step(0.1).listen().onChange(function(y) {body.set_vel(new THREE.Vector3(0,y,0), body.vel_widget)});
+	starGui.add(body, "vel_z",-5,5).step(0.1).listen().onChange(function(z) {body.set_vel(new THREE.Vector3(0,0,z), body.vel_widget)});			
 }
 function update_body_widget() { //sigh. Need this to update widget when gui changes body.pos.
 	n.bodies.forEach(function(body) {
 		if (body.gui_div) {
-			body.pos_widget.update_position(body.pos());
+			body.pos_widget.update_position(body.pos());			
 		}
 	})
 }
@@ -105,6 +106,20 @@ function widget_move(e) {
 		if (body.gui_div) {
 			body.update_pos_vel()
 	}
+		if (e.detail.params.type == "velocity") {
+			console.log("new vel: ", e.detail)
+			if (e.detail.intersected_mesh.axis == "x pick box") {
+				body.vel.x = e.detail.origin.x - body.pos().x
+			} else if (e.detail.intersected_mesh.axis == "y pick box") {
+				body.vel.y = e.detail.origin.y - body.pos().y
+			} else if (e.detail.intersected_mesh.axis == "z pick box") {
+				body.vel.z = e.detail.origin.z - body.pos().z
+			}
+			body.update_velocity_arrow_geometry()
+			//body.vel = e.detail.origin
+
+			//body.set_vel(new_vel, e.detail) //adding e.detail to this call is a bad hack as part of the sloppy widget update code.
+		}
 	})
 }
 ////stats

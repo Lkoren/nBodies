@@ -32,7 +32,7 @@ var projector, scene, camera;
 
 var mouse_button_pressed = false;
 var sliding_axis; //keeps track of which, if any, axis we are alowed to move along. 
-var mouse = {x:0, y:0}, INTERSECTED;
+var mouse = {x:0, y:0}, INTERSECTED_MESH; 
 //var intersects;
 var w,x; 
 //var x_axis_line, y_axis_line, z_axis_line;
@@ -102,15 +102,15 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	widget.update_position_by_translation = function(origin) {		
 		var origin_x_offset, origin_y_offset, origin_z_offset;
 	    var offset = new THREE.Vector3(0,0,0);
-	    if (INTERSECTED.axis == "y pick box") {
+	    if (INTERSECTED_MESH.axis == "y pick box") {
 //		    offset.copy(WIDGET_FACTORY.intersection_point).sub(WIDGET_FACTORY.xz_plane.position);
 //		    origin.y -= offset.y; //this introduces a slight bug in the dragging logic.
 	    						//added to give the correct offset for the mouse position
 	    						//when dragging. 
 			origin.y -= this.params.height;	//less buggy, but not quite as nice.			    						
-	    } else if (INTERSECTED.axis == "x pick box") {
+	    } else if (INTERSECTED_MESH.axis == "x pick box") {
 	    	origin.x -= this.params.height;	//less buggy, but not quite as nice.			    						
-	    } else if (INTERSECTED.axis == "z pick box") {
+	    } else if (INTERSECTED_MESH.axis == "z pick box") {
 	    	origin.z -= this.params.height;	//less buggy, but not quite as nice.			    						
 	    }
 	    this.update_position(origin)
@@ -138,7 +138,7 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	    this.z_axis.geometry.verticesNeedUpdate = true;	    
 	}
 
-	//INTERSECTED.currentHex == 10092441
+	//INTERSECTED_MESH.currentHex == 10092441
 	function init_widget() {
 		var axis_lines, axis_pick_boxes;		
 		that.id = ++WIDGET_FACTORY.widget_counter;
@@ -295,16 +295,16 @@ WIDGET_FACTORY.build_skew_line = function(line1, line2) {
         end.multiplyScalar(-y).add(L2_offset);
         var w;
         for (var i = 0; i < WIDGET_FACTORY.widgets.length; i++) {
-        	if (WIDGET_FACTORY.widgets[i].getDescendants(INTERSECTED)) {
+        	if (WIDGET_FACTORY.widgets[i].getDescendants(INTERSECTED_MESH)) {
         		w = WIDGET_FACTORY.widgets[i];
         		break;
         	}
         }
-        if (INTERSECTED.axis == "y pick box"){
+        if (INTERSECTED_MESH.axis == "y pick box"){
         	start.y -= w.params.height;
-        } else if (INTERSECTED.axis == "x pick box") {
+        } else if (INTERSECTED_MESH.axis == "x pick box") {
         	start.x -= w.params.height;
-        } else if (INTERSECTED.axis == "z pick box") {
+        } else if (INTERSECTED_MESH.axis == "z pick box") {
         	start.z -= w.params.height;
         }
         skew_line_geom.vertices.push(start);
@@ -340,27 +340,27 @@ function check_for_intersection() {
 	var intersects = raycaster.intersectObjects(WIDGET_FACTORY.widgets, true);
 	if ( intersects.length > 0 ) {
 		WIDGET_FACTORY.intersection_point.copy(intersects[0].point);
-		if ( INTERSECTED != intersects[ 0 ].object ) {
-			if ( INTERSECTED ) 
-				INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-		INTERSECTED = intersects[ 0 ].object;
-		INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-		INTERSECTED.material.color.setHex( 0xffff00 );
+		if ( INTERSECTED_MESH != intersects[ 0 ].object ) {
+			if ( INTERSECTED_MESH ) 
+				INTERSECTED_MESH.material.color.setHex( INTERSECTED_MESH.currentHex );
+		INTERSECTED_MESH = intersects[ 0 ].object;
+		INTERSECTED_MESH.currentHex = INTERSECTED_MESH.material.color.getHex();
+		INTERSECTED_MESH.material.color.setHex( 0xffff00 );
 		}
 	} else {
 		WIDGET_FACTORY.intersection_point = new THREE.Vector3(0,0,0);
-	    if ( INTERSECTED ) 
-        	INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-    	INTERSECTED = null;		
+	    if ( INTERSECTED_MESH ) 
+        	INTERSECTED_MESH.material.color.setHex( INTERSECTED_MESH.currentHex );
+    	INTERSECTED_MESH = null;		
 	}
-	return INTERSECTED;
+	return INTERSECTED_MESH;
 }
 ////event listeners:
 var xz_offset;
 var raycaster, plane_intersection, vector;
 function mousedown(event) { //better way to do this than using sliding_axis?
     mouse_button_pressed = true;
-    if (INTERSECTED) {
+    if (INTERSECTED_MESH) {
     	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);    	
     } 
 }
@@ -373,16 +373,16 @@ function mousemove( event ) {
 		} 		
     }
     mouse = getMouseNDCoord()
-    if (mouse_button_pressed && WIDGET_FACTORY.intersected_widget && INTERSECTED) {
-    	if (INTERSECTED.currentHex == 10092441) { //Green = y axis    		    	
+    if (mouse_button_pressed && WIDGET_FACTORY.intersected_widget && INTERSECTED_MESH) {
+    	if (INTERSECTED_MESH.currentHex == 10092441) { //Green = y axis    		    	
 	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.y_axis);    
-	    } else if (INTERSECTED.currentHex == 16751001) { //Blue = z Axis
+	    } else if (INTERSECTED_MESH.currentHex == 16751001) { //Blue = z Axis
 	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.x_axis);        	
-	    } else if (INTERSECTED.currentHex == 10066431) { //Red = x Axis
+	    } else if (INTERSECTED_MESH.currentHex == 10066431) { //Red = x Axis
 	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.z_axis);        	
     	}     	
     	controls.enabled = false
-    	send_widget_event()
+    	send_widget_event(WIDGET_FACTORY.intersected_widget)
 	}	
 	n.update_gui();
 }
@@ -391,8 +391,10 @@ function mouseup() {
     controls.enabled = true;
     WIDGET_FACTORY.intersected_widget = null;
 }
-function send_widget_event() {
-    var event = new Event('widget_move')
+function send_widget_event(w) {
+    //var event = new Event('widget_move')    
+    w.intersected_mesh = INTERSECTED_MESH;
+    var event = new CustomEvent('widget_move', {detail: w})
 	document.dispatchEvent(event);		
 }
 

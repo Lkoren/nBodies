@@ -8,6 +8,7 @@ var nb = {
 };
 nb.Body = function(i) {	
 	this.mass = 20.0;
+
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
@@ -111,12 +112,12 @@ nb.Body.prototype.init_vel_arrow = function(){
 	this.vel_arrow.visible = false;
 };
 nb.Body.prototype.toggle_velocity = function() {
-	this.update_velocity();
+	this.update_velocity_arrow_geometry();
 	this.vel_arrow.visible = !this.vel_arrow.visible;
 	this.vel_arrow.geometry.verticesNeedUpdate = true;
 	return this;
 };
-nb.Body.prototype.update_velocity = function() {
+nb.Body.prototype.update_velocity_arrow_geometry = function() {
 	this.vel_arrow.geometry.vertices[0] = new THREE.Vector3().copy(this.pos());
 	this.vel_arrow.geometry.vertices[1] = new THREE.Vector3().copy(this.pos()).add(this.vel);	
 	this.vel_arrow.geometry.verticesNeedUpdate = true;
@@ -132,23 +133,22 @@ nb.Body.prototype.to_s = function() {
 	console.log("=======") 
 }	
 //refactor this logic:
-nb.Body.prototype.set_vel_x = function(x){
+/*nb.Body.prototype.set_vel_x = function(x){
 	this.vel.x = x;
-	this.update_velocity();
+	this.update_velocity_arrow_geometry();
 	return this;
 }
 nb.Body.prototype.set_vel_y = function(y){
 	this.vel.y = y;
-	this.update_velocity();
+	this.update_velocity_arrow_geometry();
 	return this;
 }
 nb.Body.prototype.set_vel_z = function(z){
 	this.vel.z = z;
-	this.update_velocity();
+	this.update_velocity_arrow_geometry();
 	return this;
-}
-nb.Body.prototype.set_vel = function(v) {
-	console.log("incoming: ", v, " current: ", this.vel)
+}*/
+nb.Body.prototype.set_vel = function(v, widget) {
 	if (v.x) {
 		this.vel.x = v.x
 	} else if (v.y) {
@@ -156,8 +156,11 @@ nb.Body.prototype.set_vel = function(v) {
 	} else if (v.z) {
 		this.vel.z = v.z
 	}
-	console.log("result: ", this.vel)
-	this.update_velocity();
+	var tempVel = new THREE.Vector3().copy(this.vel).add(this.pos());
+	if (widget) {
+		widget.update_position(tempVel);
+	}
+	this.update_velocity_arrow_geometry();
 }
 nb.Body.prototype.create_gui_div = function(){
 	var div = document.createElement("div")	
@@ -223,7 +226,7 @@ nb.nBodies.prototype.leapfrog = function() {
 		body.pos().add(tempVel.multiplyScalar(dt));
 		body.vel.add(body.accel(bodyArr, n.eps).multiplyScalar(0.5*dt));		
 		body.updateTrail();		
-		if (body.vel_arrow.visible) body.update_velocity()
+		if (body.vel_arrow.visible) body.update_velocity_arrow_geometry()
 	})
 } 
 nb.nBodies.prototype.integrate = function(){
