@@ -8,7 +8,6 @@ var nb = {
 };
 nb.Body = function(i) {	
 	this.mass = 20.0;
-
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
@@ -151,7 +150,7 @@ nb.Body.prototype.create_gui_div = function(){
 	var div = document.createElement("div")	
 	div.style.visibility = "hidden"
 	div.style.opacity = "0.5"
-	div.style.width = "250px"
+	div.style.width = "125px"
 	div.style.height = "25px"
 	div.style.position = "absolute"
 	div.style["background-color"] = "#1050ff"
@@ -310,7 +309,6 @@ nb.nBodies.prototype.update_gui= function() {
 		}
 	})
 }
-
 update_vel_while_integrating = function() {
 	n.bodies.forEach(function(body) {
 		if (body.vel_widget) body.vel_widget.update_position(body.vel_arrow.geometry.vertices[1])

@@ -140,7 +140,7 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 
 	//INTERSECTED_MESH.currentHex == 10092441
 	function init_widget() {
-		var axis_lines, axis_pick_boxes;		
+		var axis_lines, axis_pick_boxes, scale;
 		that.id = ++WIDGET_FACTORY.widget_counter;
 		that.x_axis = make_axis_line(new THREE.Vector3(0.5,0,0), new THREE.Vector3(4,0,0), 0x880000, "x axis line");
 		that.y_axis = make_axis_line(new THREE.Vector3(0,0.5,0), new THREE.Vector3(0,4,0), 0x008800, "y axis line");
@@ -162,7 +162,7 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 		geom.vertices = [v1, v2];
 		var L = new THREE.Line(geom, mat);
 		L.axis = "name";
-		scene.add(L);
+		//scene.add(L);
 		return L;
 	}
 	function make_widget_pick_boxes() {
