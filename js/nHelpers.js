@@ -8,50 +8,42 @@
 info = function() {	
 }
 info.toggle_info = function() {
-	/*if ($('#floating-info').length == 0) {
-		$('body').append('<div id="floating-info"></div>');		
-	}*/
 	if ($('#info-container').length == 0) {
 		$('body').append('<div id="info-container"></div>');		
 		$('#info-container').append('<div id="floating-info"></div>');		
-		$('#info-container').css({"position":"absolute", "left":"50%", "z-index": "100", "top":"20px"})
-		$('#floating-info').css({"position":"relative", "left": "-50%", "background":"#dddddd", "opacity":"0.9", "top": "20px", "padding-left": "2em",
-								"padding-right": "2em", "padding-top": "0.5em","padding-bottom": "0.5em"})
+		$('#info-container').css({"position":"absolute", "left":"50%", "z-index": "100", "top":"20px", "width":"70%", "display":"none"})
+		$('#floating-info').css({"position":"relative", "left": "-50%", "background":"#dddddd", "opacity":"0.8", "top": "20px", "padding-left": "2em",
+								"padding-right": "2em", "padding-top": "0.5em","padding-bottom": "0.5em", "display":"none"})
 	}
-	/*$('#floating-info').css({"position": "absolute", "margin": "auto", "z-index": "100", "top":"200px", "left": "50%", "margin-top": "50px", "width": "40%", 
-		"background": "#dddddd", "display": "block"})
-	$('#floating-info').text("testing")*/
-	$('#floating-info').html("\
-								<h1>test test test</h1> \
-								<p>test</p> \
-								test test")
-	$('#floating-info').html(" <p> This is an experimental, n-body simulator, running in WebGL. This would not have been possible\
-		without the excellent <a href = 'http://threejs.org/'>three.js</a> framework, as well as the \
-		excellent <a href= 'http://www.artcompsci.org/'>Art of Computational Science/Maya Open Lab</a> \
+	$('#floating-info').html(" <p>This is an experimental, n-body simulator, running in WebGL. This would not have been possible\
+		without the excellent <a href = 'http://threejs.org/' target='_blank'>three.js</a> framework, as well as the \
+		excellent <a href= 'http://www.artcompsci.org/' target='_blank'>Art of Computational Science/Maya Open Lab</a> \
 		resource by Piet Hut and Jun Makino. While incomplete and, apparently inactive, the Maya Open Lab is an great \
 		introduction to Ruby, astronomical simulation and the nuances of numerical simulation. </p> \
 \
-		<p> The N Body problem dates to the first work on gravity done by Newton. Two bodies moving under the influence of \
-		gravity have a small and well-understood set of behaviors. However, three or more bodies behave \
-		in much more complex ways. Analytic solutions to the three body problem have been discovered over the decades \
+		<p> The <a href='http://en.wikipedia.org/wiki/N-body_problem' target='_blank'>n-body problem</a> dates to the first work on gravity done by Newton. \
+		Two bodies moving under the influence of gravity have a small and well-understood set of behaviors. For three bodies, \
+		analytic solutions exist for special cases only. A general analytic solution cannot be found for three or more bodies. \
+		Special case analytic solutions to the three body problem have been discovered over the decades \
 		(several of them by major figures of 18/19th century math), as well as most recently by \
-		<a href= 'http://suki.ipb.ac.rs/3body/'> Milovan Šuvakov and Veljko Dmitrašinović </a>. However, these solutions are \
-		for limited, special cases within certain set initial conditions. A general solution is not yet know. </p> \
+		<a href= 'http://suki.ipb.ac.rs/3body/' target='_blank'> Milovan Šuvakov and Veljko Dmitrašinović</a>.\
 \
 		<p> Currently this simulation models bodies as point masses, and uses a leap-frog integration method to calculate motion. \
 		Leap-frog is time-reversible, but only second-order accurate. Numerical softening has recently been implimented. Implimenting \
 		a runga-kutta fourth-order integrator is also part of the dev-path, however currently I am still focused on developing several core \
 		interface features. </p>\
 \
-		<p>Chrome current provides the best performance. Some features do not work in all versions of Firefox.\
-		WebGL is currently not supported by IE, although it is expected in IE11.\
+		<p>This project is under very active development, as of the July 2013. It has been tested to work in Chrome and Firefox under \
+		 Win 7. Chrome current provides the best performance. Some features do not work in all versions of Firefox, and some features are \
+		 still being debugged. WebGL is currently not supported by IE, although it is expected in IE11. \
+\
+		<p>This is a personal project by <a href='http://www.liavkoren.org' target='_blank'>Liav Koren</a>. I am a Toronto based designer, technologist and researcher.\
+		I have been passionate about space, physics, generative geometry and computational design for a long time. All code by me is licensed \
+		Creative Commons, Share Alike, non-Commercial. The full code base will be pushed to Git Hub in the near future. \
 		")
-
 	$('#info-container').toggle()
 	$('#floating-info').toggle()
 	$('#floating-info').click(function() { $(this).css({'display':'none'}); $(this).parent().css({'display':'none'}) })
-	//$('.info').toggle()
-	
 }
 
 renderer.domElement.addEventListener( 'mousedown', onDocMouseClick, false );
@@ -207,7 +199,6 @@ dat.GUI.prototype.removeFolder = function(name) {
 this.onResize();
 }
 ////
-
 
 toggle_info_div = function() {
 	console.log("toggle")
