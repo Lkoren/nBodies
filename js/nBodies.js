@@ -289,7 +289,7 @@ nb.nBodies.prototype.change_num_stars = function(x) {	//kind of ugly, refactor
 nb.nBodies.prototype.addStar = function() {	
 	this.bodies[this.bodies.length] = new nb.Body(nb.bodyID_Counter);	
 	nb.bodyID_Counter = ++nb.bodyID_Counter;
-	this.numBodies++;
+	this.numBodies = this.bodies.length;
 	return this 
 }
 nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use obj.traverse
