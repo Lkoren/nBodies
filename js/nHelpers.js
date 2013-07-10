@@ -25,8 +25,9 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 			body.toggle_velocity();
 			body_gui = new dat.GUI({autoPlace:false});
 			if (intersect[0].object.visible) { //add the velocity gui elements.				
-				body.pos_widget = w.make_widget(intersect[0].object.position, {height:0.5, type: "position"})		
-				body.vel_widget = w.make_widget(body.vel_arrow.geometry.vertices[1], {height:0.15, type: "velocity"})	
+				body.pos_widget = WIDGET_FACTORY.make_widget(intersect[0].object.position, {height:0.5, type: "position"})		
+				body.vel_widget = WIDGET_FACTORY.make_widget(body.vel_arrow.geometry.vertices[1], {height:0.15, type: "velocity"})	
+
 				body.create_gui_div()				
 				guiContainer = document.getElementById('gui_' + body.id);				
 				guiContainer.appendChild(body_gui.domElement);				
@@ -72,14 +73,7 @@ function get_body_screen_coords(mesh) {
 	vector.y = -1*(vector.y*halfHeight)+halfHeight
 	return vector
 }
-////Gui
-function getMouseNDCoord() {
- 	var mouse = new THREE.Vector3();
-	mouse.x = (event.clientX / window.innerWidth ) * 2 - 1;
-	mouse.y = -(event.clientY / window.innerHeight ) * 2 + 1;
-	mouse.z = 0.5;
-	return mouse;
-}
+
 function addFolder(body, folderName) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
 	var starGui = gui.addFolder(folderName);
 	starGui.add(body, "pos_x").step(0.1).listen().name("position x:").onChange(function(x) {update_body_position(new THREE.Vector3(x,0,0), body)})

@@ -28,6 +28,8 @@ nb.Body = function(i) {
 	this.pos_y = this.pos().y
 	this.pos_z = this.pos().z	
 	this.id = i;	
+	this.pos_widget;
+	this.vel_widget;
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 32, 24);
 nb.Body.prototype.toggle_camera_lock = function() {
@@ -41,7 +43,10 @@ nb.Body.prototype.toggle_camera_lock = function() {
 		nb.nBodies.camera_target = null;
 	}
 }
-nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
+//nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
+//nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( { color: 0xaaaaaa, shading: THREE.FlatShading } )
+nb.Body.prototype.starMaterial = new THREE.MeshPhongMaterial( 
+	{ambient: 0xaaaaaa, color: 0xdddddd, specular: 0x110000, shininess: 30, shading: THREE.FlatShading, emissive: 0x100000 } )
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
 nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
 nb.Body.prototype.pick_box_mat = new THREE.MeshBasicMaterial({color:0x801010, wireframe:true});
@@ -291,12 +296,28 @@ nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use 
 	var index = this.bodies.length-1;
 	var i;
 	if (this.bodies.length > 0) {
-		scene.remove(this.bodies[index].starMesh);
-		scene.remove(this.bodies[index].trail);
-		scene.remove(this.bodies[index].pick_box);
-		scene.remove(this.bodies[index].vel_arrow);
+		var b = this.bodies[index];
+		scene.remove(b.starMesh);
+		scene.remove(b.trail);
+		scene.remove(b.pick_box);
+		scene.remove(b.vel_arrow);		
+		scene.remove(b.pos_widget);
+		scene.remove(b.vel_widget);		
+		try{//not sure why there's occasional exceptions here. 
+			b.pos_widget.getDescendants().forEach(function(m) {
+				scene.remove(m)
+			})
+			b.vel_widget.getDescendants().forEach(function(m) {
+				scene.remove(m)
+			})	
+		}catch(e) {}	
 		this.bodies.pop();
-		this.numBodies--;
+		gui.removeFolder('Body ' + b.id);
+		$("#gui_" + b.id).remove();
+		delete b.pos_widget;
+		delete b.vel_widget;
+		delete b;
+		this.numBodies = this.bodies.length;
 	};
 	return this;
 };

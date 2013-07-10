@@ -1,31 +1,4 @@
-/*
-WIDGET FACTORY API:
-make_widget()
-remove_widget()
 
-Widget methods:
-getDescendents (needed for intersection testing)
-
-PRIVATE METHODS:
-shoot_ray(target_line)
-build_skew_line(L1, L2)
-	find_candidate_solution(L1, L2)
-	check_candidate_solution(sol, right_hand_side)
-	solve_eq_sys(v1, v2, b)
-init_widget();
-update(origin, params);
-lock_cam() -- replace w. controls.enabled = true/false
-intersect_plane(target_plane)
-make_line_equation(line)
-
-AUGMENTED:
-THREE.Line.prototype.length = function() {
-
-LISTENERS:
-mousemove,
-mousedown,
-mouseup
-*/
 
 var projector, scene, camera;
 
@@ -88,8 +61,8 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	widget.origin = origin || new THREE.Vector3(0,0,0);
 	widget.params = params || {};
 	widget.params.radius = widget.params.radius || 0.05;
-    widget.params.height = widget.params.height || 2; 
-    widget.id;
+	widget.params.height = widget.params.height || 2; 
+	widget.id;
 	this.widgets.push(widget);	
 	var that = widget;
 	init_widget();		
@@ -101,41 +74,41 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	}
 	widget.update_position_by_translation = function(origin) {		
 		var origin_x_offset, origin_y_offset, origin_z_offset;
-	    var offset = new THREE.Vector3(0,0,0);
-	    if (INTERSECTED_MESH.axis == "y pick box") {
+		var offset = new THREE.Vector3(0,0,0);
+		if (INTERSECTED_MESH.axis === "y pick box") {
 //		    offset.copy(WIDGET_FACTORY.intersection_point).sub(WIDGET_FACTORY.xz_plane.position);
 //		    origin.y -= offset.y; //this introduces a slight bug in the dragging logic.
-	    						//added to give the correct offset for the mouse position
-	    						//when dragging. 
+								//added to give the correct offset for the mouse position
+								//when dragging. 
 			origin.y -= this.params.height;	//less buggy, but not quite as nice.			    						
-	    } else if (INTERSECTED_MESH.axis == "x pick box") {
-	    	origin.x -= this.params.height;	//less buggy, but not quite as nice.			    						
-	    } else if (INTERSECTED_MESH.axis == "z pick box") {
-	    	origin.z -= this.params.height;	//less buggy, but not quite as nice.			    						
-	    }
-	    this.update_position(origin)
+		} else if (INTERSECTED_MESH.axis === "x pick box") {
+			origin.x -= this.params.height;	//less buggy, but not quite as nice.			    						
+		} else if (INTERSECTED_MESH.axis === "z pick box") {
+			origin.z -= this.params.height;	//less buggy, but not quite as nice.			    						
+		}
+		this.update_position(origin)
 	}
 	widget.update_position = function(origin) {
-	    this.origin.copy(origin);	       	   
-	    this.x_pick_box.position = new THREE.Vector3().copy(origin);	    
-	    this.y_pick_box.position = new THREE.Vector3().copy(origin);	    
-	    this.z_pick_box.position = new THREE.Vector3().copy(origin);
-	    this.x_pick_box.position.x += this.params.height;
-	    this.y_pick_box.position.y += this.params.height;
-	    this.z_pick_box.position.z += this.params.height;
-	    //toDo: refactor to something nicer.
-	    origin_x_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(250,0,0));
-	    origin_y_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,250,0));
-	    origin_z_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,0,250));
-	    this.x_axis.geometry.vertices[0].copy(origin);
-	    this.x_axis.geometry.vertices[1] = origin_x_offset;    
-	    this.y_axis.geometry.vertices[0].copy(origin);
-	    this.y_axis.geometry.vertices[1] = origin_y_offset;
-	    this.z_axis.geometry.vertices[0].copy(origin);
-	    this.z_axis.geometry.vertices[1] = origin_z_offset;
-	    this.x_axis.geometry.verticesNeedUpdate = true;
-	    this.y_axis.geometry.verticesNeedUpdate = true;
-	    this.z_axis.geometry.verticesNeedUpdate = true;	    
+		this.origin.copy(origin);
+		this.x_pick_box.position = new THREE.Vector3().copy(origin);
+		this.y_pick_box.position = new THREE.Vector3().copy(origin);
+		this.z_pick_box.position = new THREE.Vector3().copy(origin);
+		this.x_pick_box.position.x += this.params.height;
+		this.y_pick_box.position.y += this.params.height;
+		this.z_pick_box.position.z += this.params.height;
+		//toDo: refactor to something nicer.
+		origin_x_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(250,0,0));
+		origin_y_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,250,0));
+		origin_z_offset = new THREE.Vector3().copy(origin).add(new THREE.Vector3(0,0,250));
+		this.x_axis.geometry.vertices[0].copy(origin);
+		this.x_axis.geometry.vertices[1] = origin_x_offset;    
+		this.y_axis.geometry.vertices[0].copy(origin);
+		this.y_axis.geometry.vertices[1] = origin_y_offset;
+		this.z_axis.geometry.vertices[0].copy(origin);
+		this.z_axis.geometry.vertices[1] = origin_z_offset;
+		this.x_axis.geometry.verticesNeedUpdate = true;
+		this.y_axis.geometry.verticesNeedUpdate = true;
+		this.z_axis.geometry.verticesNeedUpdate = true;
 	}
 
 	//INTERSECTED_MESH.currentHex == 10092441
@@ -168,31 +141,31 @@ WIDGET_FACTORY.make_widget = function(origin, params) {
 	function make_widget_pick_boxes() {
 		var x_pick_box, y_pick_box, z_pick_box, pos;
 		that.x_pick_box = make_pick_box(0xff9999, widget.params, "x pick box");
-	    that.x_pick_box.rotation.z -= 90 * Math.PI / 180;
-	    that.x_pick_box.position.x += that.params.height / 1.0;
-	    that.x_pick_box.position.add(that.origin);
-	    scene.add(that.x_pick_box);		
-	 	that.y_pick_box = make_pick_box(0x99ff99, widget.params, "y pick box");
-	    that.y_pick_box.rotation.y += 90 * Math.PI / 180;
-	    that.y_pick_box.position.y += widget.params.height;
-	    that.y_pick_box.position.add(that.origin);
-	    scene.add(that.y_pick_box);
-	    that.z_pick_box = make_pick_box(0x9999ff, widget.params, "z pick box");
-	    that.z_pick_box.rotation.x += 90 * Math.PI / 180;     
-	    that.z_pick_box.rotation.y += 90 * Math.PI / 180;  
-	    that.z_pick_box.position.z += widget.params.height;
-	    that.z_pick_box.position.add(that.origin);
-	    scene.add(that.z_pick_box);   
+		that.x_pick_box.rotation.z -= 90 * Math.PI / 180;
+		that.x_pick_box.position.x += that.params.height / 1.0;
+		that.x_pick_box.position.add(that.origin);
+		scene.add(that.x_pick_box);		
+		that.y_pick_box = make_pick_box(0x99ff99, widget.params, "y pick box");
+		that.y_pick_box.rotation.y += 90 * Math.PI / 180;
+		that.y_pick_box.position.y += widget.params.height;
+		that.y_pick_box.position.add(that.origin);
+		scene.add(that.y_pick_box);
+		that.z_pick_box = make_pick_box(0x9999ff, widget.params, "z pick box");
+		that.z_pick_box.rotation.x += 90 * Math.PI / 180;     
+		that.z_pick_box.rotation.y += 90 * Math.PI / 180;  
+		that.z_pick_box.position.z += widget.params.height;
+		that.z_pick_box.position.add(that.origin);
+		scene.add(that.z_pick_box);   
 	}
 	function make_pick_box(col, params, name) {
 		var mat = new THREE.MeshBasicMaterial({color:col, transparent: true, opacity: 0.7});
-    	var wireframe_mat = new THREE.MeshBasicMaterial({color:col, wireframe:true, transparency: true, opacity: 0.7});
-	    var geom = new THREE.CubeGeometry(0.05 * params.height, 1.5 * params.height, 0.5 * params.height);
-	    var pick_cube = new THREE.Mesh(geom, mat);
-	    pick_cube.add(new THREE.Mesh(geom, wireframe_mat));
-	    pick_cube.axis = name;
-	    pick_cube.widget = that; //// this creates a double link. 
-	    return pick_cube;    	
+		var wireframe_mat = new THREE.MeshBasicMaterial({color:col, wireframe:true, transparency: true, opacity: 0.7});
+		var geom = new THREE.CubeGeometry(0.05 * params.height, 1.5 * params.height, 0.5 * params.height);
+		var pick_cube = new THREE.Mesh(geom, mat);
+		pick_cube.add(new THREE.Mesh(geom, wireframe_mat));
+		pick_cube.axis = name;
+		pick_cube.widget = that; //// this creates a double link. 
+		return pick_cube;
 	}
 	return widget; //ding! widget is done.
 }
@@ -208,128 +181,127 @@ WIDGET_FACTORY.remove_widget = function(w)  {
 }
 ////geometry methods:
 WIDGET_FACTORY.shootRay = function(targ_line) {
-    var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-    projector.unprojectVector( vector, camera );
-    vector.sub(camera.position);
-    var geom = new THREE.Geometry();
-    geom.vertices = [new THREE.Vector3().copy(vector), new THREE.Vector3().copy(camera.position)]
-    	////change this to vec3?:
-	    var mat = new THREE.LineBasicMaterial({color:0xffff00});
-	    var l = new THREE.Line(geom, mat);
-	    //scene.add(l);    
-    this.build_skew_line(l, targ_line);    
+	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+	projector.unprojectVector( vector, camera );
+	vector.sub(camera.position);
+	var geom = new THREE.Geometry();
+	geom.vertices = [new THREE.Vector3().copy(vector), new THREE.Vector3().copy(camera.position)]
+		////change this to vec3?:
+		var mat = new THREE.LineBasicMaterial({color:0xffff00});
+		var l = new THREE.Line(geom, mat);
+		//scene.add(l);    
+	this.build_skew_line(l, targ_line);    
 }
 //skew line algo from http://nrich.maths.org/askedNRICH/edited/2360.html . 1st step, find the length of the shortest line that connects
 //both skew lines. The form for line is L = offsetVector + t*directionVector, where t is a free param. We'll call this shortest line
 //which connects the two lines the skew_line_solution_vector 
 WIDGET_FACTORY.build_skew_line = function(line1, line2) {
 	var skew_line_mat = new THREE.LineBasicMaterial({color:0x333333});
-    var diff = new THREE.Vector3();
-    var skew_line_solution_vector = new THREE.Vector3();
-    var skew_line_solution_length; 
-    var L1, L2, L1_offset, L1_vect, L2_offset, L2_vect;
-    var b, candidate_solution, skew_line;
-    init();
-    translate_system();
-    ////skew_line_sol_vect = |(off1 - off1) * (vect1 x vect2) / |(vect1 x vect2)|| * (vect1 x vect2) / |(vect1 x vect2)| 
-    //where * = dot product or scalarMultiplication, x = cross product. See nrich.math.org ref above. 
-    function init() {
-        L1 = make_line_equation(line1);
-        L2 = make_line_equation(line2);
-        L1_offset = L1[0];
-        L1_vect = L1[1];
-        L2_offset = L2[0];
-        L2_vect = L2[1];
-        diff.copy(L1_offset);
-        diff.sub(L2_offset);        
-        skew_line_solution_vector.copy(L2_vect);
-        skew_line_solution_vector.cross(new THREE.Vector3().copy(L1_vect)).normalize();
-        skew_line_solution_length = diff.dot(skew_line_solution_vector);
-        skew_line_solution_vector.multiplyScalar(skew_line_solution_length);    
-    }
+	var diff = new THREE.Vector3();
+	var skew_line_solution_vector = new THREE.Vector3();
+	var skew_line_solution_length; 
+	var L1, L2, L1_offset, L1_vect, L2_offset, L2_vect;
+	var b, candidate_solution, skew_line;
+	init();
+	translate_system();
+	////skew_line_sol_vect = |(off1 - off1) * (vect1 x vect2) / |(vect1 x vect2)|| * (vect1 x vect2) / |(vect1 x vect2)| 
+	//where * = dot product or scalarMultiplication, x = cross product. See nrich.math.org ref above. 
+	function init() {
+		L1 = make_line_equation(line1);
+		L2 = make_line_equation(line2);
+		L1_offset = L1[0];
+		L1_vect = L1[1];
+		L2_offset = L2[0];
+		L2_vect = L2[1];
+		diff.copy(L1_offset);
+		diff.sub(L2_offset);        
+		skew_line_solution_vector.copy(L2_vect);
+		skew_line_solution_vector.cross(new THREE.Vector3().copy(L1_vect)).normalize();
+		skew_line_solution_length = diff.dot(skew_line_solution_vector);
+		skew_line_solution_vector.multiplyScalar(skew_line_solution_length);    
+	}
 	////After you've +/- the skew_line_solution_vector to one of the lines, L1, L2 will intersect in 
-    //one of those two systems, generatating a system of equations, of the form Ax=b.     
-    function translate_system() {
-	    b = new THREE.Vector3().copy(L1_offset);
-	    b.add(skew_line_solution_vector);
-	    b.multiplyScalar(-1);
-	    b.add(L2_offset);   
-	    //The skew line vector gets added to the righ-hand-side of the equation sys, however we don't 
-	    //know if the vector is pointing in the right direction or needs to be flipped.
-	    candidate_solution = solve_eq_sys(L1_vect, L2_vect, b);     
-	    if (check_solution(candidate_solution, b)) { 
-	        sl = draw_skew_line(candidate_solution);
-	    } else {
-	        b = new THREE.Vector3().copy(L1_offset);
-	        b.sub(skew_line_solution_vector);
-	        b.multiplyScalar(-1);
-	        b.add(L2_offset);
-	        candidate_solution = solve_eq_sys(L1_vect, L2_vect, b); 
-	        skew_line = draw_skew_line(candidate_solution);
-	    }
-	    if (skew_line.length() < 4.5) {
-	        WIDGET_FACTORY.intersected_widget.update_position_by_translation(skew_line.geometry.vertices[1]);
-	       // controls.enabled = false;        
-	    }
-    }
-    // check a candidate solution from solve_eq_sys() against the lines. If we set L1 = L2, we get a system of  xV1 - yV2 = right_side
-    //where right_side = the sum of the offset vectors + the translation vector b, which we found above. We can plug candidate 
-    //solutions back into the system and test for equality. 
-    function check_solution(sol, right_side) {  
-        var x = sol[0];
-        var y = sol[1];     
-        var LHS = new THREE.Vector3();
-        LHS.setX(x*L1_vect.x + y*L2_vect.x);
-        LHS.setY(x*L1_vect.y + y*L2_vect.y);
-        LHS.setZ(x*L1_vect.z + y*L2_vect.z);
-        LHS.sub(right_side);        
-        return (LHS.length() < 0.00001); // nb: this is > 0 to deal with small numerical errors. 
-    }
-    function draw_skew_line(sol) { //uses the found solution to Ax = b.       
-        var skew_line_geom = new THREE.Geometry();        
-        var start = new THREE.Vector3().copy(L1_vect);
-        var end = new THREE.Vector3().copy(L2_vect);
-        var x = sol[0];
-        var y = sol[1];        
-        start.multiplyScalar(x).add(L1_offset);
-        end.multiplyScalar(-y).add(L2_offset);
-        var w;
-        for (var i = 0; i < WIDGET_FACTORY.widgets.length; i++) {
-        	if (WIDGET_FACTORY.widgets[i].getDescendants(INTERSECTED_MESH)) {
-        		w = WIDGET_FACTORY.widgets[i];
-        		break;
-        	}
-        }
-        if (INTERSECTED_MESH.axis == "y pick box"){
-        	start.y -= w.params.height;
-        } else if (INTERSECTED_MESH.axis == "x pick box") {
-        	start.x -= w.params.height;
-        } else if (INTERSECTED_MESH.axis == "z pick box") {
-        	start.z -= w.params.height;
-        }
-        skew_line_geom.vertices.push(start);
-        skew_line_geom.vertices.push(end);
-        var skew_line = new THREE.Line(skew_line_geom, skew_line_mat);
-        skew_line.name = "Skew line " + scene.children.length;
-        //scene.add(skew_line);
-        return skew_line;
-    }
+	//one of those two systems, generatating a system of equations, of the form Ax=b.     
+	function translate_system() {
+		b = new THREE.Vector3().copy(L1_offset);
+		b.add(skew_line_solution_vector);
+		b.multiplyScalar(-1);
+		b.add(L2_offset);   
+		//The skew line vector gets added to the righ-hand-side of the equation sys, however we don't 
+		//know if the vector is pointing in the right direction or needs to be flipped.
+		candidate_solution = solve_eq_sys(L1_vect, L2_vect, b);     
+		if (check_solution(candidate_solution, b)) { 
+			sl = draw_skew_line(candidate_solution);
+		} else {
+			b = new THREE.Vector3().copy(L1_offset);
+			b.sub(skew_line_solution_vector);
+			b.multiplyScalar(-1);
+			b.add(L2_offset);
+			candidate_solution = solve_eq_sys(L1_vect, L2_vect, b); 
+			skew_line = draw_skew_line(candidate_solution);
+		}
+		if (skew_line.length() < 4.5) {
+			WIDGET_FACTORY.intersected_widget.update_position_by_translation(skew_line.geometry.vertices[1]);
+		}
+	}
+	// check a candidate solution from solve_eq_sys() against the lines. If we set L1 = L2, we get a system of  xV1 - yV2 = right_side
+	//where right_side = the sum of the offset vectors + the translation vector b, which we found above. We can plug candidate 
+	//solutions back into the system and test for equality. 
+	function check_solution(sol, right_side) {  
+		var x = sol[0];
+		var y = sol[1];     
+		var LHS = new THREE.Vector3();
+		LHS.setX(x*L1_vect.x + y*L2_vect.x);
+		LHS.setY(x*L1_vect.y + y*L2_vect.y);
+		LHS.setZ(x*L1_vect.z + y*L2_vect.z);
+		LHS.sub(right_side);        
+		return (LHS.length() < 0.00001); // nb: this is > 0 to deal with small numerical errors. 
+	}
+	function draw_skew_line(sol) { //uses the found solution to Ax = b.       
+		var skew_line_geom = new THREE.Geometry();        
+		var start = new THREE.Vector3().copy(L1_vect);
+		var end = new THREE.Vector3().copy(L2_vect);
+		var x = sol[0];
+		var y = sol[1];        
+		start.multiplyScalar(x).add(L1_offset);
+		end.multiplyScalar(-y).add(L2_offset);
+		var w;
+		for (var i = 0; i < WIDGET_FACTORY.widgets.length; i++) {
+			if (WIDGET_FACTORY.widgets[i].getDescendants(INTERSECTED_MESH)) {
+				w = WIDGET_FACTORY.widgets[i];
+				break;
+			}
+		}
+		if (INTERSECTED_MESH.axis === "y pick box"){
+			start.y -= w.params.height;
+		} else if (INTERSECTED_MESH.axis === "x pick box") {
+			start.x -= w.params.height;
+		} else if (INTERSECTED_MESH.axis === "z pick box") {
+			start.z -= w.params.height;
+		}
+		skew_line_geom.vertices.push(start);
+		skew_line_geom.vertices.push(end);
+		var skew_line = new THREE.Line(skew_line_geom, skew_line_mat);
+		skew_line.name = "Skew line " + scene.children.length;
+		//scene.add(skew_line);
+		return skew_line;
+	}
 	function make_line_equation(line) {
-	    var offset, vector;
-	    offset = new THREE.Vector3();
-	    offset.copy(line.geometry.vertices[0]);        
-	    vector = new THREE.Vector3().copy(line.geometry.vertices[1]);
-	    vector.sub(offset);
-	    return [offset, vector];
+		var offset, vector;
+		offset = new THREE.Vector3();
+		offset.copy(line.geometry.vertices[0]);        
+		vector = new THREE.Vector3().copy(line.geometry.vertices[1]);
+		vector.sub(offset);
+		return [offset, vector];
 	} 
-    function solve_eq_sys(v1, v2, b) { //solve sys of Ax = b, where A is two equations for skew lines.
-	    var a = $M([ [v1.x, v2.x, b.x],
-	                 [v1.y, v2.y, b.y], 
-	                 [v1.z, v2.z, b.z] ]);
-	    var a = a.toRightTriangular();
-	    var sol_y = a.e(2,3)/a.e(2,2);
-	    var sol_x = (a.e(1,3) - a.e(1,2)*sol_y)/a.e(1,1);
-	    return [sol_x, sol_y];
+	function solve_eq_sys(v1, v2, b) { //solve sys of Ax = b, where A is two equations for skew lines.
+		var a = $M([[v1.x, v2.x, b.x],
+					[v1.y, v2.y, b.y], 
+					[v1.z, v2.z, b.z] ]);
+		a = a.toRightTriangular();
+		var sol_y = a.e(2,3)/a.e(2,2);
+		var sol_x = (a.e(1,3) - a.e(1,2)*sol_y)/a.e(1,1);
+		return [sol_x, sol_y];
 	}
 }
 function check_for_intersection() {
@@ -337,10 +309,10 @@ function check_for_intersection() {
 	vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
 	projector.unprojectVector( vector, camera );
 	raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize());
-	var intersects = raycaster.intersectObjects(WIDGET_FACTORY.widgets, true);
+	intersects = raycaster.intersectObjects(WIDGET_FACTORY.widgets, true);
 	if ( intersects.length > 0 ) {
 		WIDGET_FACTORY.intersection_point.copy(intersects[0].point);
-		if ( INTERSECTED_MESH != intersects[ 0 ].object ) {
+		if ( INTERSECTED_MESH !== intersects[ 0 ].object ) {
 			if ( INTERSECTED_MESH ) 
 				INTERSECTED_MESH.material.color.setHex( INTERSECTED_MESH.currentHex );
 		INTERSECTED_MESH = intersects[ 0 ].object;
@@ -349,9 +321,9 @@ function check_for_intersection() {
 		}
 	} else {
 		WIDGET_FACTORY.intersection_point = new THREE.Vector3(0,0,0);
-	    if ( INTERSECTED_MESH ) 
-        	INTERSECTED_MESH.material.color.setHex( INTERSECTED_MESH.currentHex );
-    	INTERSECTED_MESH = null;		
+		if ( INTERSECTED_MESH ) 
+			INTERSECTED_MESH.material.color.setHex( INTERSECTED_MESH.currentHex );
+		INTERSECTED_MESH = null;		
 	}
 	return INTERSECTED_MESH;
 }
@@ -359,52 +331,52 @@ function check_for_intersection() {
 var xz_offset;
 var raycaster, plane_intersection, vector;
 function mousedown(event) { //better way to do this than using sliding_axis?
-    mouse_button_pressed = true;
-    if (INTERSECTED_MESH) {
-    	WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);    	
-    } 
+	mouse_button_pressed = true;
+	if (INTERSECTED_MESH) {
+		WIDGET_FACTORY.xz_plane.position.copy(WIDGET_FACTORY.intersected_widget.origin);
+	}
 }
 function mousemove( event ) {
-    var intersected_mesh = check_for_intersection();    
+	var intersected_mesh = check_for_intersection();    
 	for (var i = 0; i < WIDGET_FACTORY.widgets.length; i++ ) {
 		if (WIDGET_FACTORY.widgets[i].intersected(intersected_mesh)) {
 			WIDGET_FACTORY.intersected_widget = WIDGET_FACTORY.widgets[i];
 			break;
 		} 		
-    }
-    mouse = getMouseNDCoord()
-    if (mouse_button_pressed && WIDGET_FACTORY.intersected_widget && INTERSECTED_MESH) {
-    	if (INTERSECTED_MESH.currentHex == 10092441) { //Green = y axis    		    	
-	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.y_axis);    
-	    } else if (INTERSECTED_MESH.currentHex == 16751001) { //Blue = z Axis
-	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.x_axis);        	
-	    } else if (INTERSECTED_MESH.currentHex == 10066431) { //Red = x Axis
-	    	WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.z_axis);        	
-    	}     	
-    	controls.enabled = false
-    	send_widget_event(WIDGET_FACTORY.intersected_widget)
+	}
+	mouse = getMouseNDCoord()
+	if (mouse_button_pressed && WIDGET_FACTORY.intersected_widget && INTERSECTED_MESH) {
+		if (INTERSECTED_MESH.currentHex === 10092441) { //Green = y axis    		    	
+			WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.y_axis);    
+		} else if (INTERSECTED_MESH.currentHex === 16751001) { //Blue = z Axis
+			WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.x_axis);        	
+		} else if (INTERSECTED_MESH.currentHex === 10066431) { //Red = x Axis
+			WIDGET_FACTORY.shootRay(WIDGET_FACTORY.intersected_widget.z_axis);        	
+		}
+		controls.enabled = false
+		send_widget_event(WIDGET_FACTORY.intersected_widget)
 	}	
 	n.update_gui();
 }
 function mouseup() {
-    mouse_button_pressed = false;
-    controls.enabled = true;
-    WIDGET_FACTORY.intersected_widget = null;
+	mouse_button_pressed = false;
+	controls.enabled = true;
+	WIDGET_FACTORY.intersected_widget = null;
 }
 function send_widget_event(w) {
-    //var event = new Event('widget_move')    
-    w.intersected_mesh = INTERSECTED_MESH;
-    var event = new CustomEvent('widget_move', {detail: w})
+	//var event = new Event('widget_move')    
+	w.intersected_mesh = INTERSECTED_MESH;
+	var event = new CustomEvent('widget_move', {detail: w})
 	document.dispatchEvent(event);		
 }
 
 ////
 THREE.Line.prototype.length = function() {
-    if (this instanceof THREE.Line) {
-        a = new THREE.Vector3().copy(this.geometry.vertices[0]);        
-        a.sub(this.geometry.vertices[1]);
-        return a.length();
-    }
+	if (this instanceof THREE.Line) {
+		a = new THREE.Vector3().copy(this.geometry.vertices[0]);        
+		a.sub(this.geometry.vertices[1]);
+		return a.length();
+	}
 }
 ////
 var a = new THREE.Vector3(1,2,3);
@@ -412,3 +384,11 @@ var b = new THREE.Vector3(5,5,5);
 var w = WIDGET_FACTORY.start_factory();
 /*var x = w.make_widget(a);
 var y = w.make_widget(b);*/
+
+function getMouseNDCoord() {
+	var mouse = new THREE.Vector3();
+	mouse.x = (event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = -(event.clientY / window.innerHeight ) * 2 + 1;
+	mouse.z = 0.5;
+	return mouse;
+}

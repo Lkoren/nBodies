@@ -9,11 +9,8 @@ animate();
 function initCamScene() {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 	camera.position.z = 20;
-	//scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2( 0x202020, 0.2 );
-
 }
-
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );			
@@ -24,9 +21,15 @@ function initRenderer() {
 	window.addEventListener( 'resize', onWindowResize, false );
 	document.addEventListener( 'mousemove', mousemove, false );
     document.addEventListener('mousedown', mousedown, false);
-    document.addEventListener('mouseup', mouseup, false);
-    
+    document.addEventListener('mouseup', mouseup, false);    
     window.addEventListener( 'resize', onWindowResize, false );
+    scene.add(new THREE.AmbientLight(0x555555));
+	var directionalLight = new THREE.DirectionalLight(0xffddcc);
+	directionalLight.position.x = Math.random() - 0.5;
+	directionalLight.position.y = Math.random() - 0.5;
+	directionalLight.position.z = Math.random() - 0.5;
+	directionalLight.position.normalize();
+	scene.add( directionalLight );	
 }
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
