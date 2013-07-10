@@ -303,14 +303,10 @@ nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use 
 		scene.remove(b.vel_arrow);		
 		scene.remove(b.pos_widget);
 		scene.remove(b.vel_widget);		
-		try{//not sure why there's occasional exceptions here. 
-			b.pos_widget.getDescendants().forEach(function(m) {
-				scene.remove(m)
-			})
-			b.vel_widget.getDescendants().forEach(function(m) {
-				scene.remove(m)
-			})	
-		}catch(e) {}	
+		if (b.gui_div){
+			WIDGET_FACTORY.remove_widget(b.pos_widget);
+			WIDGET_FACTORY.remove_widget(b.vel_widget);
+		}
 		this.bodies.pop();
 		gui.removeFolder('Body ' + b.id);
 		$("#gui_" + b.id).remove();

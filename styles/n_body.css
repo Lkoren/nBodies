@@ -3,6 +3,7 @@ body{
 	overflow: hidden;	
 	width: auto;
 	height: auto;
+	position: relative;
 }
 #container {
 	position: relative;
