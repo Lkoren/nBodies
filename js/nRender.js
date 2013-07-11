@@ -1,8 +1,8 @@
 //Universal Attraction: web-based n-body simulator by Liav Koren is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 //Based on a work at http://www.liavkoren.com/nBody_main.html.
-var
- container;
+var container;
 var camera, controls, renderer;	
+var composer;
 initCamScene();
 initRenderer();
 animate();
@@ -30,6 +30,22 @@ function initRenderer() {
 	directionalLight.position.z = Math.random() - 0.5;
 	directionalLight.position.normalize();
 	scene.add( directionalLight );	
+////
+	//renderer.autoClear = false;
+	//renderer.sortObjects = false;
+	var renderModel = new THREE.RenderPass( scene, camera );
+	var effectBloom = new THREE.BloomPass( 20 );
+	var effectFilm = new THREE.FilmPass( 1, .1, 5000, false );
+	effectFocus = new THREE.ShaderPass( THREE.FocusShader );
+	effectFocus.uniforms[ "screenWidth" ].value = window.innerWidth;
+	effectFocus.uniforms[ "screenHeight" ].value = window.innerHeight;
+	effectFocus.renderToScreen = true;
+
+	composer = new THREE.EffectComposer( renderer );
+	composer.addPass( renderModel );
+	composer.addPass( effectBloom );
+	composer.addPass( effectFilm );
+	composer.addPass( effectFocus );	
 }
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
@@ -50,5 +66,7 @@ function render() {
 	}
 	catch(e) {
 	}	
-	renderer.render(scene, camera);
+	//renderer.render(scene, camera);
+	renderer.clear();
+	composer.render( 0.01 );	
 }

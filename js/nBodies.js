@@ -13,6 +13,7 @@ nb.Body = function(i) {
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
 	this.trail = new THREE.ParticleSystem(trail_geom, this.trail_material); 
+	//this.trail.sortParticles = true;
 	this.initTrail();
 	this.init_vel_arrow();
 	this.pick_box = new THREE.Mesh(this.pick_box_geom, this.pick_box_mat);	
@@ -47,7 +48,11 @@ nb.Body.prototype.toggle_camera_lock = function() {
 //nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( { color: 0xaaaaaa, shading: THREE.FlatShading } )
 nb.Body.prototype.starMaterial = new THREE.MeshPhongMaterial( 
 	{ambient: 0xaaaaaa, color: 0xdddddd, specular: 0x110000, shininess: 30, shading: THREE.FlatShading, emissive: 0x100000 } )
-nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, color: 0x303030});
+nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.03, color: 0x303030});
+//nb.Body.prototype.trail_sprite = THREE.ImageUtils.loadTexture( "textures/ball.png" );
+//var sprite = THREE.ImageUtils.loadTexture( "textures/ball_sieve2.png" );			 
+//nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, map: sprite, transparent: true})
+//nb.Body.prototype.trail_material.setHSL(1.0, 0.8, 0.6);
 nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
 nb.Body.prototype.pick_box_mat = new THREE.MeshBasicMaterial({color:0x801010, wireframe:true});
 nb.Body.prototype.setPos = function(v){
