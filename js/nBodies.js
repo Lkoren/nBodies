@@ -47,7 +47,8 @@ nb.Body.prototype.toggle_camera_lock = function() {
 //nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
 //nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( { color: 0xaaaaaa, shading: THREE.FlatShading } )
 nb.Body.prototype.starMaterial = new THREE.MeshPhongMaterial( 
-	{ambient: 0xaaaaaa, color: 0xdddddd, specular: 0x110000, shininess: 30, shading: THREE.FlatShading, emissive: 0x100000 } )
+	{ambient: 0xaaaaaa, color: 0xdddddd, specular: 0x110000, shininess: 30, shading: THREE.FlatShading, emissive: 0x100000,
+	blending: THREE.AdditiveBlending, transparent:true} )
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.03, color: 0x303030});
 //nb.Body.prototype.trail_sprite = THREE.ImageUtils.loadTexture( "textures/ball.png" );
 //var sprite = THREE.ImageUtils.loadTexture( "textures/ball_sieve2.png" );			 

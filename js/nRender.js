@@ -33,23 +33,53 @@ function initRenderer() {
 ////
 	//renderer.autoClear = false;
 	//renderer.sortObjects = false;
-	var renderModel = new THREE.RenderPass( scene, camera );	
-	composer = new THREE.EffectComposer( renderer );
-	composer.addPass( renderModel );	
+		
 
-	var rgbShiftEffect = new THREE.ShaderPass( THREE.RGBShiftShader );
-	rgbShiftEffect.uniforms[ 'amount' ].value = 0.0015;
-	//composer.addPass( rgbShiftEffect );
+	screenW = window.innerWidth;
+	screenH = window.innerHeight;
 
+	var renderTargetParameters = {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, 
+								format: THREE.RGBFormat, stencilBufer: false };
+	var renderTargetDots = new THREE.WebGLRenderTarget( screenW, screenH, renderTargetParameters ); 
+	var dotsComposer = new THREE.EffectComposer( renderer,renderTargetDots );
+	//var renderModel = new THREE.RenderPass( scene, camera );
+	var renderPass = new THREE.RenderPass( scene, camera );
 
+	//composer = new THREE.EffectComposer( renderer );
+	//composer.addPass( renderModel );	
 
-	var effectFilm = new THREE.FilmPass( 0.1, 0.0, 0.0, false );
-	composer.addPass( effectFilm );
-	
 var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
 	edgeEffect.uniforms[ 'aspect' ].value.x = window.innerWidth;
 	edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;
-	composer.addPass( edgeEffect );
+	dotsComposer.addPass( renderPass );
+	dotsComposer.addPass( edgeEffect );
+
+	renderTargetGlow = new THREE.WebGLRenderTarget( screenW, screenH, renderTargetParameters ); //1/2 res for performance
+	glowComposer = new THREE.EffectComposer( renderer, renderTargetGlow );
+	
+	//create shader passes
+	hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
+	vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
+	//fxaa smooths stuff out
+	var fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
+	fxaaPass.uniforms[ 'resolution' ].value.set( 1 / screenW, 1 / screenH );
+
+	glowComposer.addPass( renderPass );
+	glowComposer.addPass( hblurPass );
+	glowComposer.addPass( vblurPass );
+
+	blendPass = new THREE.ShaderPass( THREE.AdditiveBlendShader );
+	blendPass.uniforms[ 'tBase' ].value = dotsComposer.renderTarget1;
+	blendPass.uniforms[ 'tAdd' ].value = glowComposer.renderTarget1;
+	blendComposer = new THREE.EffectComposer( renderer );
+	blendComposer.addPass( blendPass );
+	blendPass.renderToScreen = true;
+
+
+//	var rgbShiftEffect = new THREE.ShaderPass( THREE.RGBShiftShader );
+//	rgbShiftEffect.uniforms[ 'amount' ].value = 0.0015;
+	//composer.addPass( rgbShiftEffect );	
+	
 
 	var effectBloom = new THREE.BloomPass( 3, 25, 10, 512);
 	//filmShader + edgeShader + bloom(10,25,10) gives a nice, blown-out, fuzzy effect.
@@ -65,14 +95,17 @@ var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
 	kernelSize = ( kernelSize !== undefined ) ? kernelSize : 25;
 	sigma = ( sigma !== undefined ) ? sigma : 4.0;
 	resolution = ( resolution !== undefined ) ? resolution : 256;*/
+	
+	/*
 	composer.addPass( effectBloom ); 
 
-	
+		var effectFilm = new THREE.FilmPass( 5, 0, 5000.0, false );
+	composer.addPass( effectFilm );
 
 	var effect = new THREE.ShaderPass( THREE.CopyShader);
 	effect.renderToScreen = true;
 	composer.addPass( effect );
-
+*/
 
 	//effectBloom.renderToScreen = true;
 	
