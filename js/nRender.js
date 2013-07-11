@@ -52,7 +52,7 @@ var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
 	edgeEffect.uniforms[ 'aspect' ].value.x = window.innerWidth;
 	edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;
 	dotsComposer.addPass( renderPass );
-	dotsComposer.addPass( edgeEffect );
+	//dotsComposer.addPass( edgeEffect );
 
 	renderTargetGlow = new THREE.WebGLRenderTarget( screenW, screenH, renderTargetParameters ); //1/2 res for performance
 	glowComposer = new THREE.EffectComposer( renderer, renderTargetGlow );
@@ -144,5 +144,7 @@ function render() {
 	}	
 	//renderer.render(scene, camera);
 	renderer.clear();
-	composer.render();	
+
+	glowComposer.render(0.1);
+	blendComposer.render(0.1);	
 }
