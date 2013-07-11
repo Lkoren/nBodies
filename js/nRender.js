@@ -59,21 +59,21 @@ function initRenderer() {
 	
 
 ////
-	renderTargetGlow = new THREE.WebGLRenderTarget( screenW/2, screenH/2, renderTargetParameters ); //1/2 res for performance
+	renderTargetGlow = new THREE.WebGLRenderTarget( screenW/8, screenH/8, renderTargetParameters ); //1/2 res for performance
 
 	glowComposer = new THREE.EffectComposer( renderer, renderTargetGlow );
 	
 	//create shader passes
 //	hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-	vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
-	var effectBloom = new THREE.BloomPass( 1, 35, 5000, 512);
+	//vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
+	var effectBloom = new THREE.BloomPass( 0.85, 35, 5000, 256);
 	//fxaa smooths stuff out
-	var fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
-	fxaaPass.uniforms[ 'resolution' ].value.set( 1 / screenW, 1 / screenH );
+	//var fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
+	//fxaaPass.uniforms[ 'resolution' ].value.set( 1 / screenW, 1 / screenH );
 
 	glowComposer.addPass( renderPass );
 	//var effectFilm = new THREE.FilmPass( 50, 10.0, 1000.0, true );
-	var effectFilm = new THREE.FilmPass( 50, 0.5, 3000.0, true );
+	var effectFilm = new THREE.FilmPass( 0.1, 0.1, 3000.0, true );
 
 	//glowComposer.addPass(fxaaPass);
 //	glowComposer.addPass( hblurPass );

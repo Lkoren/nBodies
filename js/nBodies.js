@@ -12,7 +12,7 @@ nb.Body = function(i) {
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
-	this.trail = new THREE.ParticleSystem(trail_geom, this.trail_material); 
+	this.trail = new THREE.ParticleSystem(trail_geom, trail_material); 
 	//this.trail.sortParticles = true;
 	this.initTrail();
 	this.init_vel_arrow();
@@ -49,8 +49,11 @@ nb.Body.prototype.toggle_camera_lock = function() {
 nb.Body.prototype.starMaterial = new THREE.MeshPhongMaterial( 
 	{ambient: 0xaaaaaa, color: 0xdddddd, specular: 0x110000, shininess: 30, shading: THREE.FlatShading, emissive: 0x100000} )
 var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );			 
-nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.06, color: 0xffffff, map: sprite, transparent: true, 
-																	opacity: 0.6, side: THREE.DoubleSide, });
+nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.05, color: 0xffffff, map: sprite, transparent: true, 
+																	opacity: 0.6});
+var trail_material = new THREE.ParticleBasicMaterial({size:0.05, color: 0xffffff, map: sprite, transparent: true, 
+																	opacity: 0.6});
+trail_material.side = THREE.DoubleSide;
 //nb.Body.prototype.trail_sprite = THREE.ImageUtils.loadTexture( "textures/ball.png" );
 
 //nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, map: sprite, transparent: true})
