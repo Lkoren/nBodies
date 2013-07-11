@@ -72,7 +72,8 @@ function initRenderer() {
 	fxaaPass.uniforms[ 'resolution' ].value.set( 1 / screenW, 1 / screenH );
 
 	glowComposer.addPass( renderPass );
-	var effectFilm = new THREE.FilmPass( 10, 0.0, 0.0, false );
+	//var effectFilm = new THREE.FilmPass( 50, 10.0, 1000.0, true );
+	var effectFilm = new THREE.FilmPass( 50, 0.5, 3000.0, true );
 
 	//glowComposer.addPass(fxaaPass);
 //	glowComposer.addPass( hblurPass );
