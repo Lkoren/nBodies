@@ -11,6 +11,7 @@ function initCamScene() {
 	camera.position.z = 20;
 	//scene.fog = new THREE.FogExp2( 0x202020, 0.2 );
 }
+var base_render_composer;
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );			
@@ -41,36 +42,56 @@ function initRenderer() {
 	var renderTargetParameters = {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, 
 								format: THREE.RGBFormat, stencilBufer: false };
 	var renderTargetDots = new THREE.WebGLRenderTarget( screenW, screenH, renderTargetParameters ); 
-	var dotsComposer = new THREE.EffectComposer( renderer,renderTargetDots );
-	//var renderModel = new THREE.RenderPass( scene, camera );
+	base_render_composer = new THREE.EffectComposer( renderer,renderTargetDots );
 	var renderPass = new THREE.RenderPass( scene, camera );
 
-	//composer = new THREE.EffectComposer( renderer );
-	//composer.addPass( renderModel );	
 
-var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
+	var CopyShader = new THREE.ShaderPass(THREE.CopyShader);
+
+	/*var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
 	edgeEffect.uniforms[ 'aspect' ].value.x = window.innerWidth;
-	edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;
-	dotsComposer.addPass( renderPass );
-	//dotsComposer.addPass( edgeEffect );
+	edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;*/
+	
+	base_render_composer.addPass( renderPass );
 
-	renderTargetGlow = new THREE.WebGLRenderTarget( screenW, screenH, renderTargetParameters ); //1/2 res for performance
+	//base_render_composer.addPass(edgeEffect);
+	base_render_composer.addPass(CopyShader);
+	
+
+////
+	renderTargetGlow = new THREE.WebGLRenderTarget( screenW/2, screenH/2, renderTargetParameters ); //1/2 res for performance
+
 	glowComposer = new THREE.EffectComposer( renderer, renderTargetGlow );
 	
 	//create shader passes
-	hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
+//	hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
 	vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
+	var effectBloom = new THREE.BloomPass( 1, 35, 5000, 512);
 	//fxaa smooths stuff out
 	var fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
 	fxaaPass.uniforms[ 'resolution' ].value.set( 1 / screenW, 1 / screenH );
 
 	glowComposer.addPass( renderPass );
-	glowComposer.addPass( hblurPass );
-	glowComposer.addPass( vblurPass );
+	var effectFilm = new THREE.FilmPass( 10, 0.0, 0.0, false );
+
+	//glowComposer.addPass(fxaaPass);
+//	glowComposer.addPass( hblurPass );
+//	glowComposer.addPass( vblurPass );
+	
+	glowComposer.addPass(effectFilm);
+	//glowComposer.addPass(edgeEffect);
+	glowComposer.addPass(effectBloom);
+
+
+
 
 	blendPass = new THREE.ShaderPass( THREE.AdditiveBlendShader );
-	blendPass.uniforms[ 'tBase' ].value = dotsComposer.renderTarget1;
+	blendPass.uniforms[ 'tBase' ].value = base_render_composer.renderTarget1;
 	blendPass.uniforms[ 'tAdd' ].value = glowComposer.renderTarget1;
+
+//	blendPass.uniforms[ 'tBase' ].value = glowComposer.renderTarget1;
+//	blendPass.uniforms[ 'tAdd' ].value =  base_render_composer.renderTarget1;
+
 	blendComposer = new THREE.EffectComposer( renderer );
 	blendComposer.addPass( blendPass );
 	blendPass.renderToScreen = true;
@@ -81,7 +102,7 @@ var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
 	//composer.addPass( rgbShiftEffect );	
 	
 
-	var effectBloom = new THREE.BloomPass( 3, 25, 10, 512);
+	
 	//filmShader + edgeShader + bloom(10,25,10) gives a nice, blown-out, fuzzy effect.
 	//bloom interface: ( strength, kernelSize, sigma, resolution )
 	//strength: how strong is the effect. 
@@ -99,7 +120,7 @@ var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
 	/*
 	composer.addPass( effectBloom ); 
 
-		var effectFilm = new THREE.FilmPass( 5, 0, 5000.0, false );
+	var effectFilm = new THREE.FilmPass( 5, 0, 5000.0, false );
 	composer.addPass( effectFilm );
 
 	var effect = new THREE.ShaderPass( THREE.CopyShader);
@@ -126,8 +147,8 @@ function onWindowResize() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	render();
 
-	edgeEffect.uniforms[ 'aspect' ].value.x = window.innerWidth;
-	edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;	
+	//edgeEffect.uniforms[ 'aspect' ].value.x = window.innerWidth;
+	//edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;	
 }
 function animate() {
 	requestAnimationFrame( animate );
@@ -143,8 +164,9 @@ function render() {
 	catch(e) {
 	}	
 	//renderer.render(scene, camera);
-	renderer.clear();
+	//renderer.clear();
 
+	base_render_composer.render(0.1)
 	glowComposer.render(0.1);
 	blendComposer.render(0.1);	
 }
