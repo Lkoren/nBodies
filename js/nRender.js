@@ -13,8 +13,9 @@ function initCamScene() {
 }
 var base_render_composer;
 function initRenderer() {
-	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setClearColor(0x100808, 0.5)
+	renderer = new THREE.WebGLRenderer( { antialias: true, clearAlpha: 1 } );
+	renderer.setClearColor(0x100808)
+
 	renderer.setSize( window.innerWidth, window.innerHeight );			
 	controls = new THREE.TrackballControls(camera, renderer.domElement);
 	controls.addEventListener( 'change', render );	
@@ -26,7 +27,7 @@ function initRenderer() {
     document.addEventListener('mouseup', mouseup, false);    
     window.addEventListener( 'resize', onWindowResize, false );
     scene.add(new THREE.AmbientLight(0x555555));
-	var directionalLight = new THREE.DirectionalLight(0xffddcc, 10.0);
+	var directionalLight = new THREE.DirectionalLight(0xffddcc, 1.0);
 	directionalLight.position.x = Math.random() - 0.5;
 	directionalLight.position.y = Math.random() - 0.5;
 	directionalLight.position.z = Math.random() - 0.5;
@@ -67,7 +68,7 @@ function initRenderer() {
 	//create shader passes
 //	hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
 	//vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
-	var effectBloom = new THREE.BloomPass( 0.4, 35, 1000, 256);
+	var effectBloom = new THREE.BloomPass( 0.3, 35, 1000, 256);
 	//fxaa smooths stuff out
 	//var fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
 	//fxaaPass.uniforms[ 'resolution' ].value.set( 1 / screenW, 1 / screenH );
