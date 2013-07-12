@@ -49,10 +49,10 @@ nb.Body.prototype.toggle_camera_lock = function() {
 nb.Body.prototype.starMaterial = new THREE.MeshPhongMaterial( 
 	{ambient: 0xaaaaaa, color: 0xdddddd, specular: 0x110000, shininess: 30, shading: THREE.FlatShading, emissive: 0x100000} )
 var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );			 
-nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.05, color: 0xffffff, map: sprite, transparent: true, 
-																	opacity: 0.6});
+//nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.05, color: 0xffffff, map: sprite, transparent: true, 
+//																	opacity: 0.6, fog:false});
 var trail_material = new THREE.ParticleBasicMaterial({size:0.05, color: 0xffffff, map: sprite, transparent: true, 
-																	opacity: 0.6});
+																	opacity: 0.6, fog: false, side: THREE.DoubleSide});
 trail_material.side = THREE.DoubleSide;
 //nb.Body.prototype.trail_sprite = THREE.ImageUtils.loadTexture( "textures/ball.png" );
 
