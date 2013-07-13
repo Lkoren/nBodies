@@ -152,6 +152,7 @@ window.onload = function() {
 	//gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {cam_pan_toggle()});
 	gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {release_cam()});
 	gui.add(info, "toggle_info").name("  -- ABOUT --")
+	gui.add(n, "options");
 }	
 function widget_move(e) {
 	n.bodies.forEach(function(body) {

@@ -49,8 +49,8 @@ var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );
 nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( 
 	{ambient: 0xeeccaa, color: 0xeeccaa, shading: THREE.FlatShading, emissive: 0x100000, wireframe:true, fog:false } )
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial(
-	{size:0.05, color: 0xffffff, map: sprite, transparent: true, opacity: 0.3, 
-	fog: true, blending: THREE.AdditiveBlending, depthTest: false}); // vertexColors: true 
+	{size:0.075, color: 0xffffff, map: sprite, transparent: true, opacity: 0.3, 
+	fog: true, blending: THREE.AdditiveBlending, depthTest: false}); // vertexColors: true, size values between 0.05 and 0.1 are nice.
 nb.Body.prototype.trail_material.side = THREE.DoubleSide;
 //nb.Body.prototype.trail_material.setHSL(1.0, 0.8, 0.6);
 nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
@@ -207,6 +207,7 @@ nb.nBodies = function() {
 	this.go = false;	
 	this.eps = 0.01;
 	this.camera_target = null;
+	this.options = ["1st", "2nd", "3rd"]
 }
 
 //numerical softening parameter. See ArtCompSci, vol 4, pp 100...
