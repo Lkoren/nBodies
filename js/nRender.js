@@ -2,21 +2,20 @@
 //Based on a work at http://www.liavkoren.com/nBody_main.html.
 var container;
 var camera, controls, renderer;	
-var composer;
+var composer, base_render_composer;;
 initCamScene();
 initRenderer();
+init_post_processing();
 animate();
 function initCamScene() {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 	camera.position.z = 20;
-	//scene.fog = new THREE.FogExp2( 0x202020, 0.2 );
+	scene.fog = new THREE.FogExp2( 0x202020, 0.02 );
 }
-var base_render_composer;
 function initRenderer() {
 	renderer = new THREE.WebGLRenderer( { antialias: true, clearAlpha: 1 } );
 	renderer.setClearColor(0x100808)
-
-	renderer.setSize( window.innerWidth, window.innerHeight );			
+	renderer.setSize( window.innerWidth, window.innerHeight );	
 	controls = new THREE.TrackballControls(camera, renderer.domElement);
 	controls.addEventListener( 'change', render );	
 	container = document.getElementById( 'container' );
@@ -33,125 +32,44 @@ function initRenderer() {
 	directionalLight.position.z = Math.random() - 0.5;
 	directionalLight.position.normalize();
 	scene.add( directionalLight );	
-////
-	//renderer.autoClear = false;
-	//renderer.sortObjects = false;
-		
-
 	screenW = window.innerWidth;
 	screenH = window.innerHeight;
-
+}
+function init_post_processing() {
+////two stage render for primary image: base image pass + noise/bloom pass. The two passes are additively blended. 
 	var renderTargetParameters = {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, 
 								format: THREE.RGBFormat, stencilBufer: false };
-	var renderTargetDots = new THREE.WebGLRenderTarget( screenW, screenH, renderTargetParameters ); 
-	base_render_composer = new THREE.EffectComposer( renderer,renderTargetDots );
+	var base_render_target = new THREE.WebGLRenderTarget( screenW, screenH, renderTargetParameters ); 
+	base_render_composer = new THREE.EffectComposer( renderer,base_render_target );
 	var renderPass = new THREE.RenderPass( scene, camera );
-
-
 	var CopyShader = new THREE.ShaderPass(THREE.CopyShader);
-
-	/*var edgeEffect = new THREE.ShaderPass( THREE.EdgeShader );
-	edgeEffect.uniforms[ 'aspect' ].value.x = window.innerWidth;
-	edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;*/
-	
+/*	var effectFocus = new THREE.ShaderPass( THREE.FocusShader );
+	effectFocus.uniforms[ "screenWidth" ].value = window.innerWidth;
+	effectFocus.uniforms[ "screenHeight" ].value = window.innerHeight; */
+	//base_render_composer.addPass( effectFocus );
 	base_render_composer.addPass( renderPass );
-
-	//base_render_composer.addPass(edgeEffect);
 	base_render_composer.addPass(CopyShader);
-	
-
 ////
-	renderTargetGlow = new THREE.WebGLRenderTarget( screenW/8, screenH/8, renderTargetParameters ); //1/2 res for performance
-
-	glowComposer = new THREE.EffectComposer( renderer, renderTargetGlow );
-	
-	//create shader passes
-//	hblurPass = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-	//vblurPass = new THREE.ShaderPass( THREE.VerticalBlurShader );
-	var effectBloom = new THREE.BloomPass( 0.3, 35, 1000, 256);
-	//fxaa smooths stuff out
-	//var fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
-	//fxaaPass.uniforms[ 'resolution' ].value.set( 1 / screenW, 1 / screenH );
-
-	glowComposer.addPass( renderPass );
-	//var effectFilm = new THREE.FilmPass( 50, 10.0, 1000.0, true );
+	glow_render_target = new THREE.WebGLRenderTarget( screenW/8, screenH/8, renderTargetParameters ); //1/2 res for performance
+	glow_composer = new THREE.EffectComposer(renderer, glow_render_target);
 	var effectFilm = new THREE.FilmPass( 0.05, 0.1, 3000.0, true );
-
-	//glowComposer.addPass(fxaaPass);
-//	glowComposer.addPass( hblurPass );
-//	glowComposer.addPass( vblurPass );
-	
-	glowComposer.addPass(effectFilm);
-	//glowComposer.addPass(edgeEffect);
-	glowComposer.addPass(effectBloom);
-
-
-
-
+	var effectBloom = new THREE.BloomPass( 0.3, 35, 1000, 256);	
+	glow_composer.addPass(renderPass);
+	glow_composer.addPass(effectFilm);
+	glow_composer.addPass(effectBloom);
+////
 	blendPass = new THREE.ShaderPass( THREE.AdditiveBlendShader );
 	blendPass.uniforms[ 'tBase' ].value = base_render_composer.renderTarget1;
-	blendPass.uniforms[ 'tAdd' ].value = glowComposer.renderTarget1;
-
-//	blendPass.uniforms[ 'tBase' ].value = glowComposer.renderTarget1;
-//	blendPass.uniforms[ 'tAdd' ].value =  base_render_composer.renderTarget1;
-
-	blendComposer = new THREE.EffectComposer( renderer );
-	blendComposer.addPass( blendPass );
+	blendPass.uniforms[ 'tAdd' ].value = glow_composer.renderTarget1;
+	blendComposer = new THREE.EffectComposer(renderer);
+	blendComposer.addPass(blendPass);
 	blendPass.renderToScreen = true;
-
-
-//	var rgbShiftEffect = new THREE.ShaderPass( THREE.RGBShiftShader );
-//	rgbShiftEffect.uniforms[ 'amount' ].value = 0.0015;
-	//composer.addPass( rgbShiftEffect );	
-	
-
-	
-	//filmShader + edgeShader + bloom(10,25,10) gives a nice, blown-out, fuzzy effect.
-	//bloom interface: ( strength, kernelSize, sigma, resolution )
-	//strength: how strong is the effect. 
-	//resoluation a quality setting. Above 1024, gets too expensive. 
-	//kernalSize: kernal size is a sort of resolution setting. The signal is probably being convolved with a kernal, 
-		//and this setting affects that. Also seems computationally expensive. Keep < 40, ideally less than 10.  
-	//sigma: a sort of bleed or blur setting. 
-	//seems to affect how blurry/sharp the output is. Higher = sharper
-
-	/*	strength = ( strength !== undefined ) ? strength : 1;
-	kernelSize = ( kernelSize !== undefined ) ? kernelSize : 25;
-	sigma = ( sigma !== undefined ) ? sigma : 4.0;
-	resolution = ( resolution !== undefined ) ? resolution : 256;*/
-	
-	/*
-	composer.addPass( effectBloom ); 
-
-	var effectFilm = new THREE.FilmPass( 5, 0, 5000.0, false );
-	composer.addPass( effectFilm );
-
-	var effect = new THREE.ShaderPass( THREE.CopyShader);
-	effect.renderToScreen = true;
-	composer.addPass( effect );
-*/
-
-	//effectBloom.renderToScreen = true;
-	
-
-	//effectFocus = new THREE.ShaderPass( THREE.FocusShader );
-	//effectFocus.uniforms[ "screenWidth" ].value = window.innerWidth;
-	//effectFocus.uniforms[ "screenHeight" ].value = window.innerHeight;
-	//effectFocus.renderToScreen = true;
-
-
-	
-	//composer.addPass( effectFilm );
-	//composer.addPass( effectFocus );	
 }
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	render();
-
-	//edgeEffect.uniforms[ 'aspect' ].value.x = window.innerWidth;
-	//edgeEffect.uniforms[ 'aspect' ].value.y = window.innerHeight;	
 }
 function animate() {
 	requestAnimationFrame( animate );
@@ -168,8 +86,7 @@ function render() {
 	}	
 	//renderer.render(scene, camera);
 	//renderer.clear();
-
 	base_render_composer.render(0.1)
-	glowComposer.render(0.1);
+	glow_composer.render(0.1);
 	blendComposer.render(0.1);	
 }

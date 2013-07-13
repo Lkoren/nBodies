@@ -6,14 +6,16 @@ var nb = {
 	trailLength: 5000,
 	bodyID_Counter: 0
 };
-nb.Body = function(i) {	
-	this.mass = 20.0;
+nb.Body = function(id, mass) {	
+	this.id = id;	
+	this.mass = mass || 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
+	this.starMesh.scale = new THREE.Vector3(this.mass/20, this.mass/20, this.mass/20)
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
-	this.trail = new THREE.ParticleSystem(trail_geom, trail_material); 
-	//this.trail.sortParticles = true;
+	this.trail = new THREE.ParticleSystem(trail_geom, this.trail_material); 
+	//this.trail.sortParticles = true;  //need a fix for webGL particle sorting bug.
 	this.initTrail();
 	this.init_vel_arrow();
 	this.pick_box = new THREE.Mesh(this.pick_box_geom, this.pick_box_mat);	
@@ -28,11 +30,10 @@ nb.Body = function(i) {
 	this.pos_x = this.pos().x
 	this.pos_y = this.pos().y
 	this.pos_z = this.pos().z	
-	this.id = i;	
 	this.pos_widget;
 	this.vel_widget;
 }
-nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 16, 12);
+nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 12, 10);
 nb.Body.prototype.toggle_camera_lock = function() {
 	if (nb.nBodies.camera_target != this.pos()) {
 		controls.target = this.pos();
@@ -44,24 +45,13 @@ nb.Body.prototype.toggle_camera_lock = function() {
 		nb.nBodies.camera_target = null;
 	}
 }
-//nb.Body.prototype.starMaterial = new THREE.MeshBasicMaterial({color:0x101010});
-//nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( { color: 0xaaaaaa, shading: THREE.FlatShading } )
-nb.Body.prototype.starMaterial = new THREE.MeshPhongMaterial( 
-	{ambient: 0xeeccaa, color: 0xeeccaa, specular: 0x110000, shininess: 30, shading: THREE.FlatShading, emissive: 0x100000, wireframe:true, fog:false} )
-var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );			 
-//nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.05, color: 0xffffff, map: sprite, transparent: true, 
-//																	opacity: 0.6, fog:false});
-var trail_material = new THREE.ParticleBasicMaterial({size:0.05, color: 0xffffff, map: sprite, transparent: true, 
-																	opacity: 0.6, fog: false, side: THREE.DoubleSide});
-trail_material.side = THREE.DoubleSide;
-
-////ToDo: find fix for WebGL sorting bug.
-//trail_material.sortParticles = true;
-
-
-//nb.Body.prototype.trail_sprite = THREE.ImageUtils.loadTexture( "textures/ball.png" );
-
-//nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial({size:0.1, map: sprite, transparent: true})
+var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );
+nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( 
+	{ambient: 0xeeccaa, color: 0xeeccaa, shading: THREE.FlatShading, emissive: 0x100000, wireframe:true, fog:false } )
+nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial(
+	{size:0.05, color: 0xffffff, map: sprite, transparent: true, opacity: 0.3, 
+	fog: true, blending: THREE.AdditiveBlending, depthTest: false}); // vertexColors: true 
+nb.Body.prototype.trail_material.side = THREE.DoubleSide;
 //nb.Body.prototype.trail_material.setHSL(1.0, 0.8, 0.6);
 nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
 nb.Body.prototype.pick_box_mat = new THREE.MeshBasicMaterial({color:0x801010, wireframe:true});
@@ -117,7 +107,10 @@ nb.Body.prototype.updateTrail = function() {
 }
 nb.Body.prototype.initTrail = function() {
 	var t = this.trail.geometry.vertices;
+	//var c = this.trail.geometry.colors;
+	//var tempCol = new THREE.Color(0xffffff);
 	for (var i = 0; i < nb.trailLength; i++) {
+	//	c.push(tempCol);
 		t.push(new THREE.Vector3(1000,1000,1000)); //better fix for this? 
 	}
 }
@@ -205,7 +198,9 @@ nb.nBodies = function() {
 	this.numBodies = nb.numBodies;
 	this.reverse = false;
 	for (var i = 0; i < nb.numBodies; i++) {		
-		this.bodies[i] = new nb.Body(nb.bodyID_Counter);
+		var mass = Math.random() * 100;		
+		this.bodies[i] = new nb.Body(nb.bodyID_Counter, mass);
+		console.log("badang! new body with mass of ", mass)
 		nb.bodyID_Counter = ++nb.bodyID_Counter;
 	}
 	this.time = 0;
@@ -248,7 +243,8 @@ nb.nBodies.prototype.stop_go = function(){
 nb.nBodies.prototype.simple_print = function() {
 	str = ["Total bodies: ", nb.numBodies, "\n", 
 			"dt: ", this.dt, "\n", 
-			"at time: ", this.time, "after ", this.nSteps, "steps: \n"].join(" ");
+			"at time: ", this.time, "after ", this.nSteps, "steps: \n",
+			"with softening: ", this.eps, "\n"].join(" ");
 	console.log(str);
 	this.bodies.forEach(function(body) {
 		body.to_s();
@@ -302,7 +298,8 @@ nb.nBodies.prototype.change_num_stars = function(x) {	//kind of ugly, refactor
 	}
 }
 nb.nBodies.prototype.addStar = function() {	
-	this.bodies[this.bodies.length] = new nb.Body(nb.bodyID_Counter);	
+	var mass = Math.random() * 100
+	this.bodies[this.bodies.length] = new nb.Body(nb.bodyID_Counter, mass);	
 	nb.bodyID_Counter = ++nb.bodyID_Counter;
 	this.numBodies = this.bodies.length;
 	return this 
