@@ -6,16 +6,16 @@ var nb = {
 	trailLength: 5000,
 	bodyID_Counter: 0
 };
-nb.Body = function(id, mass) {	
-	this.id = id;	
+nb.Body = function(mass) {		
+	nb.bodyID_Counter++;	
+	this.id = nb.bodyID_Counter;	
 	this.mass = mass || 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
-	this.starMesh.scale = new THREE.Vector3(this.mass/20, this.mass/20, this.mass/20)
+	this.starMesh.scale = new THREE.Vector3(this.mass/2.5, this.mass/2.5, this.mass/2.5)
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
 	this.trail = new THREE.ParticleSystem(trail_geom, this.trail_material); 
-	//this.trail.sortParticles = true;  //need a fix for webGL particle sorting bug.
 	this.initTrail();
 	this.init_vel_arrow();
 	this.pick_box = new THREE.Mesh(this.pick_box_geom, this.pick_box_mat);	
@@ -32,6 +32,7 @@ nb.Body = function(id, mass) {
 	this.pos_z = this.pos().z	
 	this.pos_widget;
 	this.vel_widget;
+
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 12, 10);
 nb.Body.prototype.toggle_camera_lock = function() {
@@ -46,6 +47,8 @@ nb.Body.prototype.toggle_camera_lock = function() {
 	}
 }
 var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );
+//sprite.minFilter = sprite.magFilter = THREE.NearestFilter;
+sprite.anisotropy = renderer.getMaxAnisotropy();
 nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( 
 	{ambient: 0xeeccaa, color: 0xeeccaa, shading: THREE.FlatShading, emissive: 0x100000, wireframe:true, fog:false } )
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial(
@@ -55,9 +58,9 @@ nb.Body.prototype.trail_material.side = THREE.DoubleSide;
 //nb.Body.prototype.trail_material.setHSL(1.0, 0.8, 0.6);
 nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
 nb.Body.prototype.pick_box_mat = new THREE.MeshBasicMaterial({color:0x801010, wireframe:true});
-nb.Body.prototype.setPos = function(v){
+nb.Body.prototype.set_pos = function(v){
 	if (v instanceof THREE.Vector3) {
-		this.starMesh.position = v;
+		this.starMesh.position.copy(v);
 		return v
 	} else {
 		throw "Not a vector."
@@ -145,7 +148,7 @@ nb.Body.prototype.to_s = function() {
 	console.log("eTot = ", this.ekin() + this.epot(n.bodies));
 	console.log("=======") 
 }	
-nb.Body.prototype.set_vel = function(v, widget) {
+nb.Body.prototype.set_vel_component = function(v, widget) {
 	if (v.x) {
 		this.vel.x = v.x
 	} else if (v.y) {
@@ -158,6 +161,9 @@ nb.Body.prototype.set_vel = function(v, widget) {
 		widget.update_position(tempVel);
 	}
 	this.update_velocity_arrow_geometry();
+}
+nb.Body.prototype.set_vel = function(v) {
+	this.vel.copy(v)
 }
 nb.Body.prototype.create_gui_div = function(){
 	var div = document.createElement("div")	
@@ -189,6 +195,9 @@ nb.Body.prototype.update_pos_vel = function(){
 	this.vel_y = this.vel.y;	
 	this.vel_z = this.vel.z;	
 }
+nb.Body.prototype.update_body_pick_box = function() {
+	this.pick_box.position.copy(this.pos())
+}
 /////////////////////////
 nb.nBodies = function() {
 	this.e0;
@@ -200,8 +209,6 @@ nb.nBodies = function() {
 	for (var i = 0; i < nb.numBodies; i++) {		
 		var mass = Math.random() * 100;		
 		this.bodies[i] = new nb.Body(nb.bodyID_Counter, mass);
-		console.log("badang! new body with mass of ", mass)
-		nb.bodyID_Counter = ++nb.bodyID_Counter;
 	}
 	this.time = 0;
 	this.go = false;	
@@ -298,12 +305,12 @@ nb.nBodies.prototype.change_num_stars = function(x) {	//kind of ugly, refactor
 		}
 	}
 }
-nb.nBodies.prototype.addStar = function() {	
-	var mass = Math.random() * 100
-	this.bodies[this.bodies.length] = new nb.Body(nb.bodyID_Counter, mass);	
-	nb.bodyID_Counter = ++nb.bodyID_Counter;
+nb.nBodies.prototype.addStar = function(mass) {	
+	var mass = mass || Math.random() * 100
+	this.bodies[this.bodies.length] = new nb.Body(mass);	
 	this.numBodies = this.bodies.length;
-	return this 
+	//return this //2013 07 15
+	return this.bodies[this.bodies.length-1]
 }
 nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use obj.traverse
 	var index = this.bodies.length-1;
@@ -330,6 +337,8 @@ nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use 
 	};
 	return this;
 };
+
+
 var n = new nb.nBodies;
 nb.nBodies.prototype.update_gui= function() {
 	this.bodies.forEach(function(body) {

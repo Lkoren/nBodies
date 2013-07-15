@@ -337,7 +337,7 @@ function mousedown(event) { //better way to do this than using sliding_axis?
 	}
 }
 function mousemove( event ) {
-	var intersected_mesh = check_for_intersection();    
+	var intersected_mesh = check_for_intersection();    	
 	for (var i = 0; i < WIDGET_FACTORY.widgets.length; i++ ) {
 		if (WIDGET_FACTORY.widgets[i].intersected(intersected_mesh)) {
 			WIDGET_FACTORY.intersected_widget = WIDGET_FACTORY.widgets[i];

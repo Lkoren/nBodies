@@ -20,6 +20,7 @@ function initRenderer() {
 	controls.addEventListener( 'change', render );	
 	container = document.getElementById( 'container' );
 	container.appendChild( renderer.domElement );
+	//appendChild inserted the <canvas> tags. Insert fallback text into canvas, next?
 	window.addEventListener( 'resize', onWindowResize, false );
 	document.addEventListener( 'mousemove', mousemove, false );
     document.addEventListener('mousedown', mousedown, false);
@@ -80,7 +81,7 @@ function animate() {
 function render() {		
 	try {
 		n.integrate();		
-		check_for_intersection();
+		check_for_intersection();  //widget factory logic
 	}
 	catch(e) {
 	}	

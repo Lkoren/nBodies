@@ -18,6 +18,7 @@ Based on a work at http://www.liavkoren.com/nBody_main.html. -->
 	<body>
 		<div id="container"></div>		
 		<div class = "info">
+
 			<p>This is an experimental, n-body simulator, running in WebGL. This would not have been possible without Mr Doob's excellent <a href = " ">three.js</a> framework, as well as the excellent <a href="http://www.artcompsci.org/">Art of Computational Science/Maya Open Lab</a> resource by Piet Hut and Jun Makino. While incomplete and, apparently inactive, the Maya Open Lab is an excellent introduction to Ruby, astronomical simulation and the nuances of numerical simulation.</p>
 
 			<p>Unfortunately, this also means that this project requires javascript. It also, at the moment, requires a webGL enabled browser. A canvas based version which will run on non-webGL compatable platforms is in my development plan, however canvas can't provide the same sort of performance as a GPU. 
@@ -39,44 +40,22 @@ Based on a work at http://www.liavkoren.com/nBody_main.html. -->
 	<script type="text/javascript" src="./js/libs/stats.min.js"></script>	
 	<script type="text/javascript" src="./widget/js/libs/sylvester.js"></script>	
 	<!-- //// -->
-	<script type="text/javascript" 
-		src="./three.js/examples/js/shaders/ConvolutionShader.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/shaders/CopyShader.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/shaders/FilmShader.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/shaders/FocusShader.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/postprocessing/EffectComposer.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/postprocessing/MaskPass.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/postprocessing/RenderPass.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/postprocessing/BloomPass.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/postprocessing/ShaderPass.js"></script>
-	<script type="text/javascript" 
-		src="./three.js/examples/js/postprocessing/FilmPass.js"></script>
-		<script src="./three.js/examples/js/shaders/RGBShiftShader.js"></script>
-		<script src="./three.js/examples/js/shaders/EdgeShader.js"></script>
-		<script src="./three.js/examples/js/shaders/BokehShader.js"></script>
-
-		<script src="./three.js/examples/js/shaders/VerticalBlurShader.js"></script>
-		<script src="./three.js/examples/js/shaders/HorizontalBlurShader.js"></script>	
-		<script src="./three.js/examples/js/shaders/FXAAShader.js"></script>	
-		<script src="./three.js/examples/js/shaders/BlendShader.js"></script>
-		<!-- <script src="http://localhost:8000/three.js/examples/js/shaders/AdditiveBlendShader.js"></script> -->
-		<script src="./js/libs/AdditiveBlendShader.js"></script>
-
-
+	<script type="text/javascript" src="./three.js/examples/js/shaders/ConvolutionShader.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/shaders/CopyShader.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/shaders/FilmShader.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/postprocessing/FilmPass.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/postprocessing/EffectComposer.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/postprocessing/MaskPass.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/postprocessing/RenderPass.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/postprocessing/BloomPass.js"></script>
+	<script type="text/javascript" src="./three.js/examples/js/postprocessing/ShaderPass.js"></script>
+	<script src="./js/libs/AdditiveBlendShader.js"></script>
 	<!-- //// -->	
 	<script type="text/javascript" src="./js/widget_factory.js"></script>	
 	<script type="text/javascript" src="./js/nRender.js"></script>			
 	<script type="text/javascript" src="./js/nBodies.js"></script>	
 	<script type="text/javascript" src="./js/nHelpers.js"></script>		
-	<!--<script type ="text/javascript" async src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"> -->
+	<script type ="text/javascript" async src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
 	<script>
 		$(document).ready(function() {
 			$(".info").hide();
