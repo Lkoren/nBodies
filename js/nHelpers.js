@@ -50,106 +50,20 @@ info.toggle_info = function() {
 renderer.domElement.addEventListener( 'mousedown', onDocMouseClick, false );
 var projector = new THREE.Projector();	
 
-var guiPresets = {
-	"preset": "four bodies", "remembered": {
-		"Default": {
-			"0": {
-				"numBodies": 3,
-				"stop_go": false,
-				"eps": 0.75,	
-				"n.bodies[3].position": new THREE.Vector3(10,10,10),
-			}
-		},
-		"Infinity": {
-			"0": {
-				"eps": 0,
-			}
-		}		
-	}
-}
+
 
 var gui = new dat.GUI({load: guiPresets});
 gui.remember(n);
-
 gui_options = gui.__preset_select;
 
-var reset_scene = function() {	
-	while(n.bodies.length > 0) n.deleteStar()	
-}
-//ToDo: refactor this to json.
-gui_options.onchange = function() {
-	v = gui_options.value
-	reset_scene()
-	if (v === "Infinity"){
-		n.addStar(1)
-		n.addStar(1)
-		n.addStar(1)
-		n.bodies[0].starMesh.position = new THREE.Vector3(0.9700436, -0.24308753, 0)
-		n.bodies[0].set_vel(new THREE.Vector3(0.466203685, 0.43236573,0))
 
-		n.bodies[1].starMesh.position = new THREE.Vector3(-0.9700436, 0.24308753,0)
-		n.bodies[1].set_vel(new THREE.Vector3(0.466203685, 0.43236573,0))		
-		
-		n.bodies[2].starMesh.position = new THREE.Vector3(0,0,0)
-		n.bodies[2].set_vel(new THREE.Vector3(-0.93240737, -0.86473146,0))		
-	}
-	n.bodies.forEach(function(b) {
-		//update_body_pick_box(b)	
-		b.update_body_pick_box()
-		b.update_pos_vel()
-	})	
-}
-var infinity = {
-	0: {
-		"mass": 1,
-		"position": [0.9700436, -0.24308753, 0],
-		"velocity": [0.466203685, 0.43236573,0]
-	},
-	1: {
-		"mass": 1,
-		"position": [-0.9700436, 0.24308753,0],
-		"velocity": [0.466203685, 0.43236573,0]	
-	},
-	2: {
-		"mass": 1,
-		"position": [0, 0, 0],
-		"velocity": [-0.93240737, -0.86473146,0]		
-	},
-	"eps": 0.0
-}
-function build_system(sys) {
-	for (var key in sys) {	
-		if (!isNaN(parseInt(key))) {
-			console.log(key);
-			var temp_body = sys[key]
-			var body = n.addStar(temp_body.mass)
-			body.starMesh.position = array_to_vector(temp_body.position)
-			body.set_vel(array_to_vector(temp_body.velocity))	
-			body.update_body_pick_box()
-			body.update_pos_vel()
-		}
-	}
-	/*
-		n.bodies.forEach(function(b) {
-			//update_body_pick_box(b)	
-			b.update_body_pick_box()
-			b.update_pos_vel()
-		})	
-*/
-	n.eps = sys.eps
-}
 
-function array_to_vector(arr) {
-	if (arr.length === 3) return new THREE.Vector3(arr[0], arr[1], arr[2])
-}
-/*function update_body_pick_box(body){
-	body.pick_box.position.copy(body.pos())
-}*/
 function onDocMouseClick(event) {
 	event.preventDefault();
 	find_picked_bodies();
 }
 var body_gui, guiContainer;
+
 function find_picked_bodies() { 	//standard raycasting picking code:
 	var mouse = getMouseNDCoord();
 	var raycaster = projector.pickingRay(mouse.clone(), camera);	
@@ -211,7 +125,6 @@ function get_body_screen_coords(mesh) {
 	vector.y = -1*(vector.y*halfHeight)+halfHeight
 	return vector
 }
-
 function addFolder(body, folderName) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
 	var starGui = gui.addFolder(folderName);
 	starGui.add(body, "pos_x").step(0.1).listen().name("position x:").onChange(function(x) {update_body_position(new THREE.Vector3(x,0,0), body)})
@@ -247,6 +160,11 @@ window.onload = function() {
 	gui.add(n, "simple_print").name("Save state");
 	gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {release_cam()});
 	gui.add(info, "toggle_info").name("  -- ABOUT --")
+
+	//document.getElementsByClassName(".button.save").addEventListener('click', gui_save_button, false)
+	//document.getElementsByClassName(".button.save").onclick = gui_save_button
+	$(".button.save").click(gui_save_button)
+
 }	
 stop_go = function() {}; //total hack to deal with complication from adding presets to gui.dat. 
 stop_go.toggle = function() {
@@ -275,7 +193,63 @@ update_vel_widget_position = function(body) {
 	var temp = new THREE.Vector3().copy(body.pos()).add(body.vel)
 	body.vel_widget.update_position(temp)
 }
+////gui presets
+var guiPresets = {
+	"remembered": {
+		"Default": {
+			"0": {
+				"numBodies": 3,
+				"stop_go": false,
+				"eps": 0.75,	
+				"n.bodies[3].position": new THREE.Vector3(10,10,10),
+			}
+		},
+		"Infinity": {
+			"0": {
+				"eps": 0,
+			}
+		}		
+	}
+}
+var reset_scene = function() {	
+	while(n.bodies.length > 0) n.deleteStar()	
+}
+gui_options.onchange = function() {
+	v = gui_options.value
+	reset_scene()
+	if (v === "Infinity"){
+		build_system(infinity)
+	}
+}
+function build_system(sys) { 
+	for (var key in sys) {	
+		if (!isNaN(parseInt(key))) {
+			console.log(key);
+			var temp_body = sys[key]
+			var body = n.addStar(temp_body.mass)
+			body.starMesh.position = array_to_vector(temp_body.position)
+			body.set_vel(array_to_vector(temp_body.velocity))	
+			body.update_body_pick_box()
+			body.update_pos_vel()
+		}
+	}
+	n.eps = sys.eps
+}
+function gui_save_button() {
+	//preventDefault()
+	var current_option = gui_options.value
+	var existing_options = Object.keys(guiPresets["remembered"])
+	console.log(existing_options.indexOf(current_option))
+	if (existing_options.indexOf(current_option) > -1) {
+		alert("Please create a new option, before saving.")
+	}
 
+}
+
+
+function array_to_vector(arr) {
+	if (arr.length === 3) return new THREE.Vector3(arr[0], arr[1], arr[2])
+}
 
 
 ////stats
@@ -306,18 +280,3 @@ this.onResize();
 	console.log("toggle")
 }*/
 document.addEventListener('widget_move', widget_move, false)
-
-function state() {
-	n.bodies.forEach(function(b) {
-		var str = ["Object: ", b.id, "\n",
-		"mass: ", b.mass, "\n",
-		"starMesh position: ", b.starMesh.position.x, ", ", b.starMesh.position.y, ", ", b.starMesh.position.z + "\n",
-		"star.pos(): (", b.pos().x, ", ", b.pos().y, ", ", b.pos().z + ") \n",
-		"this_pos: (", b.pos_x, ", ", b.pos_y, ", ", b.pos_z, ") \n",
-		"pick box pos: (" + b.pick_box.position.x, ", ", b.pick_box.position.y, ", ", b.pick_box.position.z + ") \n",
-		"star.vel: (", b.vel.x, ", ", b.vel.y, ", ", b.vel.z, ") \n",		
-		"this_vel: (", b.vel_x, ", ", b.vel_y, ", ", b.vel_z, ") \n",
-		"============"].join(" ")
-		console.log(str)
-	})
-}
