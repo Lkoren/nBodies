@@ -79,6 +79,11 @@ gui_options.onchange = function() {
 	if (v === "Infinity"){
 		build_system(infinity)
 	}
+	if (v === "Random system"){
+		n.addStar()
+		n.addStar()
+		n.addStar()
+	}
 }
 function build_system(sys) {
 	for (var key in sys) {	
@@ -233,10 +238,23 @@ gui_save_button = function(e) {
 	if (standard_presets.indexOf(current_preset_name) > -1) {
 		e.preventDefault()
 		alert("Please use the 'new' button to create a new preset name first.")
+	} else {
+		save_system_state()
 	}
-
-
 }
+save_system_state = function() {
+	var system = {}
+	for (var i = 0; i < n.bodies.length; i++) {
+		var body = n.bodies[i];
+		system[i] = {}
+		system[i].mass = body.mass
+		system[i].position = new THREE.Vector3().copy(body.pos())
+		system[i].velocity = new THREE.Vector3().copy(body.vel)
+	}
+	system.eps = n.eps
+	return system
+}
+
 ////stats
 var stats;
 stats = new Stats();
