@@ -68,6 +68,11 @@ function build_system(sys) {
 			var body = n.addStar(temp_body.mass)
 			body.starMesh.position = array_to_vector(temp_body.position) 
 			body.set_vel(array_to_vector(temp_body.velocity))
+			console.log("temp body = ", temp_body.trail_vertices)
+			if (temp_body.trail_vertices) body.trail.geometry.vertices = temp_body.trail_vertices
+
+			body.trail.geometry.verticesNeedUpdate = true 
+
 			body.update_body_pick_box()
 			body.update_pos_vel()
 		}
@@ -215,7 +220,7 @@ gui_save_button = function(e) {
 	var standard_presets = guiPresets.standard_presets
 	console.log(standard_presets.indexOf(current_preset_name))
 	if (standard_presets.indexOf(current_preset_name) > -1) {	
-		alert("Please use the 'new' button to create a new preset name first.")
+		alert("Please use the 'new' button to create a new preset name first, then use the 'save' button to save the state of the system when you are ready.")
 	} else {		
 		console.log("current presets:", guiPresets)
 		guiPresets.remembered[current_preset_name] = save_system_state()
@@ -234,7 +239,7 @@ save_system_state = function() {
 		system[i].mass = body.mass
 		system[i].position = [body.pos().x, body.pos().y, body.pos().z]
 		system[i].velocity = [body.vel.x, body.vel.y, body.vel.z]
-		console.log("save sys, body : ", i, " contains: ", system[i] )
+		system[i].trail_vertices = body.trail.geometry.vertices
 	}
 	system.eps = n.eps
 	return system
