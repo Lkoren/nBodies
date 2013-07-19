@@ -338,8 +338,6 @@ nb.nBodies.prototype.deleteStar = function(star) {	//todo: refactor this to use 
 	};
 	return this;
 };
-
-
 var n = new nb.nBodies;
 nb.nBodies.prototype.update_gui= function() {
 	this.bodies.forEach(function(body) {
@@ -349,7 +347,10 @@ nb.nBodies.prototype.update_gui= function() {
 		}
 	})
 }
-update_vel_while_integrating = function() {
+var reverse_time = function() {
+	n.dt *= -1
+}
+var update_vel_while_integrating = function() {
 	n.bodies.forEach(function(body) {
 		if (body.vel_widget) body.vel_widget.update_position(body.vel_arrow.geometry.vertices[1])
 	})

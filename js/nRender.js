@@ -2,7 +2,8 @@
 //Based on a work at http://www.liavkoren.com/nBody_main.html.
 var container;
 var camera, controls, renderer;	
-var composer, base_render_composer;;
+var composer, base_render_composer;
+
 initCamScene();
 initRenderer();
 init_post_processing();
@@ -20,7 +21,7 @@ function initRenderer() {
 	controls.addEventListener( 'change', render );	
 	container = document.getElementById( 'container' );
 	container.appendChild( renderer.domElement );
-	//appendChild inserted the <canvas> tags. Insert fallback text into canvas, next?
+	renderer.domElement.innerHTML = fall_back_text
 	window.addEventListener( 'resize', onWindowResize, false );
 	document.addEventListener( 'mousemove', mousemove, false );
     document.addEventListener('mousedown', mousedown, false);
@@ -75,7 +76,9 @@ function onWindowResize() {
 function animate() {
 	requestAnimationFrame( animate );
 	controls.update();	
-	stats.update();
+	try{
+		stats.update();
+	}catch(e){}
 	render();	
 }					
 function render() {		
@@ -91,6 +94,7 @@ function render() {
 	glow_composer.render(0.1);
 	blendComposer.render(0.1);	
 
+/*
 	if (gui_save_button === undefined) {
 
 		try{
@@ -101,4 +105,5 @@ function render() {
 		}
 	catch(e) {}
 	}
+	*/
 }

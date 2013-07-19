@@ -18,18 +18,6 @@ Based on a work at http://www.liavkoren.com/nBody_main.html. -->
 	<body>
 		<div id="container"></div>		
 		<div class = "info">
-
-			<p>This is an experimental, n-body simulator, running in WebGL. This would not have been possible without Mr Doob's excellent <a href = " ">three.js</a> framework, as well as the excellent <a href="http://www.artcompsci.org/">Art of Computational Science/Maya Open Lab</a> resource by Piet Hut and Jun Makino. While incomplete and, apparently inactive, the Maya Open Lab is an excellent introduction to Ruby, astronomical simulation and the nuances of numerical simulation.</p>
-
-			<p>Unfortunately, this also means that this project requires javascript. It also, at the moment, requires a webGL enabled browser. A canvas based version which will run on non-webGL compatable platforms is in my development plan, however canvas can't provide the same sort of performance as a GPU. 
-
-			<p>Also, Chrome current provides the best performance. Some features do not work in all versions of Firefox. WebGL is currently not supported by IE, although it is expected in IE11. 
-
-			<p>The N Body problem dates to Netwon's work on gravity. Two bodies moving under the influence of gravity have a small and well-understood set of behaviors -- they orbit each other. However, three or more bodies behave in much more complex ways. General analytic solutions to the three body problem have been discovered over the decades (several of them by major figures of 18/19th century math), as well as most recently by <a href="http://suki.ipb.ac.rs/3body/">Milovan Šuvakov and Veljko Dmitrašinović</a>.</p>
-
-			<p>Currently this simulation models bodies as point masses, and uses a leap-frog integration method to calculate motion. Leap-frog is time-reversible, but only second-order accurate. Numerical softening has recently been implimented. Implimenting a runga-kutta fourth-order integrator is also part of the dev-path. Currently I am still focused on developing several core interface features.</p> 
-
-			<p>Questions/comments can be directed to liav [d.o.t.] koren [a.t] gee-mail [d.o.t c.o.m]<p>
 		</div>
 		<!--<script src="//ajax.googleapis.com/ajax/libs/dojo/1.9.0/dojo/dojo.js" data-dojo-config="async: true"></script> -->
 		<!-- //// -->
@@ -51,7 +39,8 @@ Based on a work at http://www.liavkoren.com/nBody_main.html. -->
 	<script type="text/javascript" src="./three.js/examples/js/postprocessing/ShaderPass.js"></script>
 	<script src="./js/libs/AdditiveBlendShader.js"></script>
 	<!-- //// -->	
-	<script type="text/javascript" src="./js/widget_factory.js"></script>	
+	<script type="text/javascript" src="./js/widget_factory.js"></script>
+	<script type="text/javascript" src="./js/fall_back_text.js"></script>				
 	<script type="text/javascript" src="./js/nRender.js"></script>			
 	<script type="text/javascript" src="./js/nBodies.js"></script>	
 	<script type="text/javascript" src="./js/presets.js"></script>	

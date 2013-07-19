@@ -15,33 +15,7 @@ info.toggle_info = function() {
 		$('#floating-info').css({"position":"relative", "left": "-50%", "background":"#dddddd", "opacity":"0.8", "top": "20px", "padding-left": "2em",
 								"padding-right": "2em", "padding-top": "0.5em","padding-bottom": "0.5em", "display":"none"})
 	}
-	$('#floating-info').html(" <p>This is an experimental, n-body simulator, running in WebGL. This would not have been possible\
-		without the excellent <a href = 'http://threejs.org/' target='_blank'>three.js</a> framework, as well as the \
-		excellent <a href= 'http://www.artcompsci.org/' target='_blank'>Art of Computational Science/Maya Open Lab</a> \
-		resource by Piet Hut and Jun Makino. While incomplete and, apparently inactive, the Maya Open Lab is an great \
-		introduction to Ruby, astronomical simulation and the nuances of numerical simulation. </p> \
-\
-		<p> The <a href='http://en.wikipedia.org/wiki/N-body_problem' target='_blank'>n-body problem</a> dates to the first work on gravity done by Newton. \
-		Two bodies moving under the influence of gravity have a small and well-understood set of behaviors. For three bodies, \
-		analytic solutions exist for special cases only. [Technically, a general analytic solution is available with infinite Tayler series, but this \
-		has obvious practical challenges. And, of course, relativistic n-body is significantly more complex.] \
-		Special case analytic solutions to the three body problem have been discovered over the decades \
-		(several of them by major figures of 18/19th century math), as well as most recently by \
-		<a href= 'http://suki.ipb.ac.rs/3body/' target='_blank'> Milovan Šuvakov and Veljko Dmitrašinović</a>.\
-\
-		<p> Currently this simulation models bodies as point masses, which do not collide and uses a leap-frog integration method to calculate motion. \
-		Leap-frog is time-reversible, but only second-order accurate. Numerical softening has recently been implimented. Implimenting \
-		a runga-kutta fourth-order integrator is also part of the dev-path, however currently I am still focused on developing several core \
-		interface features. </p>\
-\
-		<p>This project is under very active development, as of the July 2013. It has been tested to work in Chrome and Firefox under \
-		 Win 7. Chrome current provides the best performance. Some features do not work in all versions of Firefox, and some features are \
-		 still being debugged. WebGL is currently not supported by IE, although it is expected in IE11. \
-\
-		<p>This is a personal project by <a href='http://www.liavkoren.org' target='_blank'>Liav Koren</a>. I am a Toronto based designer, technologist and researcher.\
-		I have been passionate about space, physics, generative geometry and computational design for a long time. All code by me is licensed \
-		Creative Commons, Share Alike, non-Commercial. The full code base will be pushed to Git Hub in the near future. \
-		")
+	$('#floating-info').html(fall_back_text)
 	$('#info-container').toggle()
 	$('#floating-info').toggle()
 	$('#floating-info').click(function() { $(this).css({'display':'none'}); $(this).parent().css({'display':'none'}) })
@@ -57,7 +31,7 @@ var guiPresets = {
 				"stop_go": false,
 				"eps": 0.75,	
 				"n.bodies[3].position": new THREE.Vector3(10,10,10),
-			}
+			} 
 		},
 		"Infinity": {
 			"0": {
@@ -65,7 +39,7 @@ var guiPresets = {
 			}
 		}		
 	},
-	standard_presets: ["Default", "Infinity"]	//used to keep track of new, user-added presets. 
+	standard_presets: ["Random system", "Infinity"]	//used to keep track of new, user-added presets. 
 }
 var gui = new dat.GUI({load: guiPresets});
 gui.remember(n);
@@ -79,10 +53,12 @@ gui_options.onchange = function() {
 	if (v === "Infinity"){
 		build_system(infinity)
 	}
-	if (v === "Random system"){
+	else if (v === "Random system"){
 		n.addStar()
 		n.addStar()
 		n.addStar()
+	} else {
+		build_system(guiPresets.remembered[v])
 	}
 }
 function build_system(sys) {
@@ -90,8 +66,8 @@ function build_system(sys) {
 		if (!isNaN(parseInt(key))) {
 			var temp_body = sys[key]
 			var body = n.addStar(temp_body.mass)
-			body.starMesh.position = array_to_vector(temp_body.position)
-			body.set_vel(array_to_vector(temp_body.velocity))	
+			body.starMesh.position = array_to_vector(temp_body.position) 
+			body.set_vel(array_to_vector(temp_body.velocity))
 			body.update_body_pick_box()
 			body.update_pos_vel()
 		}
@@ -196,7 +172,7 @@ function release_cam(){
 window.onload = function() {
 	gui.add(n, "numBodies", 2, 400).name("Number of bodies").min(0).step(1.0).listen().onChange(function(x) { n.change_num_stars(x)});
 	gui.add(stop_go, "toggle").name("Play/Pause")
-	gui.add(n, "reverse").onChange(function() {n.dt *= -1;}).name("Reverse time");
+	gui.add(n, "reverse").onChange(reverse_time).name("Reverse time");
 	gui.add(n, "addStar").name("Add another star");
 	gui.add(n, "deleteStar").name("Remove a star");	
 	gui.add(n, "eps", 0,10).step(0.1).name("Softening").listen();
@@ -204,6 +180,7 @@ window.onload = function() {
 	gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {release_cam()});
 	gui.add(info, "toggle_info").name("  -- ABOUT --")	
 	$('.button.save').click(function(e) {gui_save_button(e)})
+	$('.button.save-as').click(function(e) {gui_saveAs_button(e)})
 }	
 stop_go = function() {}; //total hack to deal with complication from adding presets to gui.dat. 
 stop_go.toggle = function() {
@@ -233,14 +210,21 @@ update_vel_widget_position = function(body) {
 	body.vel_widget.update_position(temp)
 }
 gui_save_button = function(e) {	
+	e.preventDefault()
 	var current_preset_name = gui_options.value
 	var standard_presets = guiPresets.standard_presets
-	if (standard_presets.indexOf(current_preset_name) > -1) {
-		e.preventDefault()
+	console.log(standard_presets.indexOf(current_preset_name))
+	if (standard_presets.indexOf(current_preset_name) > -1) {	
 		alert("Please use the 'new' button to create a new preset name first.")
-	} else {
-		save_system_state()
+	} else {		
+		console.log("current presets:", guiPresets)
+		guiPresets.remembered[current_preset_name] = save_system_state()
+		console.log("new presets:", guiPresets)
 	}
+}
+gui_saveAs_button = function(e) {
+	reverse_time() //ToDo: fix this bug. For some reason, this button is bound to reverse time code. 
+
 }
 save_system_state = function() {
 	var system = {}
@@ -248,12 +232,14 @@ save_system_state = function() {
 		var body = n.bodies[i];
 		system[i] = {}
 		system[i].mass = body.mass
-		system[i].position = new THREE.Vector3().copy(body.pos())
-		system[i].velocity = new THREE.Vector3().copy(body.vel)
+		system[i].position = [body.pos().x, body.pos().y, body.pos().z]
+		system[i].velocity = [body.vel.x, body.vel.y, body.vel.z]
+		console.log("save sys, body : ", i, " contains: ", system[i] )
 	}
 	system.eps = n.eps
 	return system
 }
+
 
 ////stats
 var stats;
