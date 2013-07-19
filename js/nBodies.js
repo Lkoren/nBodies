@@ -12,7 +12,8 @@ nb.Body = function(mass) {
 	this.mass = mass || 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
-	this.starMesh.scale = new THREE.Vector3(this.mass/2.5, this.mass/2.5, this.mass/2.5)
+
+	this.starMesh.scale = new THREE.Vector3(this.mass/10, this.mass/10, this.mass/10)
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
 	this.trail = new THREE.ParticleSystem(trail_geom, this.trail_material); 

@@ -49,21 +49,58 @@ info.toggle_info = function() {
 
 renderer.domElement.addEventListener( 'mousedown', onDocMouseClick, false );
 var projector = new THREE.Projector();	
-
-
-
+var guiPresets = {
+	"remembered": {
+		"Random system": {
+			"0": {
+				"numBodies": 3,
+				"stop_go": false,
+				"eps": 0.75,	
+				"n.bodies[3].position": new THREE.Vector3(10,10,10),
+			}
+		},
+		"Infinity": {
+			"0": {
+				"eps": 0,
+			}
+		}		
+	},
+	standard_presets: ["Default", "Infinity"]	//used to keep track of new, user-added presets. 
+}
 var gui = new dat.GUI({load: guiPresets});
 gui.remember(n);
-gui_options = gui.__preset_select;
-
-
-
+var gui_options = gui.__preset_select;
+var reset_scene = function() {	
+	while(n.bodies.length > 0) n.deleteStar()	
+}
+gui_options.onchange = function() {
+	var v = gui_options.value
+	reset_scene()
+	if (v === "Infinity"){
+		build_system(infinity)
+	}
+}
+function build_system(sys) {
+	for (var key in sys) {	
+		if (!isNaN(parseInt(key))) {
+			var temp_body = sys[key]
+			var body = n.addStar(temp_body.mass)
+			body.starMesh.position = array_to_vector(temp_body.position)
+			body.set_vel(array_to_vector(temp_body.velocity))	
+			body.update_body_pick_box()
+			body.update_pos_vel()
+		}
+	}
+	n.eps = sys.eps
+}
+function array_to_vector(arr) {
+	if (arr.length === 3) return new THREE.Vector3(arr[0], arr[1], arr[2])
+}
 function onDocMouseClick(event) {
 	event.preventDefault();
 	find_picked_bodies();
 }
 var body_gui, guiContainer;
-
 function find_picked_bodies() { 	//standard raycasting picking code:
 	var mouse = getMouseNDCoord();
 	var raycaster = projector.pickingRay(mouse.clone(), camera);	
@@ -125,6 +162,7 @@ function get_body_screen_coords(mesh) {
 	vector.y = -1*(vector.y*halfHeight)+halfHeight
 	return vector
 }
+
 function addFolder(body, folderName) { //pass in the ref to the body that is being clicked, create a new folder for mod properties
 	var starGui = gui.addFolder(folderName);
 	starGui.add(body, "pos_x").step(0.1).listen().name("position x:").onChange(function(x) {update_body_position(new THREE.Vector3(x,0,0), body)})
@@ -159,12 +197,8 @@ window.onload = function() {
 	gui.add(n, "eps", 0,10).step(0.1).name("Softening").listen();
 	gui.add(n, "simple_print").name("Save state");
 	gui.add(controls, "noPan").name("Release camera").listen().onChange(function() {release_cam()});
-	gui.add(info, "toggle_info").name("  -- ABOUT --")
-
-	//document.getElementsByClassName(".button.save").addEventListener('click', gui_save_button, false)
-	//document.getElementsByClassName(".button.save").onclick = gui_save_button
-	$(".button.save").click(gui_save_button)
-
+	gui.add(info, "toggle_info").name("  -- ABOUT --")	
+	$('.button.save').click(function(e) {gui_save_button(e)})
 }	
 stop_go = function() {}; //total hack to deal with complication from adding presets to gui.dat. 
 stop_go.toggle = function() {
@@ -193,65 +227,16 @@ update_vel_widget_position = function(body) {
 	var temp = new THREE.Vector3().copy(body.pos()).add(body.vel)
 	body.vel_widget.update_position(temp)
 }
-////gui presets
-var guiPresets = {
-	"remembered": {
-		"Default": {
-			"0": {
-				"numBodies": 3,
-				"stop_go": false,
-				"eps": 0.75,	
-				"n.bodies[3].position": new THREE.Vector3(10,10,10),
-			}
-		},
-		"Infinity": {
-			"0": {
-				"eps": 0,
-			}
-		}		
-	}
-}
-var reset_scene = function() {	
-	while(n.bodies.length > 0) n.deleteStar()	
-}
-gui_options.onchange = function() {
-	v = gui_options.value
-	reset_scene()
-	if (v === "Infinity"){
-		build_system(infinity)
-	}
-}
-function build_system(sys) { 
-	for (var key in sys) {	
-		if (!isNaN(parseInt(key))) {
-			console.log(key);
-			var temp_body = sys[key]
-			var body = n.addStar(temp_body.mass)
-			body.starMesh.position = array_to_vector(temp_body.position)
-			body.set_vel(array_to_vector(temp_body.velocity))	
-			body.update_body_pick_box()
-			body.update_pos_vel()
-		}
-	}
-	n.eps = sys.eps
-}
-function gui_save_button() {
-	//preventDefault()
-	var current_option = gui_options.value
-	var existing_options = Object.keys(guiPresets["remembered"])
-	console.log(existing_options.indexOf(current_option))
-	if (existing_options.indexOf(current_option) > -1) {
-		alert("Please create a new option, before saving.")
+gui_save_button = function(e) {	
+	var current_preset_name = gui_options.value
+	var standard_presets = guiPresets.standard_presets
+	if (standard_presets.indexOf(current_preset_name) > -1) {
+		e.preventDefault()
+		alert("Please use the 'new' button to create a new preset name first.")
 	}
 
+
 }
-
-
-function array_to_vector(arr) {
-	if (arr.length === 3) return new THREE.Vector3(arr[0], arr[1], arr[2])
-}
-
-
 ////stats
 var stats;
 stats = new Stats();
@@ -280,3 +265,4 @@ this.onResize();
 	console.log("toggle")
 }*/
 document.addEventListener('widget_move', widget_move, false)
+
