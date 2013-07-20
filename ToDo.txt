@@ -5,7 +5,7 @@
 	- resize frustum based on system setup
 
 Basic dev:
-- ability to serialize and save/load state 
+- save to server
 - encapsulate render and physics logic in functions.
 - improve trail logic
 
@@ -42,3 +42,4 @@ done!
 	-trails implimented as particle systems.
 - numerical easing
 - picking code for bodies + widgets for position/velocity setting
+- ability to save/load states

@@ -88,22 +88,7 @@ function render() {
 	}
 	catch(e) {
 	}	
-	//renderer.render(scene, camera);
-	//renderer.clear();
 	base_render_composer.render(0.1)
 	glow_composer.render(0.1);
 	blendComposer.render(0.1);	
-
-/*
-	if (gui_save_button === undefined) {
-
-		try{
-			var gui_save_button = $(".button.save")
-			gui_save_button.onChange = function() {
-				console.log("save")
-			} 
-		}
-	catch(e) {}
-	}
-	*/
 }

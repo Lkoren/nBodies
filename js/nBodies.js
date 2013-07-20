@@ -12,8 +12,9 @@ nb.Body = function(mass) {
 	this.mass = mass || 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
-
-	this.starMesh.scale = new THREE.Vector3(this.mass/10, this.mass/10, this.mass/10)
+	var scale_factor = 0.25 + (Math.log(mass)/Math.log(50))
+	var scale_vector = new THREE.Vector3(scale_factor, scale_factor, scale_factor)
+	this.starMesh.scale = scale_vector
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
 	this.trail = new THREE.ParticleSystem(trail_geom, this.trail_material); 
@@ -21,6 +22,8 @@ nb.Body = function(mass) {
 	this.init_vel_arrow();
 	this.pick_box = new THREE.Mesh(this.pick_box_geom, this.pick_box_mat);	
 	this.pick_box.position = this.pos();
+	//this.pick_box.scale = new THREE.Vector3(this.mass/2, this.mass/2, this.mass/2)
+	this.pick_box.scale = scale_vector.multiplyScalar(1.1)
 	scene.add(this.starMesh);
 	scene.add(this.trail);
 	scene.add(this.pick_box);	
@@ -48,8 +51,6 @@ nb.Body.prototype.toggle_camera_lock = function() {
 	}
 }
 var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );
-//sprite.minFilter = sprite.magFilter = THREE.NearestFilter;
-sprite.anisotropy = renderer.getMaxAnisotropy();
 nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( 
 	{ambient: 0xeeccaa, color: 0xeeccaa, shading: THREE.FlatShading, emissive: 0x100000, wireframe:true, fog:false } )
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial(
@@ -57,7 +58,8 @@ nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial(
 	fog: true, blending: THREE.AdditiveBlending, depthTest: false}); // vertexColors: true, size values between 0.05 and 0.1 are nice.
 nb.Body.prototype.trail_material.side = THREE.DoubleSide;
 //nb.Body.prototype.trail_material.setHSL(1.0, 0.8, 0.6);
-nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
+//nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
+nb.Body.prototype.pick_box_geom = new THREE.SphereGeometry(0.155, 12, 10);
 nb.Body.prototype.pick_box_mat = new THREE.MeshBasicMaterial({color:0x801010, wireframe:true});
 nb.Body.prototype.set_pos = function(v){
 	if (v instanceof THREE.Vector3) {
@@ -129,7 +131,6 @@ nb.Body.prototype.init_vel_arrow = function(){
 };
 nb.Body.prototype.toggle_velocity = function() {
 	this.update_velocity_arrow_geometry();
-
 	this.vel_arrow.visible = !this.vel_arrow.visible;
 	this.vel_arrow.geometry.verticesNeedUpdate = true;
 	return this;
@@ -209,7 +210,7 @@ nb.nBodies = function() {
 	this.reverse = false;
 	for (var i = 0; i < nb.numBodies; i++) {		
 		var mass = Math.random() * 100;		
-		this.bodies[i] = new nb.Body(nb.bodyID_Counter, mass);
+		this.bodies[i] = new nb.Body(mass);
 	}
 	this.time = 0;
 	this.go = false;	
@@ -234,6 +235,7 @@ nb.nBodies.prototype.leapfrog = function() {
 		body.pos().add(tempVel.multiplyScalar(dt));
 		body.vel.add(body.accel(bodyArr, n.eps).multiplyScalar(0.5*dt));		
 		body.updateTrail();		
+		body.update_body_pick_box()
 		if (body.vel_arrow.visible) body.update_velocity_arrow_geometry()
 	})
 } 
@@ -241,6 +243,7 @@ nb.nBodies.prototype.integrate = function(){
 	if (this.go){
 		this.leapfrog();
 		this.update_gui();
+		
 		update_vel_while_integrating()
 	}	
 	return this

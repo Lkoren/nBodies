@@ -68,11 +68,8 @@ function build_system(sys) {
 			var body = n.addStar(temp_body.mass)
 			body.starMesh.position = array_to_vector(temp_body.position) 
 			body.set_vel(array_to_vector(temp_body.velocity))
-			console.log("temp body = ", temp_body.trail_vertices)
 			if (temp_body.trail_vertices) body.trail.geometry.vertices = temp_body.trail_vertices
-
 			body.trail.geometry.verticesNeedUpdate = true 
-
 			body.update_body_pick_box()
 			body.update_pos_vel()
 		}
@@ -100,8 +97,9 @@ function find_picked_bodies() { 	//standard raycasting picking code:
 			body.toggle_velocity();
 			body_gui = new dat.GUI({autoPlace:false});
 			if (intersect[0].object.visible) { //add the velocity gui elements.				
-				body.pos_widget = WIDGET_FACTORY.make_widget(intersect[0].object.position, {height:0.5, type: "position"})		
-				body.vel_widget = WIDGET_FACTORY.make_widget(body.vel_arrow.geometry.vertices[1], {height:0.15, type: "velocity"})	
+				var scale_factor = 0.25 + (Math.log(body.mass)/Math.log(50))
+				body.pos_widget = WIDGET_FACTORY.make_widget(intersect[0].object.position, {height: 0.75 * scale_factor, type: "position"})		
+				body.vel_widget = WIDGET_FACTORY.make_widget(body.vel_arrow.geometry.vertices[1], {height:0.35 * scale_factor, type: "velocity"})	
 
 				body.create_gui_div()				
 				guiContainer = document.getElementById('gui_' + body.id);				
@@ -186,6 +184,7 @@ window.onload = function() {
 	gui.add(info, "toggle_info").name("  -- ABOUT --")	
 	$('.button.save').click(function(e) {gui_save_button(e)})
 	$('.button.save-as').click(function(e) {gui_saveAs_button(e)})
+	$('select').click(function(){ n.dt < 0 ? n.dt *= -1 : n.dt})  //ToDo: garg. Fix this -- more crap from weird bindings.
 }	
 stop_go = function() {}; //total hack to deal with complication from adding presets to gui.dat. 
 stop_go.toggle = function() {
@@ -215,21 +214,18 @@ update_vel_widget_position = function(body) {
 	body.vel_widget.update_position(temp)
 }
 gui_save_button = function(e) {	
-	e.preventDefault()
+	if (e) e.preventDefault()
 	var current_preset_name = gui_options.value
 	var standard_presets = guiPresets.standard_presets
-	console.log(standard_presets.indexOf(current_preset_name))
 	if (standard_presets.indexOf(current_preset_name) > -1) {	
-		alert("Please use the 'new' button to create a new preset name first, then use the 'save' button to save the state of the system when you are ready.")
+		alert("Please use the 'New' button to create a new preset, then use the 'Save' button to save the state of the system when you are ready.")
 	} else {		
-		console.log("current presets:", guiPresets)
 		guiPresets.remembered[current_preset_name] = save_system_state()
-		console.log("new presets:", guiPresets)
 	}
 }
 gui_saveAs_button = function(e) {
 	reverse_time() //ToDo: fix this bug. For some reason, this button is bound to reverse time code. 
-
+	gui_save_button()
 }
 save_system_state = function() {
 	var system = {}
