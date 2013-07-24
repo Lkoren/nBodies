@@ -14,7 +14,9 @@ var infinity = {
 		"position": [0, 0, 0],
 		"velocity": [-0.93240737, -0.86473146,0]		
 	},
-	"eps": 0.0
+	"eps": 0.001,
+	"dt": 0.001,
+	"trail_material_size": 0.05	
 }
 
 var ying_yang_1a = {
@@ -107,7 +109,10 @@ var mothI = {
 	2: {
 		"mass": 1,
 		"position": [0,0,0],
-		"velocity": [-2*0.464445,-2*0.396060,0]
+		"velocity": [-0.92889,-0.79212,0]
 	},	
-	"eps": 0.0	
+	"eps": 0.001,
+	"dt": 0.0005,
+	"trail_material_size": 0.02
+
 }

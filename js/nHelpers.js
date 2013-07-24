@@ -24,6 +24,7 @@ info.toggle_info = function() {
 
 renderer.domElement.addEventListener( 'mousedown', onDocMouseClick, false );
 var projector = new THREE.Projector();	
+//ugh! So gross. Refactor all this preset logic, please. 
 var guiPresets = {
 	"remembered": {
 		"Random system": {
@@ -36,11 +37,16 @@ var guiPresets = {
 		},
 		"Infinity": {
 			"0": {
-				"eps": 0,
+				"eps": 0.001,
 			}
-		}		
+		},
+		"Moth I": {
+			"0": {
+				"eps": 0.001,
+			}
+		}
 	},
-	standard_presets: ["Random system", "Infinity"]	//used to keep track of new, user-added presets. 
+	standard_presets: ["Random system", "Infinity", "MothI"]	//used to keep track of new, user-added presets. 
 }
 var gui = new dat.GUI({load: guiPresets});
 gui.remember(n);
@@ -54,10 +60,14 @@ gui_options.onchange = function() {
 	if (v === "Infinity"){
 		build_system(infinity)
 	}
+	else if (v === "Moth I") {
+		build_system(mothI)
+	}
 	else if (v === "Random system"){
 		n.addStar()
 		n.addStar()
 		n.addStar()
+
 	} else {
 		build_system(guiPresets.remembered[v])
 	}
@@ -75,7 +85,9 @@ function build_system(sys) {
 			body.update_pos_vel()
 		}
 	}
-	n.eps = sys.eps
+	n.eps = sys.eps || 0.3
+	n.dt = sys.dt || 0.001
+	n.bodies[0].trail_material.size = sys.trail_material_size || 0.05
 }
 function array_to_vector(arr) {
 	if (arr.length === 3) return new THREE.Vector3(arr[0], arr[1], arr[2])

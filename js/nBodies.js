@@ -77,7 +77,7 @@ nb.Body.prototype.pos = function() {
 nb.Body.prototype.accel = function(body_array, eps) { 
 	var a = new THREE.Vector3(0,0,0);
 	for (var i = 0; i < body_array.length; i++) {					
-		if (!(body_array[i] === this)) { //refactor internal to something less ugly. PS -- I miss you "unless"! Love you!
+		if (!(body_array[i] === this)) { //refactor internal to something less ugly.
 			var r = new THREE.Vector3(0,0,0); 
 			r.copy(body_array[i].pos());
 			r.sub(this.pos()); //get the distance between bodies.
@@ -204,8 +204,8 @@ nb.Body.prototype.update_body_pick_box = function() {
 /////////////////////////
 nb.nBodies = function() {
 	this.e0;
-	this.dt = 0.005;
-	//this.dt = 0.001;
+	//this.dt = 0.0025;
+	this.dt = 0.001;
 	this.nSteps = 0;
 	this.bodies = new Array(nb.numBodies);
 	this.numBodies = nb.numBodies;
@@ -241,9 +241,28 @@ nb.nBodies.prototype.leapfrog = function() {
 		if (body.vel_arrow.visible) body.update_velocity_arrow_geometry()
 	})
 } 
+nb.nBodies.prototype.rk4 = function() {
+	var dt = this.dt;
+	var bodyArr = this.bodies
+	this.bodies.forEach(function(body) {
+		var oldPos = new THREE.Vector3().copy(body.pos());
+		var a0 = body.accel(bodyArr, n.eps);
+		body.starMesh.position = ( oldPos.add(body.vel.multiplyScalar(0.5*dt)).add(a0.multiplyScalar(0.125*dt*dt) ) );
+		var a1 = body.accel(bodyArr, n.eps);
+		body.starMesh.position = ( oldPos.add(body.vel.multiplyScalar(dt)).add(a1.multiplyScalar(0.5*dt*dt)) );
+		var a2 = body.accel(bodyArr, n.eps);
+		body.starMesh.position = (oldPos.add(body.vel.multiplyScalar(dt)).add( (a0.add(a1.multiplyScalar(2)).multiplyScalar(dt*dt*1/6))) );		
+		body.vel.add( (a0.add(a1.multiplyScalar(4)).add(a2)).multiplyScalar(dt*1/6) );
+		body.updateTrail();		
+		body.update_body_pick_box();
+		if (body.vel_arrow.visible) body.update_velocity_arrow_geometry();
+	})
+}
+
 nb.nBodies.prototype.integrate = function(){
 	if (this.go){
 		this.leapfrog();
+		//this.rk4();
 		this.update_gui();
 		
 		update_vel_while_integrating()
