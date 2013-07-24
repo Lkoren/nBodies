@@ -1,20 +1,26 @@
 
-- camera controls:
+- camera control UI element:
 	- set target
 	- follow system centre of mass
 	- resize frustum based on system setup
 
+-background elements
+-a few more presets
+	- 3 body system with L points
+	
+-make trail opacity fade as trail grows
+-figure out what Rob's bug report is about
+-improve performance -- post processing killed it. 
+	-option to turn off post-processing
+
+
 Basic dev:
 - save to server
-- encapsulate render and physics logic in functions.
-- improve trail logic
 
 Phyics:
 - add rk4 integration method
 
-
 UI/UX:
-- GUI 	
 - shader effects
 - energy vizulization
 - web app on GAE, Heroku, other?
@@ -43,3 +49,4 @@ done!
 - numerical easing
 - picking code for bodies + widgets for position/velocity setting
 - ability to save/load states
+- GUI started

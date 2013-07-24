@@ -8,6 +8,7 @@ initCamScene();
 initRenderer();
 init_post_processing();
 animate();
+
 function initCamScene() {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 	camera.position.z = 20;
@@ -36,6 +37,7 @@ function initRenderer() {
 	scene.add( directionalLight );	
 	screenW = window.innerWidth;
 	screenH = window.innerHeight;
+
 }
 function init_post_processing() {
 ////two stage render for primary image: base image pass + noise/bloom pass. The two passes are additively blended. 
@@ -85,10 +87,12 @@ function render() {
 	try {
 		n.integrate();		
 		check_for_intersection();  //widget factory logic
+		//background.update_position(camera.position.copy())
 	}
 	catch(e) {
 	}	
 	base_render_composer.render(0.1)
 	glow_composer.render(0.1);
 	blendComposer.render(0.1);	
+
 }

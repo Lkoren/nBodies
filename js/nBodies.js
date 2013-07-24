@@ -12,8 +12,9 @@ nb.Body = function(mass) {
 	this.mass = mass || 20.0;
 	this.vel = new THREE.Vector3(2.5-Math.random()*5, 2.5-Math.random()*5, 2.5-Math.random()*5);
 	this.starMesh = new THREE.Mesh(this.starGeom, this.starMaterial);
-	var scale_factor = 0.25 + (Math.log(mass)/Math.log(50))
-	var scale_vector = new THREE.Vector3(scale_factor, scale_factor, scale_factor)
+	this.scale_factor = 0.25 + (Math.log(mass)/Math.log(50))
+	this.scale_factor = Math.max(0.1, this.scale_factor)
+	var scale_vector = new THREE.Vector3(this.scale_factor, this.scale_factor, this.scale_factor)
 	this.starMesh.scale = scale_vector
 	this.starMesh.position = new THREE.Vector3(3 - Math.random()*5, 3 - Math.random()*5, 3 - Math.random()*5);		
 	var trail_geom = new THREE.Geometry();	
@@ -54,7 +55,7 @@ var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );
 nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( 
 	{ambient: 0xeeccaa, color: 0xeeccaa, shading: THREE.FlatShading, emissive: 0x100000, wireframe:true, fog:false } )
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial(
-	{size:0.075, color: 0xffffff, map: sprite, transparent: true, opacity: 0.3, 
+	{size:0.05, color: 0xffffff, map: sprite, transparent: true, opacity: 0.3, 
 	fog: true, blending: THREE.AdditiveBlending, depthTest: false}); // vertexColors: true, size values between 0.05 and 0.1 are nice.
 nb.Body.prototype.trail_material.side = THREE.DoubleSide;
 //nb.Body.prototype.trail_material.setHSL(1.0, 0.8, 0.6);
@@ -204,6 +205,7 @@ nb.Body.prototype.update_body_pick_box = function() {
 nb.nBodies = function() {
 	this.e0;
 	this.dt = 0.005;
+	//this.dt = 0.001;
 	this.nSteps = 0;
 	this.bodies = new Array(nb.numBodies);
 	this.numBodies = nb.numBodies;

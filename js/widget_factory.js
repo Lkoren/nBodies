@@ -385,7 +385,7 @@ var w = WIDGET_FACTORY.start_factory();
 /*var x = w.make_widget(a);
 var y = w.make_widget(b);*/
 
-function getMouseNDCoord() {
+function getMouseNDCoord() { //for moz compatibility, look at document.onmousemove.
 	var mouse = new THREE.Vector3();
 	mouse.x = (event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = -(event.clientY / window.innerHeight ) * 2 + 1;

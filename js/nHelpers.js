@@ -12,8 +12,9 @@ info.toggle_info = function() {
 		$('body').append('<div id="info-container"></div>');		
 		$('#info-container').append('<div id="floating-info"></div>');		
 		$('#info-container').css({"position":"absolute", "left":"50%", "z-index": "100", "top":"20px", "width":"70%", "display":"none"})
-		$('#floating-info').css({"position":"relative", "left": "-50%", "background":"#dddddd", "opacity":"0.8", "top": "20px", "padding-left": "2em",
-								"padding-right": "2em", "padding-top": "0.5em","padding-bottom": "0.5em", "display":"none"})
+		$('#floating-info').css({"position":"relative", "left": "-50%", "background":"#ededed", "opacity":"0.9", "top": "20px", "padding-left": "2em",
+								"padding-right": "2em", "padding-top": "0.5em","padding-bottom": "0.5em", "display":"none", "-webkit-border-radius": "10px",
+								"-moz-border-radius": "10px", "border-radius": "10px",  "font-family": "Candara, Calibri, Segoe, 'Segoe UI', Optima, Arial, sans-serif"})
 	}
 	$('#floating-info').html(fall_back_text)
 	$('#info-container').toggle()

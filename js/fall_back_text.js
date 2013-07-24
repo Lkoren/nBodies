@@ -23,4 +23,4 @@ interface features. </p>\
 \
 <p>This is a personal project by <a href='http://www.liavkoren.org' target='_blank'>Liav Koren</a>. I am a Toronto based designer, technologist and researcher.\
 I have been passionate about space, physics, generative geometry and computational design for a long time. All code by me is licensed \
-Creative Commons, Share Alike, non-Commercial. The full code base will be pushed to Git Hub in the near future."
+<a href='http://creativecommons.org/'>Creative Commons</a>, <em>Attribution-NonCommercial-ShareAlike 3.0 Unported</em>. The full code base will be pushed to Git Hub in the near future."
