@@ -37,7 +37,6 @@ nb.Body = function(mass) {
 	this.pos_z = this.pos().z	
 	this.pos_widget;
 	this.vel_widget;
-
 }
 nb.Body.prototype.starGeom = new THREE.SphereGeometry(0.15, 12, 10);
 nb.Body.prototype.toggle_camera_lock = function() {
@@ -52,14 +51,13 @@ nb.Body.prototype.toggle_camera_lock = function() {
 	}
 }
 var sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );
+nb.Body.prototype.sprite = THREE.ImageUtils.loadTexture( "textures/ball_flat_white.png" );
 nb.Body.prototype.starMaterial = new THREE.MeshLambertMaterial( 
 	{ambient: 0xeeccaa, color: 0xeeccaa, shading: THREE.FlatShading, emissive: 0x100000, wireframe:true, fog:false } )
 nb.Body.prototype.trail_material = new THREE.ParticleBasicMaterial(
-	{size:0.05, color: 0xffffff, map: sprite, transparent: true, opacity: 0.3, 
+	{size:0.05, color: 0xffffff, map: this.sprite, transparent: true, opacity: 0.3, 
 	fog: true, blending: THREE.AdditiveBlending, depthTest: false}); // vertexColors: true, size values between 0.05 and 0.1 are nice.
 nb.Body.prototype.trail_material.side = THREE.DoubleSide;
-//nb.Body.prototype.trail_material.setHSL(1.0, 0.8, 0.6);
-//nb.Body.prototype.pick_box_geom = new THREE.CubeGeometry(0.4, 0.4, 0.4);
 nb.Body.prototype.pick_box_geom = new THREE.SphereGeometry(0.155, 12, 10);
 nb.Body.prototype.pick_box_mat = new THREE.MeshBasicMaterial({color:0x801010, wireframe:true});
 nb.Body.prototype.set_pos = function(v){
