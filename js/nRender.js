@@ -6,7 +6,7 @@ var composer, base_render_composer;
 
 initCamScene();
 initRenderer();
-init_post_processing();
+//init_post_processing();
 animate();
 
 function initCamScene() {
@@ -91,8 +91,11 @@ function render() {
 	}
 	catch(e) {
 	}	
+	/**
 	base_render_composer.render(0.1)
 	glow_composer.render(0.1);
 	blendComposer.render(0.1);	
+	**/
 
+	renderer.render(scene, camera);
 }

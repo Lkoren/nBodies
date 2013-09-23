@@ -1,0 +1,38 @@
+Mass =  20 nBodies.js:121
+Pos =  
+THREE.Vector3 {x: -89.66341433895191, y: -5.326256857468264, z: -49.04524130373533, constructor: function, set: function…}
+ nBodies.js:122
+Vel =  
+THREE.Vector3 {x: -1.8280198650591808, y: -1.0240405560138937, z: -0.6881947407702838, constructor: function, set: function…}
+ nBodies.js:123
+ekin =  48.63927688636109 nBodies.js:124
+epot =  NaN nBodies.js:125
+eTot =  NaN nBodies.js:126
+======= nBodies.js:127
+Mass =  20 nBodies.js:121
+Pos =  
+THREE.Vector3 {x: -44.8894895897111, y: 41.618355050433685, z: 7.499980668661616, constructor: function, set: function…}
+ nBodies.js:122
+Vel =  
+THREE.Vector3 {x: -0.21414929096677796, y: 0.5713797649203805, z: 0.27096565188095767, constructor: function, set: function…}
+ nBodies.js:123
+ekin =  4.457571390813152 nBodies.js:124
+epot =  NaN nBodies.js:125
+eTot =  NaN nBodies.js:126
+======= nBodies.js:127
+Mass =  20 nBodies.js:121
+Pos =  
+THREE.Vector3 {x: -88.56305663716711, y: -4.208256074371258, z: -49.791777127432475, constructor: function, set: function…}
+ nBodies.js:122
+Vel =  
+THREE.Vector3 {x: 0.2763292576238054, y: 0.6967516382912438, z: -0.29993695492466016, constructor: function, set: function…}
+ nBodies.js:123
+ekin =  6.517828810099332 nBodies.js:124
+epot =  NaN nBodies.js:125
+eTot =  NaN nBodies.js:126
+======= nBodies.js:127
+Total energy stats: 
+ kin energy =  59.61467708727357 
+ pot energy =  NaN 
+ total energy =  NaN 
+ (e_init - e_fin)/e_init:  NaN nBodies.js:203

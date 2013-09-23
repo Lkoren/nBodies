@@ -1,0 +1,12 @@
+references/
+*.pdf
+ignore/
+js/libs
+obsolete/
+dat-gui/
+three.js/
+screenShots/
+asterank/
+mysite/
+old_js/
+.gitattributes
